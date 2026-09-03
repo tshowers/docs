@@ -1,0 +1,61 @@
+<div class="knowledge-pricing-page mt-5 todd-page">
+    <section class="knowledge-pricing-hero card shadow-sm border-0">
+        <div class="knowledge-pricing-copy">
+            <div class="knowledge-pricing-eyebrow">Knowledge Pricing</div>
+            <h1>Turn what your team knows into something reusable</h1>
+            <p class="knowledge-pricing-lead"> Knowledge helps you save answers, build response flows, and keep useful guidance inside TODD. The paid plan removes the free-entry wall so your team can keep building what it learns. </p>
+            <div class="knowledge-pricing-actions">
+                <a class="btn-todd me-2" routerLink="/docs">Back to Docs</a>
+                <a class="btn-todd me-2" *ngIf="!(entitlements$ | async)?.suite" href="https://todd.taliferro.tech/suite/pricing">Suite Pricing</a>
+                <a class="btn-todd" href="https://todd.taliferro.tech/pricing">Enterprise Pricing</a>
+            </div>
+        </div>
+        <div class="knowledge-pricing-visual">
+            <img src="assets/docs/kb.png" alt="Documents" class="docs-heading-logo img-fluid">
+        </div>
+    </section>
+    <section class="knowledge-pricing-grid">
+        <article class="knowledge-pricing-card card shadow-sm border-0 knowledge-pricing-offer-card">
+            <div class="knowledge-pricing-card-header">
+                <span class="knowledge-pricing-badge">What you get</span>
+                <h2>Knowledge Builder</h2>
+                <p>Everything you need to keep answers, guidance, and reusable structure in one place.</p>
+            </div>
+            <div class="knowledge-pricing-price-row">
+                <div>
+                    <div class="knowledge-pricing-price-label">Monthly price</div>
+                    <div class="knowledge-pricing-price">{{ monthlyPrice }}</div>
+                </div>
+                <div class="knowledge-pricing-price-note">Free includes 2 knowledge entries. Paid lets you keep building.</div>
+            </div>
+            <ul class="knowledge-pricing-list">
+                <li *ngFor="let item of highlights">{{ item }}</li>
+            </ul>
+            <div class="knowledge-pricing-form">
+                <div class="knowledge-pricing-login-callout" *ngIf="requiresLogin">
+                    <div class="knowledge-pricing-login-title">Sign in first</div>
+                    <p class="knowledge-pricing-login-text"> We use your login to find you before starting checkout. </p>
+                    <button type="button" class="btn btn-dark knowledge-pricing-login-btn" (click)="goToLogin()"> Sign in to purchase </button>
+                </div>
+                <label class="knowledge-pricing-field" *ngIf="!requiresLogin">
+                    <span>Email</span>
+                    <input type="email" [(ngModel)]="email" placeholder="Enter your billing email">
+                </label>
+                <button *ngIf="!requiresLogin" type="button" class="btn btn-dark knowledge-pricing-subscribe" (click)="startCheckout()" [disabled]="isStartingCheckout">
+                    {{ isStartingCheckout ? 'Starting checkout...' : 'Subscribe to Knowledge' }}
+                </button>
+                <div class="knowledge-pricing-error" *ngIf="checkoutError">{{ checkoutError }}</div>
+            </div>
+        </article>
+        <article class="knowledge-pricing-card card shadow-sm border-0 knowledge-pricing-card-accent">
+            <div class="knowledge-pricing-card-header">
+                <span class="knowledge-pricing-badge">Good to know</span>
+                <h2>How Knowledge works</h2>
+                <p>Keep a small working set for free. Upgrade when you need room to keep learning.</p>
+            </div>
+            <ul class="knowledge-pricing-list knowledge-pricing-list-notes">
+                <li *ngFor="let item of notes">{{ item }}</li>
+            </ul>
+        </article>
+    </section>
+</div>

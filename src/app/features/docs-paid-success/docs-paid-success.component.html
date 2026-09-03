@@ -1,0 +1,25 @@
+<div class="docs-success-page todd-page">
+    <section class="docs-success-card card shadow-sm border-0" *ngIf="isConfirming">
+        <div class="docs-success-eyebrow">Docs Success</div>
+        <h1>Confirming your subscription..</h1>
+        <p> We are checking your checkout session now so Docs access can be activated for you. </p>
+    </section>
+    <section class="docs-success-card card shadow-sm border-0" *ngIf="!isConfirming && isSuccess">
+        <div class="docs-success-eyebrow">Docs Activated</div>
+        <h1>Docs access is now active</h1>
+        <p> You can now keep adding documents beyond the free limit and manage more of your working files inside Docs. </p>
+        <div class="docs-success-actions">
+            <button type="button" class="btn btn-dark" (click)="goToDocs()">Go to Docs</button>
+            <a class="btn btn-outline-dark" routerLink="/docs/pricing">View pricing</a>
+        </div>
+    </section>
+    <section class="docs-success-card card shadow-sm border-0 docs-success-error-card" *ngIf="!isConfirming && !isSuccess">
+        <div class="docs-success-eyebrow">Docs Confirmation</div>
+        <h1>We could not confirm your subscription</h1>
+        <p>{{ errorMessage }}</p>
+        <div class="docs-success-actions">
+            <a class="btn-todd btn-glow" routerLink="/docs/pricing">Back to Docs pricing</a>
+            <button type="button" class="btn-todd" (click)="goToDocs()">Go to Docs</button>
+        </div>
+    </section>
+</div>

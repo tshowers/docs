@@ -1,0 +1,26 @@
+<app-preloader [isLoading]="isConfirming" [message]="'Confirming purchase…'" [autoHideAfterMs]="0"></app-preloader>
+<div class="knowledge-success-page">
+    <section class="knowledge-success-card card shadow-sm border-0" *ngIf="isConfirming">
+        <div class="knowledge-success-eyebrow">Knowledge Success</div>
+        <h1>Confirming your subscription..</h1>
+        <p> We are checking your checkout session now so Knowledge access can be activated for you. </p>
+    </section>
+    <section class="knowledge-success-card card shadow-sm border-0" *ngIf="!isConfirming && isSuccess">
+        <div class="knowledge-success-eyebrow">Knowledge Activated</div>
+        <h1>Knowledge access is now active</h1>
+        <p> You can now keep building your knowledge base beyond the free limit and retain critical insights inside TODD. </p>
+        <div class="knowledge-success-actions">
+            <button type="button" class="btn btn-dark" (click)="goToKnowledge()">Go to Knowledge</button>
+            <a class="btn btn-outline-dark" routerLink="/knowledge/pricing">View pricing</a>
+        </div>
+    </section>
+    <section class="knowledge-success-card card shadow-sm border-0 knowledge-success-error-card" *ngIf="!isConfirming && !isSuccess">
+        <div class="knowledge-success-eyebrow">Knowledge Confirmation</div>
+        <h1>We could not confirm your subscription</h1>
+        <p>{{ errorMessage }}</p>
+        <div class="knowledge-success-actions">
+            <a class="btn-todd btn-glow" routerLink="/knowledge/pricing">Back to Knowledge pricing</a>
+            <button type="button" class="btn-todd" (click)="goToKnowledge()">Go to Knowledge</button>
+        </div>
+    </section>
+</div>
