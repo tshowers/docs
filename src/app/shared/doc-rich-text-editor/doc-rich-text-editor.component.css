@@ -1,0 +1,135 @@
+:host {
+  display: block;
+}
+
+.doc-editor-shell {
+  border: 1px solid rgba(15, 15, 15, 0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.doc-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(15, 15, 15, 0.1);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.doc-editor-toolbar button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.doc-editor-toolbar button:hover {
+  background: rgba(0, 149, 204, 0.1);
+  border-color: rgba(0, 149, 204, 0.2);
+}
+
+.doc-editor-toolbar-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 0.25rem;
+  background: rgba(15, 15, 15, 0.12);
+}
+
+.doc-editor-toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.doc-editor-toolbar-toggle {
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.doc-editor-canvas {
+  min-height: 320px;
+  max-height: 640px;
+  overflow-y: auto;
+  padding: 1rem 1.1rem;
+  outline: none;
+  line-height: 1.6;
+  font-size: 0.98rem;
+  color: inherit;
+}
+
+.doc-editor-canvas:empty::before {
+  content: 'Start typing, paste content, or upload a .docx file...';
+  color: rgba(15, 15, 15, 0.4);
+}
+
+.doc-editor-source {
+  display: flex;
+  flex-direction: column;
+}
+
+.doc-editor-source-textarea {
+  min-height: 320px;
+  max-height: 640px;
+  border: none;
+  outline: none;
+  resize: vertical;
+  padding: 1rem 1.1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  background: transparent;
+  color: inherit;
+}
+
+.doc-editor-source-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem;
+  border-top: 1px solid rgba(15, 15, 15, 0.1);
+}
+
+.doc-editor-source-actions button {
+  border: 1px solid rgba(15, 15, 15, 0.12);
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  background: transparent;
+  color: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .doc-editor-shell {
+    background: rgba(19, 28, 39, 0.6);
+    border-color: rgba(0, 191, 255, 0.16);
+  }
+
+  .doc-editor-toolbar {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom-color: rgba(0, 191, 255, 0.12);
+  }
+
+  .doc-editor-toolbar-sep {
+    background: rgba(0, 191, 255, 0.16);
+  }
+
+  .doc-editor-canvas:empty::before {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .doc-editor-source-actions {
+    border-top-color: rgba(0, 191, 255, 0.12);
+  }
+
+  .doc-editor-source-actions button {
+    border-color: rgba(0, 191, 255, 0.2);
+  }
+}

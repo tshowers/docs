@@ -1,0 +1,43 @@
+<div class="doc-editor-shell">
+  <div class="doc-editor-toolbar" *ngIf="!showSource">
+    <button type="button" title="Bold" (click)="exec('bold')"><i class="fa-solid fa-bold"></i></button>
+    <button type="button" title="Italic" (click)="exec('italic')"><i class="fa-solid fa-italic"></i></button>
+    <button type="button" title="Underline" (click)="exec('underline')"><i class="fa-solid fa-underline"></i></button>
+    <button type="button" title="Strikethrough" (click)="exec('strikeThrough')"><i class="fa-solid fa-strikethrough"></i></button>
+    <span class="doc-editor-toolbar-sep"></span>
+    <button type="button" title="Heading 1" (click)="formatBlock('h1')">H1</button>
+    <button type="button" title="Heading 2" (click)="formatBlock('h2')">H2</button>
+    <button type="button" title="Paragraph" (click)="formatBlock('p')">P</button>
+    <span class="doc-editor-toolbar-sep"></span>
+    <button type="button" title="Bulleted list" (click)="exec('insertUnorderedList')"><i class="fa-solid fa-list-ul"></i></button>
+    <button type="button" title="Numbered list" (click)="exec('insertOrderedList')"><i class="fa-solid fa-list-ol"></i></button>
+    <button type="button" title="Blockquote" (click)="formatBlock('blockquote')"><i class="fa-solid fa-quote-left"></i></button>
+    <button type="button" title="Link" (click)="insertLink()"><i class="fa-solid fa-link"></i></button>
+    <span class="doc-editor-toolbar-sep"></span>
+    <button type="button" title="Undo" (click)="exec('undo')"><i class="fa-solid fa-rotate-left"></i></button>
+    <button type="button" title="Redo" (click)="exec('redo')"><i class="fa-solid fa-rotate-right"></i></button>
+    <button type="button" title="Clear formatting" (click)="exec('removeFormat')"><i class="fa-solid fa-eraser"></i></button>
+    <span class="doc-editor-toolbar-spacer"></span>
+    <button type="button" class="doc-editor-toolbar-toggle" title="View HTML source" (click)="toggleSourceView()">Source</button>
+  </div>
+
+  <div
+    #editableCanvas
+    class="doc-editor-canvas"
+    *ngIf="!showSource"
+    contenteditable="true"
+    (input)="onCanvasInput()"
+  ></div>
+
+  <div class="doc-editor-source" *ngIf="showSource">
+    <textarea
+      class="doc-editor-source-textarea"
+      [ngModel]="sourceDraft"
+      (ngModelChange)="onSourceChange($event)"
+      spellcheck="false"
+    ></textarea>
+    <div class="doc-editor-source-actions">
+      <button type="button" (click)="toggleSourceView()">Back to editor</button>
+    </div>
+  </div>
+</div>

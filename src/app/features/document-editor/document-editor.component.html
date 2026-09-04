@@ -1,0 +1,105 @@
+<div class="container-fluid  todd-page">
+  <div class="row no-print m-2">
+    <div class="col-12 col-xl-8">
+      <h1 class="pv-title">Document Studio</h1>
+      <p class="pv-subtitle"> Paste or upload a doc, then tell TODD how you want it cleaned up, rewritten, or styled. </p>
+    </div>
+    <div class="col-12 col-xl-4 text-xl-end mt-3 mt-xl-0 d-none d-xl-block">
+      <app-todd-tip icon="lightbulb" label="Tip">
+        {{ docTipText }}
+      </app-todd-tip>
+    </div>
+  </div>
+  <app-cockpit-browse-mode-banner *ngIf="!canCrudDocuments" surfaceLabel="Documents" customTitle="You can try this out, but you won't be able to save" customCopy="You are not signed in, so feel free to explore the editor. Sign in before you save — guest sessions can't create, edit, or save documents."></app-cockpit-browse-mode-banner>
+  <div class="row">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-5">
+          <div class="">
+            <div class=""></div>
+            <div class="">
+              <textarea class="form-control" data-demo="document-instructions" rows="4" [(ngModel)]="instructionText" [disabled]="!canCrudDocuments || isToddWorking" placeholder="Tell TODD what to do to this document (e.g., ‘Change the tone to casual and add a closing CTA.’)"></textarea>
+              <div class="preset-chips" data-demo="document-presets">
+                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Fix spelling and grammar')">Fix spelling & grammar</button>
+                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Rewrite to a more professional tone')">Professional tone</button>
+                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Rewrite to a more concise version')">Make concise</button>
+                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Expand with more detail and examples where helpful')">Expand</button>
+                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Convert to bullet points with clear sections')">Bulletize</button>
+                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Summarize into an executive summary (5-7 bullets)')">Summarize</button>
+              </div>
+              <div class="actions mt-2" data-demo="document-preview-actions">
+                <button class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking || !instructionText.trim()" (click)="runToddInstruction()">
+                  <ng-container *ngIf="!isToddWorking">Preview Changes</ng-container>
+                  <ng-container *ngIf="isToddWorking">Working…</ng-container>
+                </button>
+                <button class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking || !toddPreview" (click)="discardToddPreview()">Discard Preview</button>
+              </div>
+              <div class="todd-preview" *ngIf="toddPreview">
+                <div class="">Preview</div>
+                <div class="small-text mb-2">Preview shows TODD’s revised version before you apply it.</div>
+                <div class="preview-box" [innerHTML]="toddPreview" style="color: #f5f7fb;"></div>
+                <div class="actions mt-2">
+                  <button class="btn-todd" [disabled]="!canCrudDocuments" (click)="applyToddPreview()">Apply to Document</button>
+                </div>
+              </div>
+              <hr>
+              <div class="mt-2">
+                <div class="">
+                  <div class="drop-zone" data-demo="document-upload" [class.disabled]="!canCrudDocuments || isProcessing" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+                    <p>Drag Word document (.docx) here or <span style="cursor: pointer;" class="file-browse-link" (click)="canCrudDocuments && !isProcessing ? fileInput.click() : null">browse</span>
+                    </p>
+                    <p class="small-text">Or paste text directly into the editor.</p>
+                    <input type="file" #fileInput accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" (change)="onFileSelect($event)" [disabled]="!canCrudDocuments || isProcessing" hidden>
+                  </div>
+                </div>
+                <div class="" *ngIf="uploadProgress !== null" data-wow-delay="0.5s">
+                  <div class="col">
+                    <div class="progress">
+                      <div class="progress-bar" role="progressbar" [style.width.%]="uploadProgress" [attr.aria-valuenow]="uploadProgress" aria-valuemin="0" aria-valuemax="100">{{uploadProgress}}%</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="" *ngIf="currentDocument?.src || downloadURL">
+                  <div class="">Current File</div>
+                  <div class=" w-100">
+                    <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                      <div class="selected-file-main">
+                        <i class="fa-regular fa-file-lines me-2"></i>
+                        <span class="selected-file-name">{{ currentDocument?.title || currentDocument?.name || documentName || 'Document' }}</span>
+                        <span class="selected-file-pill" *ngIf="currentDocument?.recordKind === 'upload' || currentDocument?.type === 'document'">Uploaded</span>
+                        <span class="selected-file-pill" *ngIf="currentDocument?.recordKind === 'draft'">Draft</span>
+                      </div>
+                      <a *ngIf="currentDocument?.src || downloadURL" [href]="currentDocument?.src || downloadURL" target="_blank" class="selected-file-link" title="Open current document">
+                        <i class="fa-solid fa-link"></i> Open </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="">
+            <!-- TODD Inline Instructions Panel -->
+            <div class="">
+              <div class="">Document Name</div>
+              <input id="documentName" data-demo="document-name" type="text" [(ngModel)]="documentName" class="form-control" [disabled]="!canCrudDocuments || isProcessing" placeholder="Enter document name" />
+            </div>
+            <div data-demo="document-editor-canvas">
+              <app-doc-rich-text-editor [mode]="'document'" [htmlContent]="htmlContent" (htmlContentChange)="onHtmlContentChange($event)">
+              </app-doc-rich-text-editor>
+            </div>
+            <div class="export-buttons mt-2" data-demo="document-export-actions">
+              <button *ngIf="!docid" (click)="saveClick(); saveDraft()" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">{{ currentDocument?.recordKind === 'upload' || currentDocument?.type === 'document' ? 'Save Document' : 'Save Draft' }}</button>
+              <button *ngIf="docid" (click)="updateDraft()" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">{{ currentDocument?.recordKind === 'upload' || currentDocument?.type === 'document' ? 'Update Document' : 'Update Draft' }}</button>
+              <button (click)="exportTo('doc')" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">Export as Word</button>
+              <button (click)="exportTo('pdf')" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">Export as PDF</button> <button (click)="copyText()" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing || !htmlContent">Copy Text</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-preloader [isLoading]="isProcessing"></app-preloader>
+<app-back-to-top></app-back-to-top>

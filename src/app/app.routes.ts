@@ -45,4 +45,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import( './features/document-list/document-list.component' ).then( ( m ) => m.DocumentListComponent ),
   },
+  {
+    path: 'docs/editor',
+    loadComponent: () =>
+      import( './features/document-editor/document-editor.component' ).then( ( m ) => m.DocumentEditorComponent ),
+  },
+  {
+    path: 'docs/editor/:id',
+    loadComponent: () =>
+      import( './features/document-editor/document-editor.component' ).then( ( m ) => m.DocumentEditorComponent ),
+  },
 ];
