@@ -1,0 +1,171 @@
+<app-preloader [isLoading]="isLoading"></app-preloader>
+<app-back-to-top *ngIf="!isEmbedded"></app-back-to-top>
+<div class="todd-page repository-page" [class.repository-page--embedded]="isEmbedded">
+    <div class="container-fluid mt-5">
+        <div class="row no-print page-header m-2">
+            <div class="col-12 col-xl-8">
+                <h1 class="pv-title">Knowledge Base</h1>
+                <p class="pv-subtitle"> Turn common questions into reusable answers for your Knowledge Base. Work through each step: write the question, add a sourced answer, include any recommendations or resources, then tag it with keywords so TODD can find it later. </p>
+                <div class="knowledge-bookmark-cta mb-4 mt-3">
+                    <app-module-install-cta [installConfig]="installConfig"></app-module-install-cta>
+                </div>
+                <div class="mb-5 mt-3">
+                    <a class="btn-todd me-2" routerLink="/docs">Back to Docs</a>
+                    <a class="btn-todd me-2" *ngIf="!(entitlements$ | async)?.knowledge" routerLink="/knowledge/pricing">Pricing</a>
+                    <a class="btn-todd me-2" *ngIf="!(entitlements$ | async)?.suite" href="https://todd.taliferro.tech/suite/pricing">Suite Pricing</a>
+                    <a class="btn-todd me-2" href="https://todd.taliferro.tech/pricing">Enterprise Pricing</a>
+                </div>
+                <div class="repository-search mb-3 d-flex align-items-center gap-2" *ngIf="(filtered$ | async)?.length != 0">
+                    <i class="fa-solid fa-magnifying-glass d-none d-xl-block"></i>
+                    <input type="text" class="form-control" style="max-width:480px" placeholder="Filter questions, answers, links…" [ngModel]="searchText" (ngModelChange)="onSearch($event)" />
+                    <button class="btn btn-outline-secondary" *ngIf="searchText" (click)="onSearch('')">Clear</button>
+                </div>
+            </div>
+            <div class="col-12 col-xl-4 text-xl-end mt-3 mt-xl-0  d-none d-xl-block">
+                <app-todd-tip icon="lightbulb" label="Tip">
+                    {{ docTipText }}
+                </app-todd-tip>
+            </div>
+        </div>
+        <app-cockpit-browse-mode-banner
+            *ngIf="!isLoggedIn"
+            surfaceLabel="Knowledge Base"
+            customTitle="You can explore the Knowledge Base, but you won't be able to save"
+            customCopy="You are not signed in, so feel free to preview how TODD turns questions, sourced answers, and useful resources into reusable business memory. Sign in to create, edit, or save Knowledge Base entries.">
+        </app-cockpit-browse-mode-banner>
+        <div class="row" *ngIf="isLoggedIn">
+            <div class="col">
+                <div *ngIf="(filtered$ | async)?.length === 0" class="">
+                    <div class="todd-empty-state text-center py-5">
+                        <i class="fa-regular fa-circle-question todd-empty-icon"></i>
+                        <h4 class="mt-3 mb-1">No questions or answers found</h4>
+                        <p class="text-muted mb-3"> Add your first item to start building your knowledge base. </p>
+                        <button class="btn-todd" (click)="onClickRoute('/knowledge/response-flow')">
+                            <i class="fa-solid fa-plus"></i> Add Knowledge Item </button>
+                    </div>
+                </div>
+                <div class="rf-chat-horizontal-scroll" #rfHorizontalScrollContainer>
+                    <ng-container *ngFor="let item of filtered$ | async; trackBy: trackByUserId">
+                        <div class="rf-chat-card" [ngClass]="{ 'todd-row-clicked': (item.userId && clickedResults.has(item.userId)) }" (click)="onOpenResponseFlow(item)">
+                            <div class="rf-preview card">
+                                <header class="rf-header">
+                                    <h3 class="rf-question">
+                                        {{ item.question }}
+                                        <span class="rf-badge rf-badge--source" *ngIf="item.type === 'bookmark'" title="Bookmarked from Find"><i class="fa-solid fa-bookmark"></i> via Find</span>
+                                    </h3>
+                                    <div class="rf-card-actions" *ngIf="!restrictedUser">
+                                        <button class="rf-icon-btn" title="Turn into post" (click)="$event.stopPropagation(); turnIntoPost(item)">
+                                            <i class="fa-solid fa-hashtag"></i>
+                                        </button>
+                                        <button class="rf-icon-btn" title="Edit" (click)="$event.stopPropagation(); onEdit(item)">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                        <button class="rf-icon-btn" title="Delete" (click)="$event.stopPropagation(); onDelete(item)">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </header>
+                                <section class="rf-section" *ngIf="item.answers && item.answers?.length">
+                                    <h4 class="rf-label">Evidence Summary</h4>
+                                    <ol class="rf-answers">
+                                        <li *ngFor="let a of item.answers">
+                                            {{ a.answer }}
+                                            <div class="rf-cite" *ngIf="a.source">
+                                                <span class="rf-cite-src">{{ a.source | domain }}</span>
+                                                <a class="rf-cite-link" [href]="a.source" target="_blank" rel="noopener" (click)="$event.stopPropagation()">{{ a.source | truncate:40 }}</a>
+                                                <button class="rf-copy" type="button" (click)="$event.stopPropagation(); copyCitation(a)" aria-label="Copy citation">Copy citation</button>
+                                            </div>
+                                            <div class="rf-cite" *ngIf="a.document && a.document.src">
+                                                <i class="fa-regular fa-file"></i>
+                                                <a [href]="a.document.src" target="_blank" rel="noopener" (click)="$event.stopPropagation()">{{ a.document.name }}</a>
+                                                <span class="rf-file-meta" *ngIf="a.document.type">{{ a.document.type | titlecase }}</span>
+                                            </div>
+                                        </li>
+                                    </ol>
+                                </section>
+                                <section class="rf-section" *ngIf="item.recommendations && item.recommendations?.length">
+                                    <h4 class="rf-label">Recommendations</h4>
+                                    <ul class="rf-recs">
+                                        <li *ngFor="let rec of item.recommendations">
+                                            <span class="rf-badge rf-badge--practice" [ngClass]="{
+                          'rf-badge--practice': rec.type === 'Practice',
+                          'rf-badge--policy': rec.type === 'Policy',
+                          'rf-badge--resource': rec.type === 'Resource'
+                        }">{{ rec.type || 'Other' }}</span>
+                                            {{ rec.text }}
+                                            <div class="rf-links">
+                                                <a *ngIf="rec.link" [href]="rec.link" target="_blank" rel="noopener" (click)="$event.stopPropagation()">{{ rec.link | truncate:40 }}</a>
+                                                <a *ngIf="rec.document && rec.document.src" [href]="rec.document.src" target="_blank" rel="noopener" [attr.aria-label]="'Open ' + rec.document.name" (click)="$event.stopPropagation()">
+                                                    <i class="fa-regular fa-file-pdf" *ngIf="rec.document.type === 'document'"></i>
+                                                    <i class="fa-regular fa-file" *ngIf="rec.document.type !== 'document'"></i>
+                                                    {{ rec.document.name }}
+                                                </a>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </section>
+                                <section class="rf-section" *ngIf="item.resources && item.resources?.length">
+                                    <h4 class="rf-label">Resources</h4>
+                                    <ul class="rf-resources">
+                                        <li *ngFor="let res of item.resources">
+                                            <img class="rf-favicon" [src]="res.link | favicon" alt="" />
+                                            <a [href]="res.link" target="_blank" rel="noopener" (click)="$event.stopPropagation()">{{ res.link | domain }}</a>
+                                            <span class="rf-domain-chip">{{ res.link }}</span>
+                                            <span class="rf-why" *ngIf="(res.link | resourceWhy) as why">{{ why }}</span>
+                                        </li>
+                                    </ul>
+                                </section>
+                                <section class="rf-section" *ngIf="item.keywords && item.keywords.length">
+                                    <h4 class="rf-label">Keywords</h4>
+                                    <ul class="list-unstyled d-flex flex-wrap gap-2 m-0">
+                                        <li *ngFor="let k of item.keywords" class="rf-badge">{{ k }}</li>
+                                    </ul>
+                                </section>
+                                <section class="rf-section" *ngIf="item.category">
+                                    <h4 class="rf-label">Category</h4>
+                                    <span class="rf-badge">{{ item.category }}</span>
+                                    <div class="rf-reviewed text-muted" *ngIf="item.question"> Reviewed: {{ today | date:'yyyy-MM-dd' }}
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+        </div>
+        <section class="knowledge-guest-preview" *ngIf="!isLoggedIn" aria-labelledby="knowledge-guest-preview-title">
+            <div class="knowledge-guest-preview__header">
+                <div>
+                    <span class="knowledge-guest-preview__eyebrow">WHAT THIS BECOMES</span>
+                    <h2 id="knowledge-guest-preview-title">Turn answers into business memory.</h2>
+                    <p>Once you sign in, TODD helps you capture the answers your business repeats, keep the proof attached, and find the right context when the next question arrives.</p>
+                </div>
+                <div class="knowledge-guest-preview__mark" aria-hidden="true"><i class="fa-solid fa-book-open"></i></div>
+            </div>
+            <div class="knowledge-guest-preview__grid">
+                <article class="knowledge-guest-preview__card">
+                    <span class="knowledge-guest-preview__number">01</span>
+                    <h3>Capture the question</h3>
+                    <p>Write down the questions customers and your team ask most often so the answer does not have to be rebuilt every time.</p>
+                </article>
+                <article class="knowledge-guest-preview__card">
+                    <span class="knowledge-guest-preview__number">02</span>
+                    <h3>Keep the proof attached</h3>
+                    <p>Add sourced answers, recommendations, and resources together so useful guidance stays trustworthy and actionable.</p>
+                </article>
+                <article class="knowledge-guest-preview__card">
+                    <span class="knowledge-guest-preview__number">03</span>
+                    <h3>Reuse it when momentum matters</h3>
+                    <p>Tag each entry with keywords so TODD can find it later and help turn knowledge into the next response, document, or move.</p>
+                </article>
+            </div>
+            <div class="knowledge-guest-preview__footer">
+                <div>
+                    <strong>Your private library starts after sign-in.</strong>
+                    <span>Explore the preview now, then connect your workspace when you are ready to make it yours.</span>
+                </div>
+                <a class="btn-todd knowledge-guest-preview__cta" routerLink="/login" [queryParams]="{ returnUrl: '/knowledge' }">Sign in to build your Knowledge Base <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </section>
+    </div>
+</div>

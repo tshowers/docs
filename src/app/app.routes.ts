@@ -80,4 +80,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import( './features/response-flow/response-flow.component' ).then( ( m ) => m.ResponseFlowComponent ),
   },
+  {
+    path: 'knowledge',
+    loadComponent: () =>
+      import( './features/repository/repository.component' ).then( ( m ) => m.RepositoryComponent ),
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import( './features/sign-in/sign-in.component' ).then( ( m ) => m.SignInComponent ),
+  },
 ];
