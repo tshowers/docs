@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  position: relative;
+}
+
+.docs-type-ahead {
+  position: relative;
+}
+
+.docs-type-ahead-list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid rgba(15, 15, 15, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(15, 15, 15, 0.12);
+}
+
+.docs-type-ahead-list li {
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+
+.docs-type-ahead-list li:hover {
+  background: rgba(0, 149, 204, 0.08);
+}
+
+.docs-type-ahead-selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.docs-type-ahead-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(0, 149, 204, 0.1);
+  border: 1px solid rgba(0, 149, 204, 0.22);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.docs-type-ahead-chip button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.7;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.docs-type-ahead-chip button:hover {
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .docs-type-ahead-list {
+    background: #131c27;
+    border-color: rgba(0, 191, 255, 0.18);
+  }
+
+  .docs-type-ahead-list li:hover {
+    background: rgba(0, 191, 255, 0.1);
+  }
+}

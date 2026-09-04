@@ -1,0 +1,18 @@
+<div class="docs-type-ahead">
+  <input
+    type="text"
+    class="form-control"
+    [ngModel]="inputText"
+    (ngModelChange)="onInputChange($event)"
+    [placeholder]="placeholder"
+  />
+  <ul class="docs-type-ahead-list" *ngIf="inputText && filteredItems.length">
+    <li *ngFor="let item of filteredItems" (click)="selectItem(item)">{{ item.name }}</li>
+  </ul>
+  <div class="docs-type-ahead-selected" *ngIf="showSelected && selectedItems.length">
+    <span class="docs-type-ahead-chip" *ngFor="let item of selectedItems; let i = index">
+      {{ item.name || item }}
+      <button type="button" *ngIf="isMultiSelect" (click)="removeMultiItem(i)" aria-label="Remove">&times;</button>
+    </span>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+<button type="button" class="docs-dropdown-edit-btn" (click)="openModal($event)" title="Manage options">
+  <i class="fa-solid fa-pen"></i>
+</button>
+
+<div class="docs-dropdown-edit-overlay" *ngIf="showModal" (click)="onBackdropClick($event)">
+  <div class="docs-dropdown-edit-dialog" (click)="onDialogClick($event)">
+    <div class="docs-dropdown-edit-header">
+      <h5>Manage options</h5>
+      <button type="button" class="docs-dropdown-edit-close" (click)="closeModal($event)" aria-label="Close">&times;</button>
+    </div>
+    <ul class="docs-dropdown-edit-list">
+      <li *ngFor="let item of items">
+        <span>{{ item.name }}</span>
+        <button type="button" (click)="removeItem(item)" aria-label="Remove"><i class="fa-regular fa-trash-can"></i></button>
+      </li>
+      <li *ngIf="!items.length" class="docs-dropdown-edit-empty">No options yet.</li>
+    </ul>
+    <div class="docs-dropdown-edit-add">
+      <input type="text" class="form-control" [(ngModel)]="newItemName" placeholder="Add new option" (keydown.enter)="addItem()" [disabled]="isSaving" />
+      <button type="button" class="btn-todd" (click)="addItem()" [disabled]="isSaving || !newItemName.trim()">Add</button>
+    </div>
+  </div>
+</div>

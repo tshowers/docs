@@ -1,0 +1,312 @@
+<app-preloader [isLoading]="isLoading"></app-preloader>
+<app-back-to-top></app-back-to-top>
+<div class="container-fluid todd-page mb-5">
+    <div class="row no-print page-header m-2" *ngIf="shouldShowDesktopIntro">
+        <div class="col-12 col-xl-8">
+            <h1 class="pv-title">{{ isAssistantSavedMode ? 'Add More Context' : 'Knowledge Management' }}</h1>
+            <p class="pv-subtitle d-none d-xl-block">
+                {{ isAssistantSavedMode
+                ? 'TODD already saved this answer. Add category, source, recommendations, resources, or keywords if you want more context, or exit now.'
+                : 'Turn common questions into reusable responses for your Knowledge Base. Work through each step: write the question, add a sourced response, include any recommendations or resources, then tag it with keywords so TODD can find it later.' }}
+            </p>
+            <div class="mt-3" *ngIf="responseFlow.id">
+                <button class="btn btn-outline-dark" type="button" (click)="turnIntoPost()"> Turn into post </button>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4 text-xl-end mt-3 mt-xl-0 d-none d-xl-block">
+            <app-todd-tip icon="lightbulb" label="Tip">
+                {{ docTipText }}
+            </app-todd-tip>
+        </div>
+    </div>
+    <div class="row no-print m-2" *ngIf="shouldShowCompactMobileHeader">
+        <div class="col-12">
+            <div class="rf-mobile-header-simple">
+                <div class="rf-mobile-kicker">Step {{ currentStep + 1 }} of {{ steps.length }}</div>
+                <h1 class="rf-mobile-title mb-1">{{ isAssistantSavedMode ? 'Add More Context' : mobileWizardTitle }}</h1>
+                <p class="rf-mobile-subtitle mb-0">
+                    {{ isAssistantSavedMode
+                    ? 'TODD already saved this answer. Add context or exit.'
+                    : mobileWizardSubtitle }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <app-cockpit-browse-mode-banner
+        *ngIf="!isLoggedIn"
+        surfaceLabel="Knowledge"
+        customTitle="You can try this out, but you won't be able to save"
+        customCopy="You are not signed in, so feel free to explore this form and see how a knowledge entry comes together. Sign in before you submit — guest sessions can't save new entries."
+    ></app-cockpit-browse-mode-banner>
+    <div class="container mt-4">
+        <!-- Stepper Header -->
+        <div class="stepper stepper-glass mb-5" *ngIf="!isSmallScreen">
+            <div class="step" *ngFor="let s of steps; let i = index" [class.active]="i <= currentStep">
+                <div class="circle">{{ i + 1 }}</div>
+                <div>{{ s }}</div>
+            </div>
+        </div>
+        <div class="rf-mobile-progress mb-4" *ngIf="isSmallScreen">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="rf-mobile-progress-label">Step {{ currentStep + 1 }} of {{ steps.length }}</span>
+                <span class="rf-mobile-progress-step">{{ currentStepLabel }}</span>
+            </div>
+            <div class="progress" role="progressbar" [attr.aria-valuenow]="currentStep + 1" aria-valuemin="1" [attr.aria-valuemax]="steps.length">
+                <div class="progress-bar" [style.width.%]="((currentStep + 1) / steps.length) * 100"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div [ngClass]="hasPreviewData() ? 'col-md-6' : 'col-12'">
+                <div [ngSwitch]="currentStep">
+                    <!-- Step 1: Question -->
+                    <div *ngSwitchCase="0">
+                        <h5>Question</h5>
+                        <div class="">
+                            <div class="">
+                                <div class="">Question</div>
+                                <input type="text" class="form-control" [(ngModel)]="question" placeholder="Enter your question..." />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-11">
+                                <app-docs-input-type-ahead [collectionName]="'KNOWLEDGE_BASE_CATEGORIES'" [isMultiSelect]="false" [placeholder]="'Search and select category ...'" (selectionChange)="handleCategoryChange($event)"></app-docs-input-type-ahead>
+                            </div>
+                            <div class="col-1">
+                                <app-docs-dropdown-edit-button dropdownKey="KNOWLEDGE_BASE_CATEGORIES"></app-docs-dropdown-edit-button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Step 2: Answer -->
+                    <div *ngSwitchCase="1">
+                        <h5>Response</h5>
+                        <div class="">
+                            <div class="">
+                                <div class="">Enter Response</div>
+                                <textarea class="form-control" rows="4" [(ngModel)]="newAnswer" placeholder="Type your response..."></textarea>
+                            </div>
+                            <div class="">
+                                <div class="">Source</div>
+                                <input type="url" class="form-control" [(ngModel)]="sourceLink" placeholder="https://example.com" />
+                            </div>
+                            <div class="">
+                                <div class="drop-zone mb-3" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+                                    <p>Drag and drop your file here or <span style="cursor: pointer;" class="file-browse-link" (click)="fileInput.click()">browse</span></p>
+                                    <input type="file" #fileInput (change)="onFileSelect($event)" hidden>
+                                </div>
+                                <div *ngIf="selectedFile" class="alert alert-light mt-3">
+                                    <span>Selected File: {{ selectedFile.name }}</span>
+                                    <button type="button" class="remove-btn" (click)="clearSelectedFile()"><i class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                                <button class="btn btn-outline-secondary" type="button" (click)="addAnswer(newAnswer, sourceLink); newAnswer=''">Add</button>
+                            </div>
+                            <div class=" mt-2">
+                                <div class="">Or attach existing</div>
+                                <select class="form-select" [(ngModel)]="selectedDocument">
+                                    <option [ngValue]="null">Select a document…</option>
+                                    <option *ngFor="let doc of documents" [ngValue]="doc">
+                                        {{ doc.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input type="checkbox" class="form-check-input" id="mayaReferenceCheck" [(ngModel)]="mayaReference" />
+                                <label class="form-check-label" for="mayaReferenceCheck">Maya should reference this internally</label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Step 3: Recommend -->
+                    <div *ngSwitchCase="2">
+                        <h5>Recommendation</h5>
+                        <div class="">
+                            <div class="">
+                                <div class="">Text</div>
+                                <input type="text" class="form-control" [(ngModel)]="recommendationText" placeholder="Recommended item..." />
+                            </div>
+                            <div class="">
+                                <div class="">Link</div>
+                                <input type="url" class="form-control" [(ngModel)]="recommendationLink" placeholder="https://..." />
+                            </div>
+                            <div class="">
+                                <div class="">Type</div>
+                                <select class="form-select mb-2" [(ngModel)]="recommendationType">
+                                    <option value="">Select type</option>
+                                    <option value="Policy">Policy</option>
+                                    <option value="Practice">Practice</option>
+                                    <option value="Resource">Resource</option>
+                                </select>
+                            </div>
+                            <div class="">
+                                <div class="drop-zone mb-3" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+                                    <p>Drag and drop your file here or <span style="cursor: pointer;" class="file-browse-link" (click)="fileInput.click()">browse</span></p>
+                                    <input type="file" #fileInput (change)="onFileSelect($event)" hidden>
+                                </div>
+                                <div *ngIf="selectedFile" class="alert alert-light mt-3">
+                                    <span>Selected File: {{ selectedFile.name }}</span>
+                                    <button type="button" class="remove-btn" (click)="clearSelectedFile()"><i class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                                <button class="btn btn-outline-primary" type="button" (click)="addRecommendation(recommendationText, recommendationLink, recommendationType); recommendationText=''; recommendationLink=''; recommendationType=''">Add Recommendation</button>
+                            </div>
+                            <div class=" mt-2">
+                                <div class="">Or attach existing</div>
+                                <select class="form-select" [(ngModel)]="selectedDocument">
+                                    <option [ngValue]="null">Select a document…</option>
+                                    <option *ngFor="let doc of documents" [ngValue]="doc">
+                                        {{ doc.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <ul class="list-group mt-3">
+                                <li *ngFor="let rec of recommendations; let i = index" class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="me-2">
+                                        {{ rec.text }}<br>
+                                        <strong>Type:</strong> {{ rec.type }}
+                                        <span *ngIf="rec.link"><br><a [href]="rec.link" target="_blank">{{ rec.link | truncate:60 }}</a></span>
+                                        <span *ngIf="rec.document && rec.document.src"><br><a [href]="rec.document.src" target="_blank">{{ rec.document.name }}</a></span>
+                                    </div>
+                                    <button type="button" class="remove-btn" title="Remove recommendation" aria-label="Remove recommendation" (click)="removeRecommendation(i)">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- Step 4: Resource -->
+                    <div *ngSwitchCase="3">
+                        <h5>Resource</h5>
+                        <div class="">
+                            <div class="">
+                                <div class="">Link</div>
+                                <input type="url" class="form-control" [(ngModel)]="resourceLink" placeholder="https://..." />
+                            </div>
+                            <div class="">
+                                <div class="drop-zone mb-3" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+                                    <p>Drag and drop your file here or <span style="cursor: pointer;" class="file-browse-link" (click)="fileInput.click()">browse</span></p>
+                                    <input type="file" #fileInput (change)="onFileSelect($event)" hidden>
+                                </div>
+                                <div *ngIf="selectedFile" class="alert alert-light mt-3">
+                                    <span>Selected File: {{ selectedFile.name }}</span>
+                                    <button type="button" class="remove-btn" (click)="clearSelectedFile()"><i class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                                <button class="btn btn-outline-secondary" type="button" (click)="addResource(resourceLink); resourceLink=''">Add</button>
+                            </div>
+                            <div class=" mt-2">
+                                <div class="">Or attach existing</div>
+                                <select class="form-select" [(ngModel)]="selectedDocument">
+                                    <option [ngValue]="null">Select a document…</option>
+                                    <option *ngFor="let doc of documents" [ngValue]="doc">
+                                        {{ doc.name }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <ul class="list-group">
+                            <li *ngFor="let res of resources; let i = index" class="list-group-item d-flex justify-content-between align-items-center">
+                                <a [href]="res.link" target="_blank" class="me-2">{{ res.link | truncate:60 }}</a>
+                                <button type="button" class="remove-btn" title="Remove resource" aria-label="Remove resource" (click)="removeResource(i)">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div *ngSwitchCase="4">
+                        <h5>Keywords</h5>
+                        <div class="">
+                            <div class="">
+                                <input type="text" class="form-control" [(ngModel)]="keywordInput" placeholder="Type a keyword and press Enter (or paste comma-separated)" (keydown.enter)="addKeywordFromInput()" (blur)="addKeywordFromInput()" />
+                                <button class="btn btn-outline-secondary" type="button" (click)="addKeywordFromInput()">Add</button>
+                            </div>
+                            <div class="">
+                                <div class="mt-2 d-flex flex-wrap gap-2" *ngIf="keywords.length">
+                                    <span class="badge bg-light text-dark border" *ngFor="let k of keywords; let i = index">
+                                        {{ k }}
+                                        <button type="button" class="btn-close btn-close-sm ms-1" aria-label="Remove" (click)="removeKeyword(i)"></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="hasPreviewData()" class="col-md-6 profile-report mt-3">
+                <h5 class="mb-3">{{ isSmallScreen ? 'Saved Answer Preview' : 'Preview' }}</h5>
+                <div class="rf-preview card">
+                    <header class="rf-header">
+                        <h3 class="rf-question">{{ question }}</h3>
+                        <small class="text-muted" *ngIf="question">Reviewed: {{ today | date:'yyyy-MM-dd' }}</small>
+                    </header>
+                    <section class="rf-section" *ngIf="answers.length">
+                        <h4 class="rf-label">Evidence Summary</h4>
+                        <ol class="rf-answers">
+                            <li *ngFor="let a of answers">
+                                {{ a.answer }}
+                                <div class="rf-cite" *ngIf="a.source">
+                                    <span class="rf-cite-src">{{ a.source | domain }}</span>
+                                    <a class="rf-cite-link" [href]="a.source" target="_blank" rel="noopener">{{ a.source | truncate:40 }}</a>
+                                    <button class="rf-copy" type="button" (click)="copyCitation(a)" aria-label="Copy answer and source">Copy answer + source</button>
+                                </div>
+                                <div class="rf-cite" *ngIf="a.document && a.document.src">
+                                    <i class="fa-regular fa-file"></i>
+                                    <a [href]="a.document.src" target="_blank" rel="noopener">{{ a.document.name }}</a>
+                                    <span class="rf-file-meta" *ngIf="a.document.type">{{ a.document.type | titlecase }}</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </section>
+                    <section class="rf-section" *ngIf="recommendations.length">
+                        <h4 class="rf-label">Recommendations</h4>
+                        <ul class="rf-recs">
+                            <li *ngFor="let rec of recommendations">
+                                <span class="rf-badge rf-badge--practice" [ngClass]="{
+                          'rf-badge--practice': rec.type === 'Practice',
+                          'rf-badge--policy': rec.type === 'Policy',
+                          'rf-badge--resource': rec.type === 'Resource'
+                        }">{{ rec.type || 'Other' }}</span>
+                                {{ rec.text }}
+                                <div class="rf-links">
+                                    <a *ngIf="rec.link" [href]="rec.link" target="_blank" rel="noopener">{{ rec.link | truncate:40 }}</a>
+                                    <a *ngIf="rec.document && rec.document.src" [href]="rec.document.src" target="_blank" rel="noopener" [attr.aria-label]="'Open ' + rec.document.name">
+                                        <i class="fa-regular fa-file-pdf" *ngIf="rec.document.type === 'document'"></i>
+                                        <i class="fa-regular fa-file" *ngIf="rec.document.type !== 'document'"></i>
+                                        {{ rec.document.name }}
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    <section class="rf-section" *ngIf="resources.length">
+                        <h4 class="rf-label">Resources</h4>
+                        <ul class="rf-resources">
+                            <li *ngFor="let res of resources">
+                                <img class="rf-favicon" [src]="res.link | favicon" alt="" />
+                                <a [href]="res.link" target="_blank" rel="noopener">{{ res.link | domain }}</a>
+                                <span class="rf-domain-chip">{{ res.link }}</span>
+                                <span class="rf-why" *ngIf="(res.link | resourceWhy) as why">{{ why }}</span>
+                            </li>
+                        </ul>
+                    </section>
+                    <section class="rf-section" *ngIf="keywords.length">
+                        <h4 class="rf-label">Keywords</h4>
+                        <ul class="list-unstyled d-flex flex-wrap gap-2 m-0">
+                            <li *ngFor="let k of keywords" class="rf-badge">{{ k }}</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+        <div class="row d-none d-md-flex">
+            <div class="col">
+                <div class="mt-4 d-flex justify-content-between">
+                    <button class="btn-todd" (click)="goBackOrPreviousStep()">{{ currentStep === 0 ? 'Exit' : 'Back' }}</button>
+                    <button class="btn-todd" *ngIf="currentStep < steps.length - 1" (click)="nextStep()">Next</button>
+                    <button class="btn-todd" *ngIf="currentStep === steps.length - 1" (click)="saveClick(); submitFlow()">Submit</button>
+                </div>
+            </div>
+        </div>
+        <div class="rf-mobile-action-bar d-md-none">
+            <button class="btn-todd" type="button" (click)="goBackOrPreviousStep()">{{ currentStep === 0 ? 'Exit' : 'Back' }}</button>
+            <button class="btn-todd" *ngIf="currentStep < steps.length - 1" type="button" (click)="nextStep()">Next</button>
+            <button class="btn-todd" *ngIf="currentStep === steps.length - 1" type="button" (click)="saveClick(); submitFlow()">Submit</button>
+        </div>
+        <!-- preview pane-->
+    </div>
+</div>

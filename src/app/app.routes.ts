@@ -70,4 +70,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import( './features/rfp-upload/rfp-upload.component' ).then( ( m ) => m.RfpUploadComponent ),
   },
+  {
+    path: 'knowledge/response-flow',
+    loadComponent: () =>
+      import( './features/response-flow/response-flow.component' ).then( ( m ) => m.ResponseFlowComponent ),
+  },
+  {
+    path: 'knowledge/response-flow/:id',
+    loadComponent: () =>
+      import( './features/response-flow/response-flow.component' ).then( ( m ) => m.ResponseFlowComponent ),
+  },
 ];
