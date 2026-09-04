@@ -35,4 +35,9 @@ export const routes: Routes = [
     path: 'docs/landing',
     redirectTo: 'docs',
   },
+  {
+    path: 'docs/upload',
+    loadComponent: () =>
+      import( './features/general-document-upload/general-document-upload.component' ).then( ( m ) => m.GeneralDocumentUploadComponent ),
+  },
 ];
