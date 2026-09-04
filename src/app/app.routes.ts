@@ -26,4 +26,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import( './features/knowledge-pricing/knowledge-pricing.component' ).then( ( m ) => m.KnowledgePricingComponent ),
   },
+  {
+    path: 'docs',
+    loadComponent: () =>
+      import( './features/document-home/document-home.component' ).then( ( m ) => m.DocumentHomeComponent ),
+  },
+  {
+    path: 'docs/landing',
+    redirectTo: 'docs',
+  },
 ];

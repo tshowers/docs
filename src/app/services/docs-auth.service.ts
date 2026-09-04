@@ -8,7 +8,7 @@ import {
   User,
 } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
-import { Observable, shareReplay, switchMap, of } from 'rxjs';
+import { Observable, shareReplay, switchMap, of, tap } from 'rxjs';
 
 /**
  * Auth service for the standalone Docs app (Docs + Knowledge, both under
@@ -41,6 +41,18 @@ export class DocsAuthService {
   private userId$?: Observable<string>;
   private tenantId$?: Observable<string>;
 
+  /**
+   * Mirrors TODD's own AuthService.getTenant() (a sync read backed by a
+   * cached tenantId), needed here because DocService/ResponseFlowService
+   * are plain HttpClient calls with no per-request header building of
+   * their own - unlike web-products/network, which only ever talks to
+   * Firestore directly or to endpoints that build headers by hand
+   * (AccountBillingService), Docs relies on a global HTTP interceptor
+   * (see docs-tenant.interceptor.ts) to attach x-tenant-id/x-user-id/
+   * x-user-email, and interceptors can't await an Observable.
+   */
+  private lastKnownTenantId = '';
+
   private readonly pendingLoginStorageKey = 'docs_hosted_login_pending';
 
   getUser (): Observable<User | null> {
@@ -71,10 +83,23 @@ export class DocsAuthService {
     if ( !this.tenantId$ ) {
       this.tenantId$ = this.getUserId().pipe(
         switchMap( ( uid ) => ( uid ? this.resolveTenantId( uid ) : of( '' ) ) ),
+        tap( ( tenantId ) => { this.lastKnownTenantId = tenantId; } ),
         shareReplay( { bufferSize: 1, refCount: false } ),
       );
     }
     return this.tenantId$;
+  }
+
+  /**
+   * Sync counterpart to getTenantId(), for the HTTP interceptor - see the
+   * field comment above. Falls back to the signed-in uid (same default
+   * TODD's own AuthService.getTenant() sync path uses before its
+   * companyId lookup resolves) rather than returning nothing, since for
+   * the common case - no companyId override - that fallback IS the
+   * correct tenantId, not just a placeholder.
+   */
+  getTenantIdSync (): string {
+    return this.lastKnownTenantId || this.getCurrentUserIdSync();
   }
 
   isLoggedIn (): Observable<boolean> {
@@ -86,6 +111,10 @@ export class DocsAuthService {
 
   getCurrentUserIdSync (): string {
     return this.auth.currentUser?.uid || '';
+  }
+
+  getCurrentUserEmailSync (): string {
+    return String( this.auth.currentUser?.email || '' ).trim().toLowerCase();
   }
 
   /**
