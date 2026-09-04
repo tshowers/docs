@@ -40,4 +40,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import( './features/general-document-upload/general-document-upload.component' ).then( ( m ) => m.GeneralDocumentUploadComponent ),
   },
+  {
+    path: 'docs/documents',
+    loadComponent: () =>
+      import( './features/document-list/document-list.component' ).then( ( m ) => m.DocumentListComponent ),
+  },
 ];

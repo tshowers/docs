@@ -1,0 +1,262 @@
+<app-preloader [isLoading]="isLoading"></app-preloader>
+<div class="container-fluid tal-app todd-page" [class.docs-page--embedded]="isEmbedded" [class.desk-lightbox-open]="!!deskLightboxDocument" data-cy="docs-page-shell">
+  <app-cockpit-browse-mode-banner
+    *ngIf="!tenantId"
+    surfaceLabel="Documents"
+    customTitle="You can explore your document vault, but you won't be able to save"
+    customCopy="You are not signed in, so feel free to look around. Sign in to upload, attach, or delete documents in your vault."
+  ></app-cockpit-browse-mode-banner>
+  <div class="row no-print page-header m-2 docs-vault-hero" [class.docs-vault-hero--pins]="isPinsViewActive">
+    <div>
+      <div class="docs-eyebrow">Docs</div>
+      <h1 class="pv-title">Build your document vault</h1>
+      <p class="pv-subtitle d-none d-xl-block">Documents is where you park files TODD should know about — PDFs, images, videos, music, Word docs, and more. You can upload them here as standalone references, or attach them to a specific contact by opening the contact, clicking the three dots in the top right, and choosing <strong>Upload</strong>.</p>
+      <div class="docs-search-shell mt-4" data-demo="docs-search">
+        <label class="docs-search-label" for="docsVaultSearch">Search your vault</label>
+        <div class="docs-search-input-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="docsVaultSearch" type="text" class="docs-search-input" [ngModel]="searchTerm" (ngModelChange)="onSearchDocuments($event)" placeholder="Search by title, topic, author, or type" />
+        </div>
+      </div>
+      <div class="docs-hero-actions" data-demo="docs-actions">
+        <a class="btn-todd" [routerLink]="'/docs/upload'">
+          <i class="fa-solid fa-plus"></i> Add Document </a>
+        <button type="button" class="btn-todd btn-todd-secondary" (click)="onClickRoute('/docs/editor')">
+          <i class="fa-solid fa-file-lines"></i> Open Editor </button>
+      </div>
+      <div class="docs-hero-meta mt-4 mb-4 d-none d-xl-block">
+        <span class="docs-count-pill">{{ filteredDocuments.length }} items</span>
+        <app-todd-tip icon="lightbulb" label="Tip"> {{ docTipText }} </app-todd-tip>
+      </div>
+      <div *ngIf="canUseDeskView" class="docs-view-switch" data-cy="docs-view-switch">
+        <button type="button" class="docs-view-chip" [class.is-active]="viewMode === 'carousel'" (click)="setViewMode('carousel')" data-cy="docs-view-carousel"> Carousel </button>
+        <button type="button" class="docs-view-chip" [class.is-active]="viewMode === 'desk'" (click)="setViewMode('desk')" data-cy="docs-view-desk"> Desk View </button>
+        <button type="button" class="docs-view-chip" [class.is-active]="viewMode === 'pins'" (click)="setViewMode('pins')" data-cy="docs-view-pins"> Pins </button>
+        <button *ngIf="viewMode === 'desk'" type="button" class="docs-view-reset" (click)="resetDeskLayout()" data-cy="docs-desk-reset"> Reset layout </button>
+      </div>
+    </div>
+    <div *ngIf="filteredDocuments.length; else heroEmptyState">
+      <div *ngIf="viewMode === 'carousel' || !canUseDeskView; else alternateView" class="docs-stage-shell" data-cy="docs-carousel-view">
+        <div class="docs-stage-stack">
+          <div class="docs-stage-card docs-stage-card-prev" *ngIf="previousDocument" (click)="setActiveDocumentById(previousDocument.id)">
+            <div class="docs-stage-preview" [ngClass]="'is-' + getDocumentPreviewKind(previousDocument)">
+              <img *ngIf="getDocumentPreviewKind(previousDocument) === 'image'" [src]="previousDocument.src" [alt]="previousDocument.title || 'Previous document'" />
+              <video *ngIf="getDocumentPreviewKind(previousDocument) === 'video'" [src]="previousDocument.src" class="docs-stage-video-preview" preload="metadata" muted playsinline></video>
+              <div *ngIf="getDocumentPreviewKind(previousDocument) === 'video'" class="docs-stage-video-badge" aria-hidden="true">
+                <i class="fa-solid fa-circle-play"></i>
+                <span>Video</span>
+              </div>
+              <div *ngIf="getDocumentPreviewKind(previousDocument) === 'file'" class="docs-stage-file-tile">
+                <i class="fa-regular fa-file-lines"></i>
+                <span>{{ getDocumentTypeLabel(previousDocument) }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="docs-stage-card docs-stage-card-active" *ngIf="activeDocument">
+            <div class="docs-stage-preview" [ngClass]="'is-' + getDocumentPreviewKind(activeDocument)">
+              <img *ngIf="getDocumentPreviewKind(activeDocument) === 'image'" [src]="activeDocument.src" [alt]="activeDocument.title || 'Active document'" />
+              <video *ngIf="getDocumentPreviewKind(activeDocument) === 'video'" [src]="activeDocument.src" class="docs-stage-video-preview" preload="metadata" muted playsinline controls></video>
+              <div *ngIf="getDocumentPreviewKind(activeDocument) === 'video'" class="docs-stage-video-badge docs-stage-video-badge-active" aria-hidden="true">
+                <i class="fa-solid fa-circle-play"></i>
+                <span>Video Preview</span>
+              </div>
+              <div *ngIf="getDocumentPreviewKind(activeDocument) === 'file'" class="docs-stage-file-tile docs-stage-file-tile-active">
+                <i class="fa-regular fa-file-lines"></i>
+                <span>{{ getDocumentTypeLabel(activeDocument) }}</span>
+              </div>
+            </div>
+            <div class="docs-stage-copy" *ngIf="!isEditingDocument(activeDocument); else editDocumentForm">
+              <div class="docs-stage-type">{{ getDocumentTypeLabel(activeDocument) }}</div>
+              <h3>{{ activeDocument.title || 'Untitled document' }}</h3>
+              <p>{{ activeDocument.topic || activeDocument.author || 'Stored in your TODD vault for later reuse.' }}</p>
+              <div class="docs-stage-pills" *ngIf="activeDocument.eligibleForSocial || postedStatusLabel(activeDocument)">
+                <span class="docs-stage-pill docs-stage-pill--eligible" *ngIf="activeDocument.eligibleForSocial" title="Eligible for social media">
+                  <i class="fa-solid fa-hashtag"></i> Eligible </span>
+                <span class="docs-stage-pill docs-stage-pill--posted" *ngIf="postedStatusLabel(activeDocument)" [title]="postedStatusLabel(activeDocument)">
+                  <i [class]="postedPlatformIcon(activeDocument)"></i> Posted </span>
+              </div>
+              <div class="docs-stage-actions">
+                <button type="button" class="btn-todd" (click)="onView(activeDocument)">
+                  <i class="fa-solid fa-up-right-from-square"></i> Open </button>
+                <button type="button" class="btn-todd btn-todd-secondary" (click)="startEditDocument(activeDocument)">
+                  <i class="fa-solid fa-pen"></i> Edit </button>
+                <button *ngIf="getDocumentPreviewKind(activeDocument) === 'video'" type="button" class="btn-todd btn-todd-secondary" (click)="openVideoLightbox(activeDocument)">
+                  <i class="fa-solid fa-circle-play"></i> Play </button>
+                <button type="button" class="btn-todd btn-todd-secondary" (click)="onDelete(activeDocument)">
+                  <i class="fa-regular fa-trash-can"></i> Delete </button>
+              </div>
+            </div>
+            <ng-template #editDocumentForm>
+              <div class="docs-stage-copy docs-stage-edit-form">
+                <div class="docs-stage-type">Editing {{ getDocumentTypeLabel(activeDocument) }}</div>
+                <div class="ios-row">
+                  <div class="ios-label">Title</div>
+                  <input type="text" [(ngModel)]="editForm.title" name="editTitle" class="form-control" [disabled]="savingEdit" />
+                </div>
+                <div class="ios-row mt-2">
+                  <div class="ios-label">Topic</div>
+                  <input type="text" [(ngModel)]="editForm.topic" name="editTopic" class="form-control" [disabled]="savingEdit" />
+                </div>
+                <div class="ios-row mt-2">
+                  <div class="ios-label">Description <span class="text-muted fw-normal">(optional)</span></div>
+                  <textarea [(ngModel)]="editForm.description" name="editDescription" class="form-control" rows="2" [disabled]="savingEdit"></textarea>
+                </div>
+                <div class="form-check mt-2" *ngIf="isImageOrVideoDocument(activeDocument)">
+                  <input type="checkbox" class="form-check-input" id="editEligibleForSocial" [(ngModel)]="editForm.eligibleForSocial" name="editEligibleForSocial" [disabled]="savingEdit" />
+                  <label class="form-check-label" for="editEligibleForSocial"> Eligible for social media - Maya can pick this for a post </label>
+                </div>
+                <div class="docs-stage-actions mt-3">
+                  <button type="button" class="btn-todd" [disabled]="savingEdit" (click)="saveEditDocument(activeDocument)">
+                    {{ savingEdit ? 'Saving…' : 'Save' }} </button>
+                  <button type="button" class="btn-todd btn-todd-secondary" [disabled]="savingEdit" (click)="cancelEditDocument()">
+                    Cancel </button>
+                </div>
+              </div>
+            </ng-template>
+          </div>
+          <div class="docs-stage-card docs-stage-card-next" *ngIf="nextDocument" (click)="setActiveDocumentById(nextDocument.id)">
+            <div class="docs-stage-preview" [ngClass]="'is-' + getDocumentPreviewKind(nextDocument)">
+              <img *ngIf="getDocumentPreviewKind(nextDocument) === 'image'" [src]="nextDocument.src" [alt]="nextDocument.title || 'Next document'" />
+              <video *ngIf="getDocumentPreviewKind(nextDocument) === 'video'" [src]="nextDocument.src" class="docs-stage-video-preview" preload="metadata" muted playsinline></video>
+              <div *ngIf="getDocumentPreviewKind(nextDocument) === 'video'" class="docs-stage-video-badge" aria-hidden="true">
+                <i class="fa-solid fa-circle-play"></i>
+                <span>Video</span>
+              </div>
+              <div *ngIf="getDocumentPreviewKind(nextDocument) === 'file'" class="docs-stage-file-tile">
+                <i class="fa-regular fa-file-lines"></i>
+                <span>{{ getDocumentTypeLabel(nextDocument) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="docs-stage-footer text-center mt-4" *ngIf="activeDocument">
+          <div class="docs-stage-footer-top">
+            <button type="button" class="docs-stage-footer-nav" (click)="showPreviousDocument()" aria-label="Previous document">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <div class="docs-stage-count">Document {{ activeIndex + 1 }} of {{ filteredDocuments.length }}</div>
+            <button type="button" class="docs-stage-footer-nav" (click)="showNextDocument()" aria-label="Next document">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+          <div class="docs-stage-dots" role="tablist" aria-label="Jump to document">
+            <button type="button" class="docs-stage-dot" *ngFor="let document of filteredDocuments; let i = index" [class.is-active]="i === activeIndex" [attr.aria-label]="'Go to document ' + ( i + 1 )" (click)="setActiveDocumentById(document.id)">
+            </button>
+          </div>
+        </div>
+      </div>
+      <ng-template #alternateView>
+        <ng-container *ngIf="isDeskViewActive; else pinsView">
+          <div class="docs-desk-shell" data-cy="docs-desk-view">
+            <div class="docs-desk-instructions">
+              <span>Drag cards around the desk. Drop an image or PDF into Focus to review it without losing the layout.</span>
+            </div>
+            <div class="docs-desk-stage">
+              <div #deskCanvas class="docs-desk-canvas" data-cy="docs-desk-canvas">
+                <div #deskFocusTarget class="docs-desk-focus-target" [class.is-visible]="!!draggingDocumentId" [class.is-eligible]="deskFocusEligible" [class.is-hot]="deskFocusHover" data-cy="docs-desk-focus-target">
+                  <div class="docs-desk-focus-target__inner">
+                    <div class="docs-desk-focus-target__icon" aria-hidden="true">
+                      <i class="fa-solid fa-expand"></i>
+                    </div>
+                    <div class="docs-desk-focus-target__eyebrow">Focus</div>
+                    <strong *ngIf="deskFocusEligible; else unsupportedTarget">
+                      {{ deskFocusHover ? 'Release to open' : 'Drag here to open' }}
+                    </strong>
+                    <ng-template #unsupportedTarget>
+                      <strong>Images and PDFs only</strong>
+                    </ng-template>
+                    <span>Background blurs and darkens so the document gets your full attention.</span>
+                  </div>
+                </div>
+                <article *ngFor="let document of filteredDocuments; let i = index; trackBy: trackByDocumentId" class="docs-desk-card" cdkDrag [cdkDragBoundary]="'.docs-desk-canvas'" [cdkDragFreeDragPosition]="getDeskCardFreeDragPosition(document, i)" (pointerdown)="onDeskCardPointerDown(document)" (pointerup)="onDeskCardPointerUp()" (pointercancel)="onDeskCardPointerUp()" (click)="onDeskCardClick(document)" (cdkDragStarted)="onDeskCardDragStarted(document)" (cdkDragMoved)="onDeskCardDragMoved(document, $event)" (cdkDragEnded)="onDeskCardDragEnded(document, $event)" [ngClass]="'depth-' + getDeskCardDepth(document, i)" [class.is-dragging]="draggingDocumentId === getDeskCardId(document, i)" [class.is-active]="activeDeskDocumentId === getDeskCardId(document, i)" [style.left.px]="getDeskCardLayout(document, i).x" [style.top.px]="getDeskCardLayout(document, i).y" [style.width.px]="getDeskCardWidth(document, i)" [style.zIndex]="getDeskCardZIndex(document, i)" [style.--desk-rotation]="getDeskCardRotation(document, i)" [attr.data-cy]="'docs-desk-card-' + getDeskCardId(document, i)">
+                  <div class="docs-desk-card__sheet" [ngClass]="['is-' + getDeskDocumentSurface(document), 'variant-' + getDeskCardVariant(document, i)]">
+                    <div class="docs-desk-card__preview" [ngClass]="['is-' + getDeskDocumentSurface(document), 'variant-' + getDeskCardVariant(document, i)]">
+                      <img *ngIf="getDeskDocumentSurface(document) === 'image'" [src]="document.src" [alt]="document.title || document.name || 'Document preview'" />
+                      <div *ngIf="getDeskDocumentSurface(document) === 'pdf'" class="docs-desk-card__file">
+                        <i class="fa-regular fa-file-pdf"></i>
+                        <span>{{ document.title || document.name || 'PDF document' }}</span>
+                      </div>
+                      <div *ngIf="getDeskDocumentSurface(document) === 'video'" class="docs-desk-card__file">
+                        <i class="fa-solid fa-circle-play"></i>
+                        <span>{{ document.title || document.name || 'Video' }}</span>
+                      </div>
+                      <div *ngIf="getDeskDocumentSurface(document) === 'file'" class="docs-desk-card__file">
+                        <i class="fa-regular fa-file-lines"></i>
+                        <span>{{ document.title || document.name || getDocumentTypeLabel(document) }}</span>
+                      </div>
+                    </div>
+                    <div class="docs-desk-card__caption" *ngIf="activeDeskDocumentId === getDeskCardId(document, i)">
+                      {{ document.title || document.name || getDocumentTypeLabel(document) }}
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-template>
+      <ng-template #pinsView>
+        <div class="docs-pins-shell" data-cy="docs-pins-view">
+          <div class="docs-pins-grid">
+            <article *ngFor="let document of filteredDocuments; let i = index; trackBy: trackByDocumentId" class="docs-pins-item" [ngClass]="'is-' + getDeskDocumentSurface(document)" [attr.data-cy]="'docs-pins-item-' + getDeskCardId(document, i)" (click)="onPinsItemClick(document)">
+              <img *ngIf="getDeskDocumentSurface(document) === 'image'" [src]="document.src" [alt]="document.title || document.name || 'Pinned document preview'" />
+              <div *ngIf="getDeskDocumentSurface(document) !== 'image'" class="docs-pins-item__tile">
+                <i [class.fa-regular]="getDeskDocumentSurface(document) !== 'video'" [class.fa-solid]="getDeskDocumentSurface(document) === 'video'" [class.fa-file-pdf]="getDeskDocumentSurface(document) === 'pdf'" [class.fa-file-lines]="getDeskDocumentSurface(document) === 'file'" [class.fa-circle-play]="getDeskDocumentSurface(document) === 'video'"></i>
+                <span>{{ document.title || document.name || getDocumentTypeLabel(document) }}</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+    <ng-template #heroEmptyState>
+      <div class="col-12 col-xl-7 docs-vault-stage docs-vault-stage-empty">
+        <div class="todd-empty-state text-center py-5">
+          <i class="fa-regular fa-folder-open todd-empty-icon"></i>
+          <h4 class="mt-3 mb-1">Your vault is empty</h4>
+          <p class="text-muted mb-3">Add your first file and start building a library TODD can reference later.</p>
+          <a class="btn-todd" [routerLink]="'/docs/upload'">
+            <i class="fa-solid fa-plus"></i> Add Document </a>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+  <ng-template #noDocuments>
+    <div class="row docs-browser-shell">
+      <div class="todd-empty-state text-center py-5">
+        <i class="fa-regular fa-circle-question todd-empty-icon"></i>
+        <h4 class="mt-3 mb-1">No documents found</h4>
+        <p class="text-muted mb-3"> Add your first item to start building your document repository. </p>
+        <a class="btn-todd" [routerLink]="'/docs/upload'">
+          <i class="fa-solid fa-plus"></i> Add Document </a>
+      </div>
+    </div>
+  </ng-template>
+</div>
+<div *ngIf="deskLightboxDocument && deskLightboxUrl" class="docs-desk-lightbox" data-cy="docs-desk-lightbox" role="dialog" aria-modal="true" [attr.aria-label]="deskLightboxTitle">
+  <div class="docs-desk-lightbox__backdrop" (click)="closeDeskLightbox()"></div>
+  <div class="docs-desk-lightbox__panel">
+    <button type="button" class="docs-desk-lightbox__close" (click)="closeDeskLightbox()" aria-label="Close focused document">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="docs-desk-lightbox__content">
+      <img *ngIf="deskLightboxKind === 'image'" [src]="deskLightboxUrl" [alt]="deskLightboxTitle" />
+      <iframe *ngIf="deskLightboxKind === 'pdf'" [src]="deskLightboxUrl | safeVideoUrl" title="Focused PDF document"></iframe>
+    </div>
+  </div>
+</div>
+<app-back-to-top></app-back-to-top>
+<div class="modal fade custom-lightbox" id="videoLightbox" tabindex="-1" aria-labelledby="videoLightboxLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body p-0 text-center">
+        <iframe *ngIf="lightboxVideoUrl && lightboxVideoMode === 'embed'" [src]="lightboxVideoUrl | safeVideoUrl" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="lightbox-video">
+        </iframe>
+        <video *ngIf="lightboxVideoUrl && lightboxVideoMode === 'file'" [src]="lightboxVideoUrl" class="lightbox-video" controls autoplay playsinline></video>
+      </div>
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-outline-light btn-close-custom" data-bs-dismiss="modal" (click)="closeLightbox()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
