@@ -55,4 +55,19 @@ export const routes: Routes = [
     loadComponent: () =>
       import( './features/document-editor/document-editor.component' ).then( ( m ) => m.DocumentEditorComponent ),
   },
+  {
+    path: 'docs/proposal-history',
+    loadComponent: () =>
+      import( './features/proposal-history/proposal-history.component' ).then( ( m ) => m.ProposalHistoryComponent ),
+  },
+  {
+    path: 'docs/rfp-list',
+    loadComponent: () =>
+      import( './features/rfp-list/rfp-list.component' ).then( ( m ) => m.RfpListComponent ),
+  },
+  {
+    path: 'docs/rfp-upload',
+    loadComponent: () =>
+      import( './features/rfp-upload/rfp-upload.component' ).then( ( m ) => m.RfpUploadComponent ),
+  },
 ];

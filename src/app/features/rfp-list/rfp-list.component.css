@@ -1,0 +1,84 @@
+/*
+ * Ported from taliferrotech's rfp-list-component.component.css, with
+ * fallback values added to every --todd-* variable reference - this app
+ * doesn't carry TODD's full global theme stylesheet (see src/styles.css),
+ * so those custom properties would otherwise resolve to nothing.
+ */
+
+/* Card shell around the RFP table / empty state */
+.todd-panel {
+  background: var(--todd-surface-1, #ffffff);
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 14px 40px rgba(15, 15, 15, 0.08);
+  border: 1px solid var(--todd-border, rgba(15, 15, 15, 0.08));
+}
+
+/* Empty state shared style (same pattern you used elsewhere) */
+.todd-empty-state {
+  background: radial-gradient(circle at top, color-mix(in srgb, var(--todd-border, rgba(15, 15, 15, 0.08)) 30%, transparent), var(--todd-surface-2, #f8fafc) 60%);
+  border-radius: 18px;
+  border: 1px solid var(--todd-border, rgba(15, 15, 15, 0.08));
+}
+
+.todd-empty-icon {
+  font-size: 32px;
+  opacity: 0.85;
+}
+
+/* Actions row – tight, TODD-ish */
+.rfp-actions {
+  display: inline-flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.rfp-actions i {
+  font-size: 15px;
+  opacity: 0.85;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.rfp-actions i:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+/* Table look a bit more app-like */
+.rfp-list .table {
+  color: var(--todd-text, #0d1117);
+}
+
+.rfp-list thead tr {
+  border-bottom: 1px solid var(--todd-border, rgba(15, 15, 15, 0.08));
+}
+
+.rfp-list tbody tr:hover {
+  background: var(--todd-table-row-hover-bg, rgba(0, 149, 204, 0.06));
+}
+
+@media (prefers-color-scheme: dark) {
+  .todd-panel {
+    background: var(--todd-surface-2, rgba(26, 37, 53, 0.85));
+    border: 1px solid var(--todd-panel-border, rgba(0, 191, 255, 0.16));
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  }
+
+  .todd-empty-state {
+    background: radial-gradient(circle at top, color-mix(in srgb, var(--todd-panel-border, rgba(0, 191, 255, 0.16)) 35%, transparent), transparent 55%);
+    border: 1px solid var(--todd-panel-border, rgba(0, 191, 255, 0.16));
+  }
+
+  .rfp-list .table {
+    color: var(--todd-text, #e8edf2);
+  }
+
+  .rfp-list thead tr {
+    border-bottom: 1px solid var(--todd-panel-border, rgba(0, 191, 255, 0.16));
+  }
+
+  .rfp-list tbody tr:hover {
+    background: var(--todd-table-row-hover-bg, rgba(0, 191, 255, 0.08));
+  }
+}

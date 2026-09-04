@@ -1,0 +1,52 @@
+<div class="container-fluid todd-page">
+  <div class="row no-print page-header m-2">
+    <div class="col-12 col-xl-8">
+      <h1 class="pv-title">Upload RFP</h1>
+      <p class="pv-subtitle"> Drop RFPs here so TODD can track deadlines, tag opportunities, and reuse language when you write proposals. </p>
+    </div>
+    <div class="col-12 col-xl-4 text-xl-end mt-3 mt-xl-0 d-none d-xl-block">
+      <app-todd-tip icon="lightbulb" label="Tip">
+        {{ docTipText }}
+      </app-todd-tip>
+    </div>
+  </div>
+  <app-cockpit-browse-mode-banner *ngIf="!canUploadRfps" surfaceLabel="Documents" customTitle="You can try this out, but you won't be able to save" customCopy="You are not signed in, so feel free to explore this form. Sign in before you upload — guest sessions can't save new RFPs."></app-cockpit-browse-mode-banner>
+  <div class="doc-card container mt-4">
+    <form [formGroup]="rfpForm" (ngSubmit)="submitRfp()">
+      <div class="form-group">
+        <div class="drop-zone" [class.disabled]="!canUploadRfps" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+          <p>Drag RFP document here or <span style="cursor: pointer;" class="file-browse-link" (click)="fileInput.click()">browse</span>
+          </p>
+          <input type="file" #fileInput accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.pdf,application/pdf" (change)="onFileSelect($event)" [disabled]="!canUploadRfps" hidden>
+        </div>
+        <div class="row mt-3 " *ngIf="uploadProgress !== null" data-wow-delay="0.5s">
+          <div class="col">
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" [style.width.%]="uploadProgress" [attr.aria-valuenow]="uploadProgress" aria-valuemin="0" aria-valuemax="100">{{uploadProgress}}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="author" class="form-label">Agency Name</label>
+        <input type="text" id="author" class="form-control" formControlName="author" placeholder="Agency Name" [attr.disabled]="!canUploadRfps ? true : null" />
+      </div>
+      <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" id="title" class="form-control" formControlName="title" placeholder="RFP Title" [attr.disabled]="!canUploadRfps ? true : null" />
+      </div>
+      <div class="mb-3">
+        <label for="dueDate" class="form-label">Due Date</label>
+        <input type="date" id="dueDate" class="form-control" formControlName="dueDate" [attr.disabled]="!canUploadRfps ? true : null" />
+        <div class="field-help">TODD uses this to highlight urgent RFPs.</div>
+      </div>
+      <div class="mb-3">
+        <label for="topic" class="form-label">Notes or Tags</label>
+        <textarea id="topic" class="form-control" formControlName="topic" placeholder="Notes or Tags" [attr.disabled]="!canUploadRfps ? true : null"></textarea>
+      </div>
+      <button type="submit" class="btn-todd" [disabled]="rfpForm.invalid || !downloadURL || !canUploadRfps"><i class="fa-solid fa-arrow-up"></i></button>
+    </form>
+  </div>
+</div>
+<app-preloader [isLoading]="isProcessing"></app-preloader>
+<app-back-to-top></app-back-to-top>

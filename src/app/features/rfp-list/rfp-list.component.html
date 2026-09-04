@@ -1,0 +1,60 @@
+<div class="container-fluid todd-page">
+  <app-cockpit-browse-mode-banner *ngIf="!isLoggedIn" surfaceLabel="Documents"></app-cockpit-browse-mode-banner>
+  <div class="row no-print page-header m-2">
+    <div class="col-12 col-xl-8">
+      <h1 class="pv-title">RFPs</h1>
+      <p class="pv-subtitle">Uploaded RFPs that TODD can turn into proposals. </p>
+    </div>
+    <div class="col-12 col-xl-4 text-xl-end mt-3 mt-xl-0 d-none d-xl-block">
+      <app-todd-tip icon="lightbulb" label="Tip">
+        {{ docTipText }}
+      </app-todd-tip>
+    </div>
+  </div>
+  <div class="rfp-list container mt-4">
+    <div class="todd-panel">
+      <table class="table table-sm mb-0" *ngIf="rfps && rfps.length > 0">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Agency</th>
+            <th>Due Date</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rfp of rfps">
+            <td>{{ rfp.title || 'Untitled' }}</td>
+            <td>{{ rfp.author || 'N/A' }}</td>
+            <td>{{ rfp.dueDate | date }}</td>
+            <td class="text-end">
+              <div class="rfp-actions">
+                <span title="View">
+                  <a [href]="rfp.src" target="_blank"><i class="fa-regular fa-eye"></i></a>
+                </span>
+                <span title="Generate Proposal" (click)="generateProposal(rfp)">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </span>
+                <span *ngIf="rfp && rfp.id" title="Delete RFP" (click)="deleteRFP(rfp.id)">
+                  <i class="fa fa-trash"></i>
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- empty state block from above sits here -->
+      <ng-container *ngIf="!rfps || rfps.length === 0">
+        <div class="todd-empty-state text-center py-5">
+          <i class="fa-regular fa-circle-question todd-empty-icon"></i>
+          <h4 class="mt-3 mb-1">No RFPs yet</h4>
+          <p class="text-muted mb-3"> Upload your first RFP so TODD can help you generate proposals. </p>
+          <button class="btn-todd" (click)="onClickRoute('/docs/rfp-upload')">
+            <i class="fa-solid fa-file-arrow-up"></i> Upload RFP </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+<app-preloader [isLoading]="isProcessing"></app-preloader>
+<app-back-to-top></app-back-to-top>
