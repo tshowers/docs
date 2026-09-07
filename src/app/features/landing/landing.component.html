@@ -1,0 +1,21 @@
+<div class="pl-page">
+  <section class="pl-hero">
+    <div class="pl-wrap pl-hero__grid">
+      <div>
+        <div class="pl-eyebrow"><a routerLink="/docs">Docs · TODD</a></div>
+        <h1>The right document before the conversation starts.</h1>
+        <p class="pl-lead">Docs turns your best proposals, response flows, and knowledge into reusable content—ready when the next opportunity needs it.</p>
+        <div class="pl-actions"><a class="pl-btn pl-btn--primary" routerLink="/docs">Open Docs</a><a class="pl-btn pl-btn--ghost" routerLink="/ios">See Docs for iOS</a></div>
+      </div>
+      <div class="pl-hero-media-wrap">
+        <span class="pl-card__label">Document library</span>
+        <img class="pl-hero-media" src="/assets/docs.png" alt="TODD Docs document library with proposals, responses, templates, and a knowledge base">
+      </div>
+    </div>
+  </section>
+  <section class="pl-section pl-section--dark"><div class="pl-wrap"><div class="pl-eyebrow">The problem</div><h2>The problem isn't that the document is stored somewhere. It's that nothing reuses it.</h2><div class="pl-grid pl-grid--3"><article *ngFor="let item of ['Your best language is buried in a past proposal.', 'Cloud storage will not tell you which document won.', 'Preparation starts from scratch because context is disconnected.']"><p>{{ item }}</p></article></div></div></section>
+  <section #docsSection class="pl-section pl-section--docs-transition"><div class="pl-wrap"><div class="pl-eyebrow">What Docs gives you</div><h2>A document layer connected to the work it supports.</h2><div class="pl-grid pl-grid--2"><article class="pl-feature" *ngFor="let item of outcomes"><span>{{ item[0] }}</span><h3>{{ item[1] }}</h3><p>{{ item[2] }}</p></article></div></div></section>
+  <section class="pl-section pl-section--tint"><div class="pl-wrap"><div class="pl-eyebrow">How Docs works</div><h2>Connect your best work so TODD can put it to use.</h2><div class="pl-steps"><div *ngFor="let step of steps"><strong>{{ step[0] }}</strong><p>{{ step[1] }}</p></div></div></div></section>
+  <section class="pl-faq"><div class="pl-wrap"><div class="pl-eyebrow">Questions worth asking</div><h2>Docs keeps the right answer close.</h2><div class="pl-faq__list"><details class="pl-faq__item" *ngFor="let faq of faqs"><summary>{{ faq.question }}</summary><p>{{ faq.answer }}</p></details></div></div></section>
+  <section class="pl-cta"><div class="pl-wrap"><h2>The best proposal you ever wrote should not disappear after it is sent.</h2><p>Add your past work and let TODD read it the next time a similar opportunity appears.</p><div class="pl-actions"><a class="pl-btn pl-btn--primary" routerLink="/docs">Open Docs</a><a class="pl-btn pl-btn--outline" routerLink="/docs/pricing">See Pricing</a></div></div></section>
+</div>

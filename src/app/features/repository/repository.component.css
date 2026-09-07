@@ -172,6 +172,49 @@ app-todd-tip {
     margin-left: 0.45rem;
 }
 
+/* Keep the guest preview on the same light surface as the rest of the
+   Knowledge page. The previous dark promotional treatment made this route
+   look like two themes were rendered together. */
+.knowledge-guest-preview {
+    border-color: rgba(0, 149, 204, 0.18);
+    background:
+        radial-gradient(circle at 92% 8%, rgba(0, 191, 255, 0.12), transparent 32%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(239, 247, 252, 0.92));
+    color: #0f172a;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.knowledge-guest-preview__eyebrow,
+.knowledge-guest-preview__number {
+    color: var(--tl-blue-mid, #0095cc);
+}
+
+.knowledge-guest-preview__header p,
+.knowledge-guest-preview__card p,
+.knowledge-guest-preview__footer span {
+    color: #475569;
+}
+
+.knowledge-guest-preview__mark {
+    border-color: rgba(0, 149, 204, 0.26);
+    background: rgba(0, 191, 255, 0.10);
+    color: var(--tl-blue-mid, #0095cc);
+}
+
+.knowledge-guest-preview__card {
+    border-color: rgba(148, 163, 184, 0.24);
+    background: rgba(255, 255, 255, 0.68);
+}
+
+.knowledge-guest-preview__card h3,
+.knowledge-guest-preview__footer strong {
+    color: #0f172a;
+}
+
+.knowledge-guest-preview__footer {
+    border-top-color: rgba(148, 163, 184, 0.26);
+}
+
 /* Search */
 .repository-search {
     margin-top: 1rem;

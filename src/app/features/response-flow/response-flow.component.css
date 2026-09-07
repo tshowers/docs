@@ -146,6 +146,75 @@ app-todd-tip {
     backdrop-filter: blur(10px);
 }
 
+/* The shared stepper lives in the original TODD stylesheet. Keep the wizard
+ * self-contained here so lazy-loaded Knowledge pages retain the full wizard
+ * treatment even when opened directly. */
+.stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    margin: 0 0 1.5rem;
+}
+
+.step {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: var(--rf-muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.step::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 28px;
+    right: 0;
+    left: 0;
+    height: 2px;
+    background: rgba(148, 163, 184, 0.28);
+}
+
+.step:first-child::before { left: 50%; }
+.step:last-child::before { right: 50%; }
+
+.step.active::before {
+    background: linear-gradient(90deg, rgba(0, 191, 255, 0.58), rgba(0, 149, 204, 0.24));
+}
+
+.step .circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 0.45rem;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 999px;
+    background: radial-gradient(circle at 30% 20%, #fff, #e8eef3);
+    color: #334155;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12), inset 0 1px 3px rgba(255, 255, 255, 0.9);
+}
+
+.step.active .circle {
+    border-color: rgba(0, 191, 255, 0.42);
+    background: radial-gradient(circle at 30% 20%, #fff, #d6e7ef);
+    color: #006a99;
+    box-shadow: 0 12px 28px rgba(0, 149, 204, 0.18), 0 0 0 3px rgba(0, 191, 255, 0.10);
+}
+
+@media (max-width: 767px) {
+    .stepper { justify-content: flex-start; gap: 0.65rem; overflow-x: auto; }
+    .step { flex: 0 0 84px; }
+    .step::before { display: none; }
+}
+
 
 
 

@@ -2,9 +2,20 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import( './features/landing/landing.component' ).then( ( m ) => m.LandingComponent ),
+  },
+  {
     path: 'auth/callback',
     loadComponent: () =>
       import( './features/auth-callback/auth-callback.component' ).then( ( m ) => m.AuthCallbackComponent ),
+  },
+  {
+    path: 'ios',
+    loadComponent: () =>
+      import( './features/app-showcase/app-showcase.component' ).then( ( m ) => m.AppShowcaseComponent ),
   },
   {
     path: 'docs/success',
