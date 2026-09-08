@@ -30,6 +30,7 @@ export class SignInComponent implements OnInit {
 
   ngOnInit (): void {
     this.returnUrl = this.route.snapshot.queryParamMap.get( 'returnUrl' ) || '/docs';
+    this.signIn();
   }
 
   signIn (): void {
