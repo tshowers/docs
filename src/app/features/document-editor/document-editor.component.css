@@ -87,6 +87,10 @@ textarea.form-control {
     letter-spacing: 0.01em;
 }
 
+.col-md-7>div>div:first-child {
+    margin-bottom: 1.25rem;
+}
+
 /* Left panel helper spacing */
 .col-md-5 textarea {
     margin-bottom: 1rem;

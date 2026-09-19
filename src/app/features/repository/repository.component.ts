@@ -42,6 +42,7 @@ export interface ResponseFlowRecord {
   recommendations: Recommendation[];
   resources: Resource[];
   keywords: string[];
+  status?: string;
 }
 
 /**
@@ -213,7 +214,7 @@ export class RepositoryComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isLoading = true;
     this.responseFlowService.getResponseFlows().subscribe( {
       next: ( items ) => {
-        this.knowledgeBaseSubject.next( ( items || [] ) as ResponseFlowRecord[] );
+        this.knowledgeBaseSubject.next( ( Array.isArray( items ) ? items : [] ) as ResponseFlowRecord[] );
         this.isLoading = false;
       },
       error: ( error ) => {

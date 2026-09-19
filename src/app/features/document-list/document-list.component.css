@@ -472,31 +472,30 @@ nav {
   opacity: 0.68;
 }
 
-.docs-stage-dots {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.45rem;
+.docs-stage-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: min(100%, 24rem);
+  color: var(--secondary-text);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+
+.docs-stage-jump select {
+  min-width: min(17rem, 58vw);
   max-width: 100%;
-}
-
-.docs-stage-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
+  padding: 0.48rem 2rem 0.48rem 0.7rem;
   border: 1px solid var(--secondary-border);
-  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: var(--secondary-bg);
+  color: var(--secondary-text);
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
   cursor: pointer;
-  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-}
-
-.docs-stage-dot:hover {
-  transform: scale(1.08);
-}
-
-.docs-stage-dot.is-active {
-  background: var(--eyebrow-text);
-  border-color: var(--eyebrow-text);
 }
 
 .docs-desk-shell {

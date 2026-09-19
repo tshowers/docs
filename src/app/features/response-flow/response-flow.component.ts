@@ -58,6 +58,7 @@ export interface ResponseFlow {
   resources: any[];
   keywords: string[]; // NEW
   mayaReference: boolean;
+  status?: 'draft' | 'complete';
 }
 
 /**
@@ -131,7 +132,7 @@ export class ResponseFlowComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   currentStep = 0;
-  steps = ['Question', 'Response', 'Resource', 'Keywords'];
+  steps = ['Question', 'Response', 'Recommendation', 'Resource', 'Keywords'];
 
   question!: string;
   answers: Answer[] = [];
@@ -301,7 +302,7 @@ export class ResponseFlowComponent implements OnInit, OnDestroy, AfterViewInit {
     } );
 
     this.route.queryParams.subscribe( params => {
-      const id = params['id'];
+      const id = params['id'] || this.route.snapshot.paramMap.get( 'id' );
       const from = params['from'];
       const mode = params['mode'];
 
@@ -450,7 +451,12 @@ export class ResponseFlowComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 
-  submitFlow () {
+  /** A response flow is only complete once it has a question and at least one filled-in answer. */
+  get isResponseComplete (): boolean {
+    return !!this.question?.trim() && this.answers.some( a => !!a?.answer?.trim() );
+  }
+
+  submitFlow ( asDraft = false ) {
     this.publishPageContext();
 
     if ( !this.userId ) {
@@ -469,10 +475,10 @@ export class ResponseFlowComponent implements OnInit, OnDestroy, AfterViewInit {
     this.responseFlow.keywords = this.keywords;
     this.responseFlow.category = this.kbcategory;
     this.responseFlow.mayaReference = this.mayaReference;
-    this.processData();
+    this.processData( asDraft );
   }
 
-  processData () {
+  processData ( asDraft = false ) {
     if ( !this.userId ) {
       this.notificationService.show(
         'Save Notice',
@@ -481,13 +487,25 @@ export class ResponseFlowComponent implements OnInit, OnDestroy, AfterViewInit {
       );
       return;
     }
+
+    if ( !asDraft && !this.isResponseComplete ) {
+      this.notificationService.show(
+        'Add a question and answer',
+        'A response flow needs a question and at least one answer before it can be saved. If a section doesn\'t apply, save it as a draft instead.',
+        'warning'
+      );
+      return;
+    }
+
+    this.responseFlow.status = asDraft ? 'draft' : 'complete';
+
     if ( this.responseFlow.id ) {
       // If record exists, update via backend API
       this.responseFlowService.updateResponseFlow( this.responseFlow.id, this.responseFlow )
         .subscribe( {
           next: () => {
             this.isLoading = false;
-            this.notificationService.show( "Updated!", this.isAssistantSavedMode ? 'Knowledge Base answer updated.' : 'Response Flow ' + this.responseFlow.id + ' updated.', 'success' );
+            this.notificationService.show( asDraft ? 'Draft saved' : 'Updated!', this.isAssistantSavedMode ? 'Knowledge Base answer updated.' : 'Response Flow ' + this.responseFlow.id + ( asDraft ? ' saved as a draft.' : ' updated.' ), 'success' );
             this.resetForm();
           },
           error: () => {
@@ -501,7 +519,7 @@ export class ResponseFlowComponent implements OnInit, OnDestroy, AfterViewInit {
         .subscribe( {
           next: ( res: any ) => {
             this.isLoading = false;
-            this.notificationService.show( "Added!", 'Knowledge Base answer saved.', 'success' );
+            this.notificationService.show( asDraft ? 'Draft saved' : 'Added!', asDraft ? 'Knowledge Base answer saved as a draft.' : 'Knowledge Base answer saved.', 'success' );
             this.resetForm();
           },
           error: ( error ) => {
@@ -842,6 +860,15 @@ export class ResponseFlowComponent implements OnInit, OnDestroy, AfterViewInit {
       this.keywords = [];
       this.keywordInput = '';
       this.mayaReference = false;
+      this.responseFlow = {
+        question: '',
+        category: '',
+        answers: [],
+        recommendations: [],
+        resources: [],
+        keywords: [],
+        mayaReference: false
+      };
       this.clearSelectedFile();
     } catch ( error ) {
       this.logger.error( error );

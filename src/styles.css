@@ -85,22 +85,31 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  /*
+   * !important is required here: @taliferro/ui/styles/controls.css forces
+   * .btn-todd's light styling with !important and only lifts it via a
+   * [data-theme="dark"] attribute selector - an attribute nothing in this
+   * app (or any sibling product) ever sets. Without matching !important
+   * here, this block loses to controls.css regardless of media-query
+   * specificity, and the button is stuck looking light-mode even when the
+   * rest of the page (body background, etc.) has correctly gone dark.
+   */
   .btn-todd {
-    background: linear-gradient(180deg, rgba(31, 45, 64, 0.82), rgba(13, 20, 31, 0.78));
-    border-color: rgba(0, 191, 255, 0.22);
-    color: #f0f8ff;
+    background: linear-gradient(180deg, rgba(31, 45, 64, 0.82), rgba(13, 20, 31, 0.78)) !important;
+    border-color: rgba(0, 191, 255, 0.22) !important;
+    color: #f0f8ff !important;
   }
 
   .btn-todd:hover,
   .btn-todd:focus-visible {
-    background: linear-gradient(180deg, rgba(40, 58, 80, 0.92), rgba(17, 30, 46, 0.86));
-    color: #fff;
+    background: linear-gradient(180deg, rgba(40, 58, 80, 0.92), rgba(17, 30, 46, 0.86)) !important;
+    color: #fff !important;
   }
 
   .btn-todd:disabled {
-    background: rgba(51, 65, 85, 0.55);
-    border-color: rgba(148, 163, 184, 0.20);
-    color: #94a3b8;
+    background: rgba(51, 65, 85, 0.55) !important;
+    border-color: rgba(148, 163, 184, 0.20) !important;
+    color: #94a3b8 !important;
   }
 }
 
@@ -142,9 +151,25 @@ body {
   color: #0d1117;
 }
 
+app-root > router-outlet + *:not(app-landing) { padding-top:4.5rem; box-sizing:border-box; }
+
 @media (prefers-color-scheme: dark) {
   body {
     background: #141a1e;
     color: #e8edf2;
+  }
+
+  /*
+   * Bootstrap's own dark mode is opt-in via a [data-bs-theme="dark"]
+   * attribute (its --bs-body-bg/--bs-table-bg variables never look at
+   * prefers-color-scheme) and nothing in this app sets that attribute.
+   * Left alone, .table cells paint an explicit white background
+   * (`.table { --bs-table-bg: var(--bs-body-bg); }`, and --bs-body-bg
+   * defaults to #fff) regardless of how dark everything around them is.
+   */
+  .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #e8edf2;
+    --bs-table-border-color: rgba(0, 191, 255, 0.16);
   }
 }

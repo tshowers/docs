@@ -200,7 +200,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy, OnChan
   }
 
   openFilePicker (): void {
-    this.soundService.playSound('click');
+    this.soundService.playSound( 'click' );
 
     if ( !this.canUploadDocuments || this.processing ) {
       this.notificationService.show(
@@ -240,7 +240,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy, OnChan
     return [
       {
         id: 'general-document-upload-submit',
-        label: this.document?.id ? 'Update Upload' : 'Upload to TODD',
+        label: this.document?.id ? 'Update Upload' : 'Upload',
         icon: 'fa-solid fa-cloud-arrow-up',
         kind: 'callback',
         handler: () => {

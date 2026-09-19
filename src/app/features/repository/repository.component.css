@@ -463,6 +463,16 @@ app-todd-tip {
     color: #7c3aed;
 }
 
+.rf-badge--draft {
+    margin-left: 0.5rem;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.68rem;
+    vertical-align: middle;
+    background: rgba(217, 119, 6, 0.1);
+    border-color: rgba(217, 119, 6, 0.24);
+    color: #b45309;
+}
+
 .rf-reviewed {
     margin-top: 0.75rem;
     font-size: 0.8rem;

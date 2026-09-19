@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DocsAuthService } from '../../services/docs-auth.service';
+import { firstValueFrom } from 'rxjs';
 
 /**
  * Ported from web-products/network's SignInComponent (itself ported from
@@ -25,11 +26,16 @@ export class SignInComponent implements OnInit {
 
   constructor (
     private route: ActivatedRoute,
+    private router: Router,
     private authService: DocsAuthService,
   ) { }
 
-  ngOnInit (): void {
+  async ngOnInit (): Promise<void> {
     this.returnUrl = this.route.snapshot.queryParamMap.get( 'returnUrl' ) || '/docs';
+    if ( await firstValueFrom( this.authService.getUser() ) ) {
+      await this.router.navigateByUrl( this.returnUrl );
+      return;
+    }
     this.signIn();
   }
 

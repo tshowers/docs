@@ -1,3 +1,22 @@
+:host {
+    display: block;
+}
+
+.todd-page {
+    padding-top: 1.75rem !important;
+}
+
+.todd-page > app-cockpit-browse-mode-banner {
+    display: block;
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 1200px) {
+    .todd-page > .page-header > .col-xl-4 {
+        padding-top: 2rem;
+    }
+}
+
 .proposal-history {
     padding: 0 0 2rem;
 }

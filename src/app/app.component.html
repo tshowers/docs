@@ -1,3 +1,6 @@
+<div class="app-global-actions" *ngIf="!isEmbedded"><app-platform-menu [isAdmin]="(isAdmin$ | async) ?? false" [isLoggedIn]="(isLoggedIn$ | async) ?? false" (signOut)="signOut()" /></div>
+<div *ngIf="updateNotice" class="docs-update-notice" role="status" aria-live="polite"><span>{{ updateNotice }}</span><button *ngIf="chunkRecoveryNeedsManualRefresh" type="button" (click)="refreshAfterChunkError()">Refresh</button><button *ngIf="!chunkRecoveryNeedsManualRefresh" type="button" aria-label="Dismiss update notification" (click)="dismissUpdateNotice()">×</button></div>
 <app-command-palette />
 <router-outlet></router-outlet>
+<app-docs-assistant-launcher *ngIf="!isEmbedded"></app-docs-assistant-launcher>
 <app-toast></app-toast>

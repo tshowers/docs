@@ -295,17 +295,23 @@
         </div>
         <div class="row d-none d-md-flex">
             <div class="col">
-                <div class="mt-4 d-flex justify-content-between">
+                <div class="mt-4 d-flex justify-content-between align-items-center">
                     <button class="btn-todd" (click)="goBackOrPreviousStep()">{{ currentStep === 0 ? 'Exit' : 'Back' }}</button>
                     <button class="btn-todd" *ngIf="currentStep < steps.length - 1" (click)="nextStep()">Next</button>
-                    <button class="btn-todd" *ngIf="currentStep === steps.length - 1" (click)="saveClick(); submitFlow()">Submit</button>
+                    <div class="d-flex align-items-center gap-2" *ngIf="currentStep === steps.length - 1">
+                        <button class="btn btn-outline-secondary" type="button" (click)="saveClick(); submitFlow(true)">Save as Draft</button>
+                        <button class="btn-todd" [disabled]="!isResponseComplete" [title]="isResponseComplete ? '' : 'Add a question and at least one answer, or save as a draft.'" (click)="saveClick(); submitFlow()">Submit</button>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="rf-mobile-action-bar d-md-none">
             <button class="btn-todd" type="button" (click)="goBackOrPreviousStep()">{{ currentStep === 0 ? 'Exit' : 'Back' }}</button>
             <button class="btn-todd" *ngIf="currentStep < steps.length - 1" type="button" (click)="nextStep()">Next</button>
-            <button class="btn-todd" *ngIf="currentStep === steps.length - 1" type="button" (click)="saveClick(); submitFlow()">Submit</button>
+            <ng-container *ngIf="currentStep === steps.length - 1">
+                <button class="btn btn-outline-secondary" type="button" (click)="saveClick(); submitFlow(true)">Save as Draft</button>
+                <button class="btn-todd" type="button" [disabled]="!isResponseComplete" [title]="isResponseComplete ? '' : 'Add a question and at least one answer, or save as a draft.'" (click)="saveClick(); submitFlow()">Submit</button>
+            </ng-container>
         </div>
         <!-- preview pane-->
     </div>

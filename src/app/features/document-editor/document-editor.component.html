@@ -20,26 +20,26 @@
             <div class="">
               <textarea class="form-control" data-demo="document-instructions" rows="4" [(ngModel)]="instructionText" [disabled]="!canCrudDocuments || isToddWorking" placeholder="Tell TODD what to do to this document (e.g., ‘Change the tone to casual and add a closing CTA.’)"></textarea>
               <div class="preset-chips" data-demo="document-presets">
-                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Fix spelling and grammar')">Fix spelling & grammar</button>
-                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Rewrite to a more professional tone')">Professional tone</button>
-                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Rewrite to a more concise version')">Make concise</button>
-                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Expand with more detail and examples where helpful')">Expand</button>
-                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Convert to bullet points with clear sections')">Bulletize</button>
-                <button type="button" class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Summarize into an executive summary (5-7 bullets)')">Summarize</button>
+                <button type="button" class="btn-todd" data-cy="editor-action-fix-grammar" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Fix spelling and grammar')">Fix spelling & grammar</button>
+                <button type="button" class="btn-todd" data-cy="editor-action-professional-tone" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Rewrite to a more professional tone')">Professional tone</button>
+                <button type="button" class="btn-todd" data-cy="editor-action-concise" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Rewrite to a more concise version')">Make concise</button>
+                <button type="button" class="btn-todd" data-cy="editor-action-expand" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Expand with more detail and examples where helpful')">Expand</button>
+                <button type="button" class="btn-todd" data-cy="editor-action-bulletize" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Convert to bullet points with clear sections')">Bulletize</button>
+                <button type="button" class="btn-todd" data-cy="editor-action-summarize" [disabled]="!canCrudDocuments || isToddWorking" (click)="setInstruction('Summarize into an executive summary (5-7 bullets)')">Summarize</button>
               </div>
               <div class="actions mt-2" data-demo="document-preview-actions">
-                <button class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking || !instructionText.trim()" (click)="runToddInstruction()">
+                <button class="btn-todd" data-cy="editor-action-preview" [disabled]="!canCrudDocuments || isToddWorking || !instructionText.trim()" (click)="runToddInstruction()">
                   <ng-container *ngIf="!isToddWorking">Preview Changes</ng-container>
                   <ng-container *ngIf="isToddWorking">Working…</ng-container>
                 </button>
-                <button class="btn-todd" [disabled]="!canCrudDocuments || isToddWorking || !toddPreview" (click)="discardToddPreview()">Discard Preview</button>
+                <button class="btn-todd" data-cy="editor-action-discard-preview" [disabled]="!canCrudDocuments || isToddWorking || !toddPreview" (click)="discardToddPreview()">Discard Preview</button>
               </div>
               <div class="todd-preview" *ngIf="toddPreview">
                 <div class="">Preview</div>
                 <div class="small-text mb-2">Preview shows TODD’s revised version before you apply it.</div>
                 <div class="preview-box" [innerHTML]="toddPreview" style="color: #f5f7fb;"></div>
                 <div class="actions mt-2">
-                  <button class="btn-todd" [disabled]="!canCrudDocuments" (click)="applyToddPreview()">Apply to Document</button>
+                  <button class="btn-todd" data-cy="editor-action-apply-preview" [disabled]="!canCrudDocuments" (click)="applyToddPreview()">Apply to Document</button>
                 </div>
               </div>
               <hr>
@@ -90,10 +90,10 @@
               </app-doc-rich-text-editor>
             </div>
             <div class="export-buttons mt-2" data-demo="document-export-actions">
-              <button *ngIf="!docid" (click)="saveClick(); saveDraft()" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">{{ currentDocument?.recordKind === 'upload' || currentDocument?.type === 'document' ? 'Save Document' : 'Save Draft' }}</button>
-              <button *ngIf="docid" (click)="updateDraft()" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">{{ currentDocument?.recordKind === 'upload' || currentDocument?.type === 'document' ? 'Update Document' : 'Update Draft' }}</button>
-              <button (click)="exportTo('doc')" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">Export as Word</button>
-              <button (click)="exportTo('pdf')" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">Export as PDF</button> <button (click)="copyText()" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing || !htmlContent">Copy Text</button>
+              <button *ngIf="!docid" data-cy="editor-action-save" (click)="saveClick(); saveDraft()" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">{{ currentDocument?.recordKind === 'upload' || currentDocument?.type === 'document' ? 'Save Document' : 'Save Draft' }}</button>
+              <button *ngIf="docid" data-cy="editor-action-save" (click)="updateDraft()" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">{{ currentDocument?.recordKind === 'upload' || currentDocument?.type === 'document' ? 'Update Document' : 'Update Draft' }}</button>
+              <button data-cy="editor-action-export-word" (click)="exportTo('doc')" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">Export as Word</button>
+              <button data-cy="editor-action-export-pdf" (click)="exportTo('pdf')" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing">Export as PDF</button> <button data-cy="editor-action-copy" (click)="copyText()" class="btn-todd" [disabled]="!canCrudDocuments || isProcessing || !htmlContent">Copy Text</button>
             </div>
           </div>
         </div>

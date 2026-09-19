@@ -9,12 +9,6 @@
                 <div class="knowledge-bookmark-cta mb-4 mt-3">
                     <app-module-install-cta [installConfig]="installConfig"></app-module-install-cta>
                 </div>
-                <div class="mb-5 mt-3">
-                    <a class="btn-todd me-2" routerLink="/docs">Back to Docs</a>
-                    <a class="btn-todd me-2" *ngIf="!(entitlements$ | async)?.knowledge" routerLink="/knowledge/pricing">Pricing</a>
-                    <a class="btn-todd me-2" *ngIf="!(entitlements$ | async)?.suite" href="https://todd.taliferro.tech/suite/pricing">Suite Pricing</a>
-                    <a class="btn-todd me-2" href="https://todd.taliferro.tech/pricing">Enterprise Pricing</a>
-                </div>
                 <div class="repository-search mb-3 d-flex align-items-center gap-2" *ngIf="(filtered$ | async)?.length != 0">
                     <i class="fa-solid fa-magnifying-glass d-none d-xl-block"></i>
                     <input type="text" class="form-control" style="max-width:480px" placeholder="Filter questions, answers, links…" [ngModel]="searchText" (ngModelChange)="onSearch($event)" />
@@ -27,11 +21,7 @@
                 </app-todd-tip>
             </div>
         </div>
-        <app-cockpit-browse-mode-banner
-            *ngIf="!isLoggedIn"
-            surfaceLabel="Knowledge Base"
-            customTitle="You can explore the Knowledge Base, but you won't be able to save"
-            customCopy="You are not signed in, so feel free to preview how TODD turns questions, sourced answers, and useful resources into reusable business memory. Sign in to create, edit, or save Knowledge Base entries.">
+        <app-cockpit-browse-mode-banner *ngIf="!isLoggedIn" surfaceLabel="Knowledge Base" customTitle="You can explore the Knowledge Base, but you won't be able to save" customCopy="You are not signed in, so feel free to preview how TODD turns questions, sourced answers, and useful resources into reusable business memory. Sign in to create, edit, or save Knowledge Base entries.">
         </app-cockpit-browse-mode-banner>
         <div class="row" *ngIf="isLoggedIn">
             <div class="col">
@@ -52,6 +42,7 @@
                                     <h3 class="rf-question">
                                         {{ item.question }}
                                         <span class="rf-badge rf-badge--source" *ngIf="item.type === 'bookmark'" title="Bookmarked from Find"><i class="fa-solid fa-bookmark"></i> via Find</span>
+                                        <span class="rf-badge rf-badge--draft" *ngIf="item.status === 'draft'" title="Missing a question and/or answer"><i class="fa-regular fa-pen-to-square"></i> Draft</span>
                                     </h3>
                                     <div class="rf-card-actions" *ngIf="!restrictedUser">
                                         <button class="rf-icon-btn" title="Turn into post" (click)="$event.stopPropagation(); turnIntoPost(item)">

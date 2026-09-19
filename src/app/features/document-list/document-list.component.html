@@ -1,11 +1,6 @@
 <app-preloader [isLoading]="isLoading"></app-preloader>
 <div class="container-fluid tal-app todd-page" [class.docs-page--embedded]="isEmbedded" [class.desk-lightbox-open]="!!deskLightboxDocument" data-cy="docs-page-shell">
-  <app-cockpit-browse-mode-banner
-    *ngIf="!tenantId"
-    surfaceLabel="Documents"
-    customTitle="You can explore your document vault, but you won't be able to save"
-    customCopy="You are not signed in, so feel free to look around. Sign in to upload, attach, or delete documents in your vault."
-  ></app-cockpit-browse-mode-banner>
+  <app-cockpit-browse-mode-banner *ngIf="!tenantId" surfaceLabel="Documents" customTitle="You can explore your document vault, but you won't be able to save" customCopy="You are not signed in, so feel free to look around. Sign in to upload, attach, or delete documents in your vault."></app-cockpit-browse-mode-banner>
   <div class="row no-print page-header m-2 docs-vault-hero" [class.docs-vault-hero--pins]="isPinsViewActive">
     <div>
       <div class="docs-eyebrow">Docs</div>
@@ -25,7 +20,7 @@
           <i class="fa-solid fa-file-lines"></i> Open Editor </button>
       </div>
       <div class="docs-hero-meta mt-4 mb-4 d-none d-xl-block">
-        <span class="docs-count-pill">{{ filteredDocuments.length }} items</span>
+        <span class="docs-count-pill mb-3">{{ filteredDocuments.length }} items</span>
         <app-todd-tip icon="lightbulb" label="Tip"> {{ docTipText }} </app-todd-tip>
       </div>
       <div *ngIf="canUseDeskView" class="docs-view-switch" data-cy="docs-view-switch">
@@ -108,8 +103,7 @@
                 <div class="docs-stage-actions mt-3">
                   <button type="button" class="btn-todd" [disabled]="savingEdit" (click)="saveEditDocument(activeDocument)">
                     {{ savingEdit ? 'Saving…' : 'Save' }} </button>
-                  <button type="button" class="btn-todd btn-todd-secondary" [disabled]="savingEdit" (click)="cancelEditDocument()">
-                    Cancel </button>
+                  <button type="button" class="btn-todd btn-todd-secondary" [disabled]="savingEdit" (click)="cancelEditDocument()"> Cancel </button>
                 </div>
               </div>
             </ng-template>
@@ -139,10 +133,14 @@
               <i class="fa-solid fa-chevron-right"></i>
             </button>
           </div>
-          <div class="docs-stage-dots" role="tablist" aria-label="Jump to document">
-            <button type="button" class="docs-stage-dot" *ngFor="let document of filteredDocuments; let i = index" [class.is-active]="i === activeIndex" [attr.aria-label]="'Go to document ' + ( i + 1 )" (click)="setActiveDocumentById(document.id)">
-            </button>
-          </div>
+          <label class="docs-stage-jump">
+            <span>Jump to document</span>
+            <select [ngModel]="activeDocument && activeDocument.id || ''" (ngModelChange)="setActiveDocumentById($event)" aria-label="Jump to document">
+              <option *ngFor="let document of filteredDocuments; let i = index" [ngValue]="document.id">
+                {{ i + 1 }}. {{ document.title || document.name || 'Untitled document' }}
+              </option>
+            </select>
+          </label>
         </div>
       </div>
       <ng-template #alternateView>

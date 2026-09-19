@@ -55,7 +55,17 @@ export class DocsAuthService {
 
   private readonly pendingLoginStorageKey = 'docs_hosted_login_pending';
 
+  /** Explicitly enabled only by Cypress before the app boots; never active in normal browser sessions. */
+  private get cypressTestSession (): boolean {
+    return typeof window !== 'undefined'
+      && !!( window as any ).Cypress
+      && window.localStorage.getItem( '__docsCypressAuth' ) === 'true';
+  }
+
+  private readonly cypressUser = { uid: 'docs-cypress-user', email: 'docs-cypress@example.com' } as User;
+
   getUser (): Observable<User | null> {
+    if ( this.cypressTestSession ) return of( this.cypressUser );
     return new Observable( ( subscriber ) => {
       const unsubscribe = onAuthStateChanged( this.auth, ( user ) => subscriber.next( user ) );
       return unsubscribe;
@@ -67,6 +77,7 @@ export class DocsAuthService {
    * so keeping the signature identical means the rest of a component's
    * logic ports unchanged. */
   getUserId (): Observable<string> {
+    if ( this.cypressTestSession ) return of( this.cypressUser.uid );
     if ( !this.userId$ ) {
       this.userId$ = new Observable<string>( ( subscriber ) => {
         const unsubscribe = onAuthStateChanged( this.auth, ( user ) => subscriber.next( user?.uid || '' ) );
@@ -80,6 +91,7 @@ export class DocsAuthService {
    * this for `tenants/{tenantId}/...` reads, so it's cached here rather
    * than making each component re-resolve it. */
   getTenantId (): Observable<string> {
+    if ( this.cypressTestSession ) return of( this.cypressUser.uid );
     if ( !this.tenantId$ ) {
       this.tenantId$ = this.getUserId().pipe(
         switchMap( ( uid ) => ( uid ? this.resolveTenantId( uid ) : of( '' ) ) ),
@@ -103,6 +115,7 @@ export class DocsAuthService {
   }
 
   isLoggedIn (): Observable<boolean> {
+    if ( this.cypressTestSession ) return of( true );
     return new Observable( ( subscriber ) => {
       const unsubscribe = onAuthStateChanged( this.auth, ( user ) => subscriber.next( !!user ) );
       return unsubscribe;
