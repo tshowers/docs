@@ -29,7 +29,6 @@ export const COMMAND_PALETTE_ENTRIES: CommandPaletteEntry[] = [
   { id: 'knowledge-base', label: 'Knowledge Base', group: 'Docs', path: '/knowledge', keywords: ['knowledge base', 'knowledge', 'repository'] },
   { id: 'knowledge-response-flow', label: 'Knowledge Management', group: 'Docs', path: '/knowledge/response-flow', keywords: ['response flow', 'knowledge management', 'wizard'] },
   { id: 'knowledge-pricing', label: 'Knowledge Pricing', group: 'Docs', path: '/knowledge/pricing', keywords: ['knowledge pricing', 'plans', 'billing'] },
-  { id: 'sign-in', label: 'Sign In', group: 'Docs', path: '/login', keywords: ['sign in', 'login', 'log in'] },
 
   // --- Other Apps -----------------------------------------------------------
   { id: 'app-maya', label: 'Maya', group: 'Other Apps', path: 'https://maya.taliferro.tech', icon: 'assets/find/entities/maya/logo-bw-icon.png', external: true, keywords: ['maya', 'marketing director'] },

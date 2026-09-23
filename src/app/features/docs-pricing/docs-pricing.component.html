@@ -6,8 +6,6 @@
             <p class="docs-pricing-lead"> Docs gives you a clean place to keep uploads, working files, and supporting material inside TODD. The paid plan expands your document limit so you can keep more of your work in one place. </p>
             <div class="docs-pricing-actions">
                 <a class="btn-todd me-2" routerLink="/docs">Back to Docs</a>
-                <a class="btn-todd me-2" *ngIf="!(entitlements$ | async)?.suite" href="https://todd.taliferro.tech/suite/pricing">Suite Pricing</a>
-                <a class="btn-todd me-2" href="https://todd.taliferro.tech/pricing">Enterprise Pricing</a>
             </div>
         </div>
         <div class="docs-pricing-visual">
@@ -31,21 +29,6 @@
             <ul class="docs-pricing-list">
                 <li *ngFor="let item of highlights">{{ item }}</li>
             </ul>
-            <div class="docs-pricing-form">
-                <div class="docs-pricing-login-callout" *ngIf="requiresLogin">
-                    <div class="docs-pricing-login-title">Sign in first</div>
-                    <p class="docs-pricing-login-text"> We use your login to find you before starting checkout. </p>
-                    <button type="button" class="btn btn-dark docs-pricing-login-btn" (click)="goToLogin()"> Sign in to purchase </button>
-                </div>
-                <label class="docs-pricing-field" *ngIf="!requiresLogin">
-                    <span>Email</span>
-                    <input type="email" [(ngModel)]="email" placeholder="Enter your billing email">
-                </label>
-                <button *ngIf="!requiresLogin" type="button" class="btn btn-dark docs-pricing-subscribe" (click)="startCheckout()" [disabled]="isStartingCheckout">
-                    {{ isStartingCheckout ? 'Starting checkout...' : 'Subscribe to Docs' }}
-                </button>
-                <div class="docs-pricing-error" *ngIf="checkoutError">{{ checkoutError }}</div>
-            </div>
         </article>
         <article class="docs-pricing-card card shadow-sm border-0 docs-pricing-card-accent">
             <div class="docs-pricing-card-header">

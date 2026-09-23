@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DocsPurchaseFlowService } from '../../services/docs-purchase-flow.service';
 import { DOCS_PURCHASE_FLOW } from '../../services/purchase-flow.config';
 import { ClickSoundDirective } from '../../shared/directives/click-sound.directive';
@@ -16,7 +16,7 @@ import { ClickSoundDirective } from '../../shared/directives/click-sound.directi
 @Component( {
   selector: 'app-docs-paid-success',
   standalone: true,
-  imports: [CommonModule, RouterLink, ClickSoundDirective],
+  imports: [CommonModule, ClickSoundDirective],
   templateUrl: './docs-paid-success.component.html',
   styleUrl: './docs-paid-success.component.css'
 } )

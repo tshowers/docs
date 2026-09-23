@@ -127,9 +127,6 @@
               <!-- FEEDBACK -->
               <div *ngIf="error" class="alert alert-danger mt-3">
                 {{ error }}
-                <div class="mt-2" *ngIf="backendErrorCode === 'DOCUMENT_QUOTA_EXCEEDED'">
-                  <a routerLink="/docs/pricing">View Docs pricing</a>
-                </div>
               </div>
             </div>
           </div>

@@ -45,7 +45,6 @@ export class PlatformMenuComponent implements OnChanges {
     { label: 'Proposals', route: '/docs/proposal-history' },
     { label: 'RFPs', route: '/docs/rfp-list' },
     { label: 'Knowledge Base', route: '/knowledge' },
-    { label: 'Pricing', route: '/docs/pricing' },
   ];
 
   appRoutes: AppRouteLink[] = [];
@@ -64,7 +63,7 @@ export class PlatformMenuComponent implements OnChanges {
       ? [...this.baseAppRoutes, { label: 'Sign Out', route: '/', signOut: true }]
       : [...this.baseAppRoutes, { label: 'Sign In', route: '/login' }];
 
-    this.accountItems = getPlatformMenuItems().filter( ( item ) => !item.adminOnly || this.isAdmin );
+    this.accountItems = getPlatformMenuItems().filter( ( item ) => item.label !== 'Billing' && ( !item.adminOnly || this.isAdmin ) );
   }
 
   trackByLabel ( _index: number, item: { label: string } ): string {

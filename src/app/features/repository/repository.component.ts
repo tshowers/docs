@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DocsAuthService } from '../../services/docs-auth.service';
 import { LoggerService } from '../../services/logger.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { DocsAssistantSignalService } from '../../services/docs-assistant-signal.service';
@@ -76,7 +76,7 @@ export interface ResponseFlowRecord {
     DomainPipe,
     ToddTipComponent,
     FaviconPipe,
-    RouterLink, ClickSoundDirective, ModuleInstallCtaComponent, CockpitBrowseModeBannerComponent],
+    ClickSoundDirective, ModuleInstallCtaComponent, CockpitBrowseModeBannerComponent],
   templateUrl: './repository.component.html',
   styleUrl: './repository.component.css'
 } )
