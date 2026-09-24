@@ -29,11 +29,13 @@ export const COMMAND_PALETTE_ENTRIES: CommandPaletteEntry[] = [
   { id: 'knowledge-base', label: 'Knowledge Base', group: 'Docs', path: '/knowledge', keywords: ['knowledge base', 'knowledge', 'repository'] },
   { id: 'knowledge-response-flow', label: 'Knowledge Management', group: 'Docs', path: '/knowledge/response-flow', keywords: ['response flow', 'knowledge management', 'wizard'] },
   { id: 'knowledge-pricing', label: 'Knowledge Pricing', group: 'Docs', path: '/knowledge/pricing', keywords: ['knowledge pricing', 'plans', 'billing'] },
+  { id: 'docs-help', label: 'Help', group: 'Docs', path: '/help', keywords: ['help', 'guide', 'how to', 'todd', 'assistance'] },
 
   // --- Other Apps -----------------------------------------------------------
   { id: 'app-maya', label: 'Maya', group: 'Other Apps', path: 'https://maya.taliferro.tech', icon: 'assets/find/entities/maya/logo-bw-icon.png', external: true, keywords: ['maya', 'marketing director'] },
   { id: 'app-todd', label: 'Ask TODD', group: 'Other Apps', path: 'https://ask.taliferro.tech', icon: 'assets/find/entities/todd/logo-bw-icon.png', external: true, keywords: ['todd', 'ask todd', 'assistant', 'chat'] },
   { id: 'app-signature', label: 'Email Signature Builder', group: 'Other Apps', path: 'https://signature.taliferro.tech', icon: 'assets/find/entities/email-signature-builder/logo-bw-icon.png', external: true, keywords: ['email signature', 'signature builder'] },
+  { id: 'app-image-creator', label: 'Image Creator', group: 'Other Apps', path: 'https://images.taliferro.tech', icon: 'assets/find/entities/image-creator/logo-bw-icon.svg', external: true, keywords: ['image creator', 'images', 'generate image', 'logo', 'icon', 'banner'] },
   { id: 'app-find', label: 'Find', group: 'Other Apps', path: 'https://find.taliferro.tech', icon: 'assets/find/entities/find/logo-bw-icon.png', external: true, keywords: ['find', 'ask a question'] },
   { id: 'app-lead-vault', label: 'Lead Vault', group: 'Other Apps', path: 'https://lead-vault.taliferro.tech', icon: 'assets/find/entities/lead-vault/logo-bw-icon.png', external: true, keywords: ['lead vault', 'leads', 'purchased leads'] },
   { id: 'app-moves', label: 'Moves', group: 'Other Apps', path: 'https://moves.taliferro.tech', icon: 'assets/find/entities/moves/logo-bw-icon.png', external: true, keywords: ['moves', 'tasks', 'projects', 'to-dos'] },

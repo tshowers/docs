@@ -1,0 +1,112 @@
+<main class="docs-help" data-cy="help-shell">
+  <header class="help-hero">
+    <div class="help-hero__eyebrow">Docs Help</div>
+    <div class="help-hero__content">
+      <div>
+        <p class="help-hero__context">Documents · Proposals · Knowledge · Reuse</p>
+        <h1>Turn your best work into the next useful answer.</h1>
+        <p class="help-hero__lead">Docs is a workspace for the documents your business runs on. Store RFPs, drafts, notes, PDFs, images, and videos in one place, let TODD, your AI assistant, turn an RFP into a draft proposal, and capture what your team knows so it stays when people leave.</p>
+        <div class="help-hero__actions">
+          <a class="help-button help-button--primary" routerLink="/login">Sign in to get started</a>
+          <a class="help-button" routerLink="/docs/upload">Upload your first file</a>
+        </div>
+      </div>
+      <img src="assets/todd-docs-icon.png" alt="Docs" class="help-hero__logo" />
+    </div>
+    <nav class="help-quick-links" aria-label="Docs help topics">
+      <a routerLink="/docs">Docs Home</a>
+      <a routerLink="/docs/documents">My Documents</a>
+      <a routerLink="/docs/editor">Studio</a>
+      <a routerLink="/docs/rfp-list">RFPs</a>
+      <a routerLink="/knowledge">Knowledge Base</a>
+    </nav>
+  </header>
+
+  <section class="help-section" aria-labelledby="help-why-title">
+    <div class="help-section__heading">
+      <p class="help-section-kicker">Docs in 30 seconds</p>
+      <h2 id="help-why-title">Stop starting from a blank page, and stop losing what your team already knows.</h2>
+      <p>We built Docs because we needed it. We were answering RFPs with files spread across a dozen places, rewriting answers we had already written, and watching contractors take what they knew with them when their contracts ended. Docs is the tool we built to fix that.</p>
+    </div>
+
+    <div class="help-why">
+      <div class="help-why__who">
+        <h3>Who it’s for</h3>
+        <ul>
+          <li *ngFor="let audience of audiences">{{ audience }}</li>
+        </ul>
+      </div>
+      <div class="help-why__what">
+        <h3>Why it’s different</h3>
+        <div class="help-pillars">
+          <article class="help-pillar" *ngFor="let pillar of differences">
+            <i [class]="pillar.icon" aria-hidden="true"></i>
+            <div>
+              <strong>{{ pillar.title }}</strong>
+              <p>{{ pillar.copy }}</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="help-todd-callout" aria-labelledby="help-todd-title">
+    <div class="help-todd-callout__icon"><i class="fa-solid fa-message" aria-hidden="true"></i></div>
+    <div>
+      <p class="help-section-kicker">Immediate help, on every page</p>
+      <h2 id="help-todd-title">Talk to TODD when you need a hand.</h2>
+      <p>TODD is the AI assistant built into Docs. Move your mouse toward the bottom-right corner of the page and the <strong>Talk to TODD</strong> button will appear. Click it to ask about the document, task, or page you’re on. TODD can see which Docs page you’re using, so you can get help without leaving your work.</p>
+      <p class="help-todd-callout__tip"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i> On a touch device, tap the bottom-right corner to show the button.</p>
+    </div>
+  </section>
+
+  <section class="help-section" aria-labelledby="help-start-title">
+    <div class="help-section__heading">
+      <p class="help-section-kicker">Your first session</p>
+      <h2 id="help-start-title">From your first file to knowledge you can reuse</h2>
+      <p>Follow these steps the first time you use Docs. After that, use the menu or the links above to go straight to what you need.</p>
+    </div>
+
+    <div class="help-steps">
+      <article class="help-step" *ngFor="let step of steps">
+        <div class="help-step__number">{{ step.number }}</div>
+        <div class="help-step__body">
+          <h3>{{ step.title }}</h3>
+          <p class="help-step__copy">{{ step.copy }}</p>
+          <ul>
+            <li *ngFor="let detail of step.details">{{ detail }}</li>
+          </ul>
+          <a class="help-try-link" [routerLink]="step.route">{{ step.action }} <span aria-hidden="true">→</span></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="help-section" aria-labelledby="help-faq-title">
+    <div class="help-section__heading">
+      <p class="help-section-kicker">Common questions</p>
+      <h2 id="help-faq-title">Before you get started</h2>
+    </div>
+    <div class="help-faq">
+      <details class="help-faq__item" *ngFor="let faq of faqs">
+        <summary>{{ faq.question }}</summary>
+        <p>{{ faq.answer }}</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="help-section help-section--compact" aria-labelledby="help-account-title">
+    <div class="help-section__heading">
+      <p class="help-section-kicker">Other places to go</p>
+      <h2 id="help-account-title">Explore Docs at your own pace</h2>
+    </div>
+    <div class="help-destination-grid">
+      <a class="help-destination" routerLink="/login"><span><strong>Sign in</strong><small>Sign in to save documents, drafts, and knowledge to your workspace.</small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      <a class="help-destination" routerLink="/docs/pricing"><span><strong>Docs Pricing</strong><small>Start free, then upgrade when you need room for more documents and knowledge.</small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      <a class="help-destination" routerLink="/ios"><span><strong>Docs for iOS</strong><small>See the mobile Docs experience.</small></span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+    </div>
+  </section>
+
+  <footer class="help-footer"><a routerLink="/">← Back to Docs</a><span>Need help right now? Move to the bottom-right corner and Talk to TODD.</span></footer>
+</main>
