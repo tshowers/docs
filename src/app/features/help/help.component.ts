@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { DocsAuthService } from '../../services/docs-auth.service';
+import { GettingStarted, GettingStartedService, GettingStartedStep } from '../../services/getting-started.service';
 
 interface HelpPillar {
   icon: string;
@@ -29,7 +31,36 @@ interface HelpFaq {
   templateUrl: './help.component.html',
   styleUrl: './help.component.css',
 })
-export class HelpComponent {
+export class HelpComponent implements OnInit {
+  /** Signed-in only: the Getting Started checklist, checked off from real data. */
+  progress: GettingStarted | null = null;
+  showAfterSignIn = true;
+
+  constructor (
+    private readonly authService: DocsAuthService,
+    readonly gettingStarted: GettingStartedService,
+  ) { }
+
+  ngOnInit (): void {
+    this.showAfterSignIn = this.gettingStarted.showAfterSignIn;
+    this.authService.getUserId().subscribe( ( userId ) => {
+      if ( !userId ) {
+        this.progress = null;
+        return;
+      }
+      this.gettingStarted.load().then( ( progress ) => ( this.progress = progress ) ).catch( () => ( this.progress = null ) );
+    } );
+  }
+
+  toggleShowAfterSignIn ( value: boolean ): void {
+    this.showAfterSignIn = value;
+    this.gettingStarted.showAfterSignIn = value;
+  }
+
+  trackStep ( _index: number, step: GettingStartedStep ): string {
+    return step.id;
+  }
+
   readonly audiences: string[] = [
     'Small businesses and teams that bid on contracts and answer RFPs.',
     'Teams that rely on contractors, part-time help, or turnover, and can’t afford to lose what people know when they leave.',

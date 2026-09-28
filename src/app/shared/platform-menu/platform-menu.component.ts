@@ -62,12 +62,14 @@ export class PlatformMenuComponent implements OnChanges {
   private recompute (): void {
     this.appRoutes = this.isLoggedIn
       ? [...this.baseAppRoutes, { label: 'Sign Out', route: '/', signOut: true }]
-      : [...this.baseAppRoutes, { label: 'Sign In', route: '/login' }];
+      : [...this.baseAppRoutes, { label: 'Sign In', route: '/get-started' }];
 
     // Docs owns its own in-product help page. Hide the shared TODD-level
     // Help item so the menu cannot send Docs users to todd.taliferro.tech/help.
+    // Profile is in-app (/profile), shown as its own routerLink in the
+    // template - not TODD's page.
     this.accountItems = getPlatformMenuItems().filter( ( item ) =>
-      item.label !== 'Billing' && item.label !== 'Help' && ( !item.adminOnly || this.isAdmin )
+      item.id !== 'platform-profile' && item.label !== 'Billing' && item.label !== 'Help' && ( !item.adminOnly || this.isAdmin )
     );
   }
 

@@ -1,0 +1,96 @@
+<main class="gs-shell" data-cy="get-started-shell">
+  <section class="gs-card" aria-live="polite">
+    <div class="gs-card__nav">
+      <button *ngIf="stepIndex > 0" type="button" class="gs-back" (click)="back()" data-cy="get-started-back">
+        <span aria-hidden="true">&lsaquo;</span> Back
+      </button>
+      <span class="gs-count">Step {{ step.section + 1 }} of {{ sections.length }}</span>
+    </div>
+
+    <ol class="gs-progress" role="progressbar" aria-label="Setup progress"
+        [attr.aria-valuenow]="step.section + 1" aria-valuemin="1" [attr.aria-valuemax]="sections.length" data-cy="get-started-progress">
+      <li *ngFor="let section of sections; let i = index" class="gs-progress__segment"
+          [class.is-done]="sectionFill(i) >= 1" [class.is-active]="i === step.section">
+        <span class="gs-progress__track"><span class="gs-progress__fill" [style.width.%]="sectionFill(i) * 100"></span></span>
+        <span class="gs-progress__label">
+          <span *ngIf="sectionFill(i) >= 1" class="gs-progress__check" aria-hidden="true">&#10003;</span>{{ section }}
+        </span>
+      </li>
+    </ol>
+
+    <ng-container [ngSwitch]="step.key">
+      <ng-container *ngSwitchCase="'question'">
+        <p class="gs-lede">You're already 1 step in. Write down how you answer a question customers ask, and Docs keeps it ready for proposals, emails and Maya &mdash; sign up only happens at the very end.</p>
+        <h1 class="gs-question" data-cy="get-started-question">What do customers ask you most?</h1>
+        <div class="gs-chips" role="radiogroup" aria-label="Customer question">
+          <button *ngFor="let option of starters" type="button" class="gs-chip" role="radio"
+                  [class.is-selected]="draft.starterKey === option.key" [attr.aria-checked]="draft.starterKey === option.key"
+                  (click)="chooseStarter(option)" data-cy="get-started-starter">
+            <span *ngIf="draft.starterKey === option.key" aria-hidden="true">&#10003;</span>
+            {{ option.label }}
+          </button>
+        </div>
+        <form *ngIf="isOther" (ngSubmit)="next()">
+          <input #answerInput class="gs-input" name="question" aria-label="Your customer's question" placeholder="Type the question"
+                 [(ngModel)]="draft.question" (ngModelChange)="persist()" data-cy="get-started-input" />
+        </form>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'answer'">
+        <h1 class="gs-question" data-cy="get-started-question">How do you answer it?</h1>
+        <p class="gs-hint">{{ isOther ? 'Answer the way you would on a call.' : 'We started it for you - change anything so it sounds like you.' }}</p>
+        <p class="gs-asked">{{ draft.question }}</p>
+        <textarea #answerInput class="gs-input gs-input--note" name="answer" rows="5" aria-label="Your answer"
+                  [(ngModel)]="draft.answer" (ngModelChange)="persist()" data-cy="get-started-answer"></textarea>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'preview'">
+        <h1 class="gs-question" data-cy="get-started-question">Here's your first answer</h1>
+        <p class="gs-hint">It goes into your Knowledge Base, ready to reuse. Continue and it's saved to your account.</p>
+        <div class="gs-preview" data-cy="get-started-preview">
+          <span class="gs-preview__category">{{ starter.category }}</span>
+          <h2>{{ draft.question }}</h2>
+          <p>{{ draft.answer }}</p>
+          <p class="gs-preview__keywords">{{ keywordLine }}</p>
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'firstName'">
+        <h1 class="gs-question" data-cy="get-started-question">What's your first name?</h1>
+        <p class="gs-hint">So your documents know who wrote them.</p>
+        <form (ngSubmit)="next()"><input #answerInput class="gs-input" name="firstName" autocomplete="given-name" aria-label="First name"
+               [(ngModel)]="draft.firstName" (ngModelChange)="persist()" data-cy="get-started-input" /></form>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'lastName'">
+        <h1 class="gs-question" data-cy="get-started-question">And your last name?</h1>
+        <form (ngSubmit)="next()"><input #answerInput class="gs-input" name="lastName" autocomplete="family-name" aria-label="Last name"
+               [(ngModel)]="draft.lastName" (ngModelChange)="persist()" data-cy="get-started-input" /></form>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'company'">
+        <h1 class="gs-question" data-cy="get-started-question">What's your company called?</h1>
+        <p class="gs-hint">It appears on proposals and documents you create.</p>
+        <form (ngSubmit)="next()"><input #answerInput class="gs-input" name="companyName" autocomplete="organization" aria-label="Company name"
+               [(ngModel)]="draft.companyName" (ngModelChange)="persist()" data-cy="get-started-input" /></form>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'signUp'">
+        <h1 class="gs-question" data-cy="get-started-question">Last step: create your account</h1>
+        <p class="gs-hint">"{{ draft.question }}" &middot; your answer is ready. Sign in with TODD to save it.</p>
+        <div class="gs-actions">
+          <button type="button" class="gs-button" [disabled]="isSigningIn" (click)="signIn()" data-cy="get-started-sign-in">
+            {{ isSigningIn ? 'Redirecting...' : 'Sign in with TODD' }}</button>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <div *ngIf="step.key !== 'signUp'" class="gs-actions">
+      <button *ngIf="step.key === 'company'" type="button" class="gs-button gs-button--ghost" (click)="skip()">Skip</button>
+      <button type="button" class="gs-button" [disabled]="!canAdvance" (click)="next()" data-cy="get-started-next">
+        {{ step.key === 'preview' ? 'Continue to sign up' : 'Next' }}</button>
+    </div>
+
+    <a class="gs-existing" routerLink="/login" [queryParams]="{ returnUrl: '/docs' }" data-cy="get-started-existing">Already have an account? Sign in</a>
+  </section>
+</main>

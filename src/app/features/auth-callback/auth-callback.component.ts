@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DocsAuthService } from '../../services/docs-auth.service';
+import { DocsSignupDraftService } from '../../services/docs-signup-draft.service';
+import { GettingStartedService } from '../../services/getting-started.service';
 
 /**
  * Lands here after TODD's hosted login (todd.taliferro.tech/login) hands
@@ -26,6 +28,8 @@ export class AuthCallbackComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private authService: DocsAuthService,
+    private signupDraft: DocsSignupDraftService,
+    private gettingStarted: GettingStartedService,
   ) { }
 
   async ngOnInit (): Promise<void> {
@@ -40,7 +44,23 @@ export class AuthCallbackComponent implements OnInit {
 
     try {
       await this.authService.signInWithCustomToken( token );
-      await this.router.navigateByUrl( pending.returnUrl || '/docs/app' );
+
+      // Came through /get-started: save name/company to the profile and
+      // the Q&A answer they wrote, then show it in the Knowledge Base -
+      // carrying the "already wrote it" momentum through the sign-in wall.
+      if ( await this.signupDraft.submitIfPending() ) {
+        await this.router.navigateByUrl( '/knowledge' );
+        return;
+      }
+
+      const returnUrl = pending.returnUrl || '/docs';
+      // Heading to the default landing (not a deep link) and steps remain:
+      // show the Getting Started checklist first, once per session.
+      if ( ( returnUrl === '/docs' || returnUrl === '/' ) && await this.gettingStarted.shouldShowAfterSignIn() ) {
+        await this.router.navigate( ['/help'], { fragment: 'your-progress' } );
+        return;
+      }
+      await this.router.navigateByUrl( returnUrl );
     } catch ( error: any ) {
       this.errorMessage = error?.message || 'Sign-in failed. Please try again.';
     }
