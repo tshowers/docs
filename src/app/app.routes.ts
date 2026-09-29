@@ -40,14 +40,14 @@ export const routes: Routes = [
       import( './features/knowledge-paid-success/knowledge-paid-success.component' ).then( ( m ) => m.KnowledgePaidSuccessComponent ),
   },
   {
+    // The old Stripe plan pages now forward to the one "browse free,
+    // create with the app" pricing page.
     path: 'docs/pricing',
-    loadComponent: () =>
-      import( './features/docs-pricing/docs-pricing.component' ).then( ( m ) => m.DocsPricingComponent ),
+    redirectTo: 'pricing',
   },
   {
     path: 'knowledge/pricing',
-    loadComponent: () =>
-      import( './features/knowledge-pricing/knowledge-pricing.component' ).then( ( m ) => m.KnowledgePricingComponent ),
+    redirectTo: 'pricing',
   },
   {
     path: 'docs',
@@ -127,5 +127,21 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import( './features/sign-in/sign-in.component' ).then( ( m ) => m.SignInComponent ),
+  },
+  {
+    // "Browse free, create with the app" (Ty, 2026-09-28) - shared wording
+    // in @taliferro/ui/platform/get-the-app.model.ts.
+    path: 'pricing',
+    data: { product: 'docs' },
+    loadComponent: () =>
+      import( './features/get-the-app/get-the-app.component' ).then( ( m ) => m.GetTheAppComponent ),
+  },
+  {
+    // Without a catch-all, an unmatched URL (e.g. /pricing before the
+    // redirect above existed) failed to navigate and left a blank page
+    // under the menu. Same convention as Network/Pulse.
+    path: '**',
+    loadComponent: () =>
+      import( './features/not-found/not-found.component' ).then( ( m ) => m.NotFoundComponent ),
   },
 ];

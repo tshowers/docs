@@ -11,8 +11,10 @@
   --todd-card-bg: rgba(255, 255, 255, 0.92);
 }
 
+/* Dark mode: follows the site's Light/Dark toggle (data-theme on <html>)
+ * where there is one, and the system setting where there isn't. */
 @media (prefers-color-scheme: dark) {
-  :host {
+  :host-context(html:not([data-theme='light'])) {
     --tl-blue-deep: #4fc3f7;
     --todd-bg: #0d1117;
     --todd-text: #f0f6ff;
@@ -21,6 +23,15 @@
     --todd-card-bg: #1a2535;
   }
 }
+:host-context(html[data-theme='dark']) {
+    --tl-blue-deep: #4fc3f7;
+    --todd-bg: #0d1117;
+    --todd-text: #f0f6ff;
+    --todd-subtext: #8ba4bd;
+    --todd-border: rgba(0, 191, 255, 0.12);
+    --todd-card-bg: #1a2535;
+  }
+
 
 .gs-shell {
   --gs-accent: var(--tl-blue-deep);
@@ -30,7 +41,11 @@
   background: var(--todd-bg);
   color: var(--todd-text);
 }
-@media (prefers-color-scheme: dark) { .gs-shell { --gs-accent: var(--tl-blue); --gs-accent-ink: #04121f; } }
+@media (prefers-color-scheme: dark) {
+  :host-context(html:not([data-theme='light'])) .gs-shell { --gs-accent: var(--tl-blue); --gs-accent-ink: #04121f; }
+}
+:host-context(html[data-theme='dark']) .gs-shell { --gs-accent: var(--tl-blue); --gs-accent-ink: #04121f; }
+
 .gs-shell * { box-sizing: border-box; }
 
 .gs-card { max-width: 640px; margin: 0 auto; padding: 28px clamp(20px, 5vw, 40px) 32px; border: 1px solid var(--todd-border); border-radius: 24px; background: var(--todd-card-bg); }

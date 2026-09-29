@@ -11,8 +11,10 @@
   --todd-card-bg: rgba(255, 255, 255, 0.92);
 }
 
+/* Dark mode: follows the site's Light/Dark toggle (data-theme on <html>)
+ * where there is one, and the system setting where there isn't. */
 @media (prefers-color-scheme: dark) {
-  :host {
+  :host-context(html:not([data-theme='light'])) {
     --tl-blue-deep: #4fc3f7;
     --todd-bg: #0d1117;
     --todd-text: #f0f6ff;
@@ -21,6 +23,15 @@
     --todd-card-bg: #1a2535;
   }
 }
+:host-context(html[data-theme='dark']) {
+    --tl-blue-deep: #4fc3f7;
+    --todd-bg: #0d1117;
+    --todd-text: #f0f6ff;
+    --todd-subtext: #8ba4bd;
+    --todd-border: rgba(0, 191, 255, 0.12);
+    --todd-card-bg: #1a2535;
+  }
+
 
 .pf-shell {
   --pf-accent: var(--tl-blue-deep);
@@ -32,7 +43,11 @@
   font-family: 'Manrope', sans-serif;
   padding: 88px 16px 120px;
 }
-@media (prefers-color-scheme: dark) { .pf-shell { --pf-accent: var(--tl-blue); --pf-accent-ink: #04121f; --pf-danger: #ff8a80; } }
+@media (prefers-color-scheme: dark) {
+  :host-context(html:not([data-theme='light'])) .pf-shell { --pf-accent: var(--tl-blue); --pf-accent-ink: #04121f; --pf-danger: #ff8a80; }
+}
+:host-context(html[data-theme='dark']) .pf-shell { --pf-accent: var(--tl-blue); --pf-accent-ink: #04121f; --pf-danger: #ff8a80; }
+
 .pf-shell * { box-sizing: border-box; }
 
 .pf-inner { max-width: 760px; margin: 0 auto; }
