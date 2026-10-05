@@ -4,7 +4,6 @@ import { MenuAppConfig } from '@taliferro/ui/platform/universal-menu.model';
 export const PLATFORM_MENU_CONFIG: MenuAppConfig = {
   app: 'docs',
   name: 'Docs',
-  logo: 'assets/find/entities/docs/logo.png',
   items: [
     { label: 'Home', icon: 'home', route: '/' },
     { label: 'Docs Home', icon: 'grid', route: '/docs' },
