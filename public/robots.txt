@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /docs
+Disallow: /knowledge
+Disallow: /profile
+Disallow: /get-started
+Disallow: /login
+Disallow: /auth/
+Disallow: /mobile-handoff
+
+Sitemap: https://docs.taliferro.tech/sitemap.xml
