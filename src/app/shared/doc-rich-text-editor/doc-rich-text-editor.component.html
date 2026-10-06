@@ -1,5 +1,5 @@
 <div class="doc-editor-shell">
-  <div class="doc-editor-toolbar" *ngIf="!showSource">
+  <div class="doc-editor-toolbar" *ngIf="!showSource && !readonly">
     <button type="button" title="Bold" (click)="exec('bold')"><i class="fa-solid fa-bold"></i></button>
     <button type="button" title="Italic" (click)="exec('italic')"><i class="fa-solid fa-italic"></i></button>
     <button type="button" title="Underline" (click)="exec('underline')"><i class="fa-solid fa-underline"></i></button>
@@ -25,7 +25,7 @@
     #editableCanvas
     class="doc-editor-canvas"
     *ngIf="!showSource"
-    contenteditable="true"
+    [attr.contenteditable]="readonly ? 'false' : 'true'"
     (input)="onCanvasInput()"
   ></div>
 

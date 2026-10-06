@@ -31,6 +31,8 @@ import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleCh
 export class DocRichTextEditorComponent implements OnChanges {
   @Input() mode: 'email' | 'proposal' | 'signature' | 'document' = 'document';
   @Input() htmlContent = '';
+  /** View only: no toolbar, nothing editable (signed in without Docs). */
+  @Input() readonly = false;
   @Output() htmlContentChange = new EventEmitter<string>();
 
   @ViewChild( 'editableCanvas' ) editableCanvasRef?: ElementRef<HTMLDivElement>;

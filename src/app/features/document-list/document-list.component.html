@@ -14,9 +14,9 @@
         </div>
       </div>
       <div class="docs-hero-actions" data-demo="docs-actions">
-        <a class="btn-todd" [routerLink]="'/docs/upload'">
+        <a class="btn-todd" [routerLink]="'/docs/upload'" appWriteAction="upload a document">
           <i class="fa-solid fa-plus"></i> Add Document </a>
-        <button type="button" class="btn-todd btn-todd-secondary" (click)="onClickRoute('/docs/editor')">
+        <button type="button" class="btn-todd btn-todd-secondary" appWriteAction="create a document" (click)="onClickRoute('/docs/editor')">
           <i class="fa-solid fa-file-lines"></i> Open Editor </button>
       </div>
       <div class="docs-hero-meta mt-4 mb-4 d-none d-xl-block">
@@ -73,11 +73,11 @@
               <div class="docs-stage-actions">
                 <button type="button" class="btn-todd" (click)="onView(activeDocument)">
                   <i class="fa-solid fa-up-right-from-square"></i> Open </button>
-                <button type="button" class="btn-todd btn-todd-secondary" (click)="startEditDocument(activeDocument)">
+                <button type="button" class="btn-todd btn-todd-secondary" appWriteAction="edit this document" (click)="startEditDocument(activeDocument)">
                   <i class="fa-solid fa-pen"></i> Edit </button>
                 <button *ngIf="getDocumentPreviewKind(activeDocument) === 'video'" type="button" class="btn-todd btn-todd-secondary" (click)="openVideoLightbox(activeDocument)">
                   <i class="fa-solid fa-circle-play"></i> Play </button>
-                <button type="button" class="btn-todd btn-todd-secondary" (click)="onDelete(activeDocument)">
+                <button type="button" class="btn-todd btn-todd-secondary" appWriteAction="delete this document" (click)="onDelete(activeDocument)">
                   <i class="fa-regular fa-trash-can"></i> Delete </button>
               </div>
             </div>
@@ -101,7 +101,7 @@
                   <label class="form-check-label" for="editEligibleForSocial"> Eligible for social media - Maya can pick this for a post </label>
                 </div>
                 <div class="docs-stage-actions mt-3">
-                  <button type="button" class="btn-todd" [disabled]="savingEdit" (click)="saveEditDocument(activeDocument)">
+                  <button type="button" class="btn-todd" [disabled]="savingEdit" appWriteAction="save this document" (click)="saveEditDocument(activeDocument)">
                     {{ savingEdit ? 'Saving…' : 'Save' }} </button>
                   <button type="button" class="btn-todd btn-todd-secondary" [disabled]="savingEdit" (click)="cancelEditDocument()"> Cancel </button>
                 </div>
@@ -213,7 +213,7 @@
           <i class="fa-regular fa-folder-open todd-empty-icon"></i>
           <h4 class="mt-3 mb-1">Your vault is empty</h4>
           <p class="text-muted mb-3">Add your first file and start building a library TODD can reference later.</p>
-          <a class="btn-todd" [routerLink]="'/docs/upload'">
+          <a class="btn-todd" [routerLink]="'/docs/upload'" appWriteAction="upload a document">
             <i class="fa-solid fa-plus"></i> Add Document </a>
         </div>
       </div>
@@ -225,7 +225,7 @@
         <i class="fa-regular fa-circle-question todd-empty-icon"></i>
         <h4 class="mt-3 mb-1">No documents found</h4>
         <p class="text-muted mb-3"> Add your first item to start building your document repository. </p>
-        <a class="btn-todd" [routerLink]="'/docs/upload'">
+        <a class="btn-todd" [routerLink]="'/docs/upload'" appWriteAction="upload a document">
           <i class="fa-solid fa-plus"></i> Add Document </a>
       </div>
     </div>

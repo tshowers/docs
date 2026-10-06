@@ -20,6 +20,7 @@ import { PageAction } from '../../models/page-actions.models';
 import { Document } from '../../models/document.model';
 import { DocService } from '../../services/doc.service';
 import { CockpitBrowseModeBannerComponent } from '../../shared/cockpit-browse-mode-banner/cockpit-browse-mode-banner.component';
+import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
 
 declare var bootstrap: any;
 
@@ -53,7 +54,7 @@ interface DeskCanvasMetrics {
 @Component( {
   selector: 'app-document-list',
   standalone: true,
-  imports: [RouterModule, FormsModule, CommonModule, DragDropModule, BackToTopComponent, SafeVideoUrlPipe, ToddTipComponent, PreloaderComponent, ClickSoundDirective, CockpitBrowseModeBannerComponent],
+  imports: [WriteActionDirective, RouterModule, FormsModule, CommonModule, DragDropModule, BackToTopComponent, SafeVideoUrlPipe, ToddTipComponent, PreloaderComponent, ClickSoundDirective, CockpitBrowseModeBannerComponent],
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.css'
 } )

@@ -30,6 +30,8 @@ import { DocsPageActionsService } from '../../services/docs-page-actions.service
 import { buildDocumentPageActions } from '../../shared/utils/page-action-presets';
 import { ClickSoundDirective } from '../../shared/directives/click-sound.directive';
 import { CockpitBrowseModeBannerComponent } from '../../shared/cockpit-browse-mode-banner/cockpit-browse-mode-banner.component';
+import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
+import { BrowseNoticeComponent } from '../../shared/write-access/browse-notice.component';
 
 export interface Recommendation {
   text: string;
@@ -87,7 +89,7 @@ export interface ResponseFlow {
  */
 @Component( {
   selector: 'app-response-flow',
-  imports: [CommonModule, FormsModule,
+  imports: [BrowseNoticeComponent, WriteActionDirective, CommonModule, FormsModule,
     BackToTopComponent,
     PreloaderComponent,
     TruncatePipe,

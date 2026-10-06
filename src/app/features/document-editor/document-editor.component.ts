@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -25,7 +25,8 @@ import { SoundService } from '../../services/sound.service';
 import { DocsPageActionsService } from '../../services/docs-page-actions.service';
 import { PageAction } from '../../models/page-actions.models';
 import { ClickSoundDirective } from '../../shared/directives/click-sound.directive';
-import { CockpitBrowseModeBannerComponent } from '../../shared/cockpit-browse-mode-banner/cockpit-browse-mode-banner.component';
+import { WriteAccessService, WriteAccessState } from '../../services/write-access.service';
+import { BrowseNoticeComponent } from '../../shared/write-access/browse-notice.component';
 
 /**
  * Ported from features/document/document-editor/document-editor.component.ts
@@ -50,7 +51,7 @@ import { CockpitBrowseModeBannerComponent } from '../../shared/cockpit-browse-mo
 @Component( {
   selector: 'app-document-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, DocRichTextEditorComponent, ToddTipComponent, PreloaderComponent, BackToTopComponent, ClickSoundDirective, CockpitBrowseModeBannerComponent],
+  imports: [CommonModule, FormsModule, DocRichTextEditorComponent, ToddTipComponent, PreloaderComponent, BackToTopComponent, ClickSoundDirective, BrowseNoticeComponent],
   templateUrl: './document-editor.component.html',
   styleUrls: ['./document-editor.component.css']
 } )
@@ -70,6 +71,8 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   userId!: any;
 
   private userSubscription!: Subscription;
+  private writeStateSubscription?: Subscription;
+  private readonly writeAccess = inject( WriteAccessService );
 
   isMobile: boolean = window.innerWidth < 768; // Initialize based on current width
   isSmallScreen: boolean = window.innerWidth < 992;
@@ -80,13 +83,24 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   isToddWorking: boolean = false;
   currentDocument: Document | null = null;
 
+  /**
+   * Viewing needs only a sign-in; creating, changing and deleting need the
+   * Docs app (Ty, 2026-09-27 and 2026-10-05). Documents Maya or TODD made
+   * for the workspace open here read-only for everyone signed in.
+   */
   get canCrudDocuments (): boolean {
+    return !!this.userId && this.writeState === 'canWrite';
+  }
+
+  get canViewDocuments (): boolean {
     return !!this.userId;
   }
 
   get crudDisabledReason (): string {
-    return 'Sign in to create, edit, and save documents.';
+    return this.userId ? 'Changing documents needs the Docs app.' : 'Sign in to create, edit, and save documents.';
   }
+
+  private writeState: WriteAccessState = 'signedOut';
 
   constructor ( private router: Router,
     private logger: LoggerService,
@@ -185,6 +199,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
 
   ngOnDestroy (): void {
     if ( this.userSubscription ) this.userSubscription.unsubscribe();
+    this.writeStateSubscription?.unsubscribe();
     this.pageActionsService.clearPageActions( 'document-editor' );
   }
   saveClick () {
@@ -235,6 +250,10 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   }
 
   setUpUserID (): void {
+    this.writeStateSubscription = this.writeAccess.state( 'docs' ).subscribe( state => {
+      this.writeState = state;
+      this.publishPageContext();
+    } );
     this.userSubscription = this.authService.getUserId().subscribe( userId => {
       this.userId = userId;
       this.isProcessing = false;
@@ -259,7 +278,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   }
 
   loadExistingDocument ( id: string ) {
-    if ( !this.canCrudDocuments ) {
+    if ( !this.canViewDocuments ) {
       this.isProcessing = false;
       this.publishPageContext();
       return;

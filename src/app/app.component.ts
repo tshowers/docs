@@ -11,10 +11,11 @@ import { ToastComponent } from './shared/toast/toast.component';
 import { PlatformMenuComponent } from './shared/platform-menu/platform-menu.component';
 import { DocsAssistantLauncherComponent } from './shared/page/assistant-box/docs-assistant-launcher.component';
 import packageJson from '../../package.json';
+import { WriteAccessPromptComponent } from './shared/write-access/write-access-prompt.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastComponent, PlatformMenuComponent, DocsAssistantLauncherComponent, AsyncPipe, NgIf],
+  imports: [WriteAccessPromptComponent, RouterOutlet, ToastComponent, PlatformMenuComponent, DocsAssistantLauncherComponent, AsyncPipe, NgIf],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

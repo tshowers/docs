@@ -1,6 +1,7 @@
 <app-preloader [isLoading]="isLoading"></app-preloader>
 <app-back-to-top></app-back-to-top>
 <div class="container-fluid todd-page mb-5">
+    <div class="m-2"><app-browse-notice what="this response flow"></app-browse-notice></div>
     <div class="row no-print page-header m-2" *ngIf="shouldShowDesktopIntro">
         <div class="col-12 col-xl-8">
             <h1 class="pv-title">{{ isAssistantSavedMode ? 'Add More Context' : 'Knowledge Management' }}</h1>
@@ -10,7 +11,7 @@
                 : 'Turn common questions into reusable responses for your Knowledge Base. Work through each step: write the question, add a sourced response, include any recommendations or resources, then tag it with keywords so TODD can find it later.' }}
             </p>
             <div class="mt-3" *ngIf="responseFlow.id">
-                <button class="btn btn-outline-dark" type="button" (click)="turnIntoPost()"> Turn into post </button>
+                <button class="btn btn-outline-dark" type="button" appWriteAction="turn this into a post" (click)="turnIntoPost()"> Turn into post </button>
             </div>
         </div>
         <div class="col-12 col-xl-4 text-xl-end mt-3 mt-xl-0 d-none d-xl-block">
@@ -299,8 +300,8 @@
                     <button class="btn-todd" (click)="goBackOrPreviousStep()">{{ currentStep === 0 ? 'Exit' : 'Back' }}</button>
                     <button class="btn-todd" *ngIf="currentStep < steps.length - 1" (click)="nextStep()">Next</button>
                     <div class="d-flex align-items-center gap-2" *ngIf="currentStep === steps.length - 1">
-                        <button class="btn btn-outline-secondary" type="button" (click)="saveClick(); submitFlow(true)">Save as Draft</button>
-                        <button class="btn-todd" [disabled]="!isResponseComplete" [title]="isResponseComplete ? '' : 'Add a question and at least one answer, or save as a draft.'" (click)="saveClick(); submitFlow()">Submit</button>
+                        <button class="btn btn-outline-secondary" type="button" appWriteAction="save this response flow" (click)="saveClick(); submitFlow(true)">Save as Draft</button>
+                        <button class="btn-todd" [disabled]="!isResponseComplete" [title]="isResponseComplete ? '' : 'Add a question and at least one answer, or save as a draft.'" appWriteAction="save this response flow" (click)="saveClick(); submitFlow()">Submit</button>
                     </div>
                 </div>
             </div>
@@ -309,8 +310,8 @@
             <button class="btn-todd" type="button" (click)="goBackOrPreviousStep()">{{ currentStep === 0 ? 'Exit' : 'Back' }}</button>
             <button class="btn-todd" *ngIf="currentStep < steps.length - 1" type="button" (click)="nextStep()">Next</button>
             <ng-container *ngIf="currentStep === steps.length - 1">
-                <button class="btn btn-outline-secondary" type="button" (click)="saveClick(); submitFlow(true)">Save as Draft</button>
-                <button class="btn-todd" type="button" [disabled]="!isResponseComplete" [title]="isResponseComplete ? '' : 'Add a question and at least one answer, or save as a draft.'" (click)="saveClick(); submitFlow()">Submit</button>
+                <button class="btn btn-outline-secondary" type="button" appWriteAction="save this response flow" (click)="saveClick(); submitFlow(true)">Save as Draft</button>
+                <button class="btn-todd" type="button" [disabled]="!isResponseComplete" [title]="isResponseComplete ? '' : 'Add a question and at least one answer, or save as a draft.'" appWriteAction="save this response flow" (click)="saveClick(); submitFlow()">Submit</button>
             </ng-container>
         </div>
         <!-- preview pane-->

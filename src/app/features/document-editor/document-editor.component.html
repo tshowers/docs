@@ -10,7 +10,7 @@
       </app-todd-tip>
     </div>
   </div>
-  <app-cockpit-browse-mode-banner *ngIf="!canCrudDocuments" surfaceLabel="Documents" customTitle="You can try this out, but you won't be able to save" customCopy="You are not signed in, so feel free to explore the editor. Sign in before you save — guest sessions can't create, edit, or save documents."></app-cockpit-browse-mode-banner>
+  <div class="m-2"><app-browse-notice [what]="docid ? 'this document' : 'the editor'"></app-browse-notice></div>
   <div class="row">
     <div class="container-fluid">
       <div class="row">
@@ -86,7 +86,7 @@
               <input id="documentName" data-demo="document-name" type="text" [(ngModel)]="documentName" class="form-control" [disabled]="!canCrudDocuments || isProcessing" placeholder="Enter document name" />
             </div>
             <div data-demo="document-editor-canvas">
-              <app-doc-rich-text-editor [mode]="'document'" [htmlContent]="htmlContent" (htmlContentChange)="onHtmlContentChange($event)">
+              <app-doc-rich-text-editor [mode]="'document'" [htmlContent]="htmlContent" [readonly]="!canCrudDocuments" (htmlContentChange)="onHtmlContentChange($event)">
               </app-doc-rich-text-editor>
             </div>
             <div class="export-buttons mt-2" data-demo="document-export-actions">
