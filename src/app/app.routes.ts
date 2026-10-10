@@ -81,6 +81,13 @@ export const routes: Routes = [
       import( './features/rfp-inbox/rfp-inbox.component' ).then( ( m ) => m.RfpInboxComponent ),
   },
   {
+    // Review & send (1f): from the person's own inbox, or a portal package.
+    path: 'opportunities/:id/send',
+    data: { pageTitle: 'Review & send' },
+    loadComponent: () =>
+      import( './features/review-send/review-send.component' ).then( ( m ) => m.ReviewSendComponent ),
+  },
+  {
     // The proposal editor: TODD drafts, asks, and checks against the RFP.
     path: 'opportunities/:id/proposal',
     data: { pageTitle: 'Proposal' },

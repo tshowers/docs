@@ -1,0 +1,111 @@
+<div class="dk-page rs">
+  @switch (phase()) {
+    @case ('loading') { <div class="rs__pulse" aria-busy="true"></div> }
+    @case ('error') {
+      <div class="dk-empty">
+        <h2>Not ready to send</h2>
+        <p>{{ errorMessage() }}</p>
+        <a class="dk-btn dk-btn--bg" [routerLink]="['/opportunities', opportunityId(), 'proposal']">Back to the proposal</a>
+      </div>
+    }
+    @case ('ready') {
+      @if (opportunity(); as o) {
+        <div class="rs__grid">
+          <main>
+            <p class="dk-kicker">Review &amp; send{{ o.agency ? ' · ' + o.agency : '' }}</p>
+            <h1 class="rs__title">{{ headline() }}</h1>
+
+            @if (o.submissionRecord; as sent) {
+              <section class="rs__sent">
+                <dk-icon name="check" [size]="20" />
+                <div>
+                  @if (sent.method === 'email') {
+                    <strong>Sent to {{ sent.to }}</strong>
+                    <p class="dk-muted">From {{ sent.from }} · {{ sent.submittedAt | date:'MMM d, h:mm a' }}@if (sent.attachments?.length) { · {{ sent.attachments!.length }} {{ sent.attachments!.length === 1 ? 'attachment' : 'attachments' }}}</p>
+                  } @else {
+                    <strong>Submitted on the portal</strong>
+                    <p class="dk-muted">Marked {{ sent.submittedAt | date:'MMM d, h:mm a' }}</p>
+                  }
+                </div>
+                <a class="dk-btn dk-btn--bg dk-btn--sm" [routerLink]="['/opportunities', o.id]">Back to the opportunity</a>
+              </section>
+            } @else {
+              <section class="rs__mail">
+                @if (!portalOnly()) {
+                  <label class="rs__row">
+                    <span>To</span>
+                    <div>
+                      <input [ngModel]="to()" (ngModelChange)="to.set($event)" name="to" type="email" placeholder="The address in the RFP" aria-label="To" />
+                      @if (toProblem()) { <small class="rs__bad">{{ toProblem() }}</small> }
+                      @else if (o.submission.email && to().trim().toLowerCase() === o.submission.email) { <small class="dk-muted">From the RFP</small> }
+                    </div>
+                  </label>
+                  <label class="rs__row"><span>Subject</span><input [(ngModel)]="subject" name="subject" aria-label="Subject" /></label>
+                  <label class="rs__row">
+                    <span>From</span>
+                    @if (inboxes().length) {
+                      <select [(ngModel)]="mailboxId" name="from" aria-label="From">
+                        @for (i of inboxes(); track i.id) { <option [value]="i.id">{{ i.emailAddress }}</option> }
+                      </select>
+                    } @else {
+                      <a class="rs__connect" routerLink="/opportunities/inbox">Connect your email to send from it</a>
+                    }
+                  </label>
+                  <textarea class="rs__body" [(ngModel)]="body" name="body" rows="9" aria-label="Message"></textarea>
+                }
+                <div class="rs__files">
+                  @for (a of attachments(); track a.key) {
+                    <span class="rs__file">
+                      <span class="rs__badge dk-tinted" [attr.data-tint]="a.tint">{{ a.extension }}</span>
+                      <strong>{{ a.name }}</strong><small class="dk-muted">{{ a.detail }}</small>
+                      @if (a.removable) { <button type="button" (click)="removeAttachment(a.key)" [attr.aria-label]="'Remove ' + a.name"><dk-icon name="x" [size]="13" /></button> }
+                    </span>
+                  }
+                </div>
+              </section>
+
+              <div class="rs__actions">
+                @if (portalOnly()) {
+                  <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" (click)="downloadPackage()" [disabled]="!!busy()"><dk-icon name="download" />{{ busy() === 'package' ? 'Packaging…' : 'Download package' }}</button>
+                  @if (o.portalUrl) { <a class="dk-btn dk-btn--lg" [href]="o.portalUrl" target="_blank" rel="noopener"><dk-icon name="external" />Open the portal</a> }
+                  <button type="button" class="dk-btn dk-btn--lg" (click)="markSubmitted()" [disabled]="!!busy()" appWriteAction="mark this submitted">I've submitted it</button>
+                } @else {
+                  <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" (click)="send()" [disabled]="!canSend() || !!busy() || !inboxes().length" appWriteAction="send this proposal"><dk-icon name="send" />{{ busy() === 'send' ? 'Sending…' : 'Send proposal' }}</button>
+                  <button type="button" class="dk-btn dk-btn--lg" (click)="downloadPackage()" [disabled]="!!busy()"><dk-icon name="download" />{{ busy() === 'package' ? 'Packaging…' : 'Download package' }}</button>
+                }
+              </div>
+              @if (!ready()) { <p class="dk-muted rs__gate">Send unlocks when the checklist is complete. <a [routerLink]="['/opportunities', o.id, 'proposal']">Finish the proposal</a></p> }
+            }
+          </main>
+
+          <aside class="rs__side">
+            @if (checklist().length) {
+              @if (ready()) {
+                <section class="rs__card dk-tinted" data-tint="green">
+                  <h2>Checklist {{ checklist().length }} of {{ checklist().length }}</h2>
+                  <p>{{ checklistSummary() }}.</p>
+                </section>
+              } @else {
+                <section class="rs__card dk-tinted" data-tint="pink">
+                  <h2>Still to do</h2>
+                  <ul>@for (c of failing(); track c.id) { <li><strong>{{ c.label }}</strong> · {{ c.status }}</li> }</ul>
+                  <a class="dk-btn dk-btn--bg dk-btn--sm" [routerLink]="['/opportunities', o.id, 'proposal']">Back to the proposal</a>
+                </section>
+              }
+            }
+            @if (!portalOnly() && !o.submissionRecord) {
+              <section class="rs__card">
+                <div class="dk-todd__head rs__todd"><img src="assets/avatar-todd-sm.png" alt="" />Why this address</div>
+                <p>{{ why() }}</p>
+              </section>
+            }
+            <section class="rs__card">
+              <h2 class="dk-kicker">{{ portalOnly() ? 'Portal-only RFP' : 'When it’s portal-only' }}</h2>
+              <p>{{ portalOnly() ? 'This RFP takes submissions through its portal. Download the package, upload it there, then mark it submitted here.' : 'Some RFPs only take uploads through a portal like Bonfire. For those, Download package bundles the proposal and attachments to upload yourself.' }}</p>
+            </section>
+          </aside>
+        </div>
+      }
+    }
+  }
+</div>

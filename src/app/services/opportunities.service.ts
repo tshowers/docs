@@ -108,6 +108,23 @@ export class OpportunitiesService {
     return this.http.post<Envelope<{ draft: ProposalDraft; knowledge: { saved: boolean; id?: string; reason?: string } }>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/questions/${ encodeURIComponent( questionId ) }`, body ).pipe( map( ( r ) => r.data ) );
   }
 
+  // ── Review & send ──────────────────────────────────────────────
+  /** Sends from the person's own inbox; the opportunity comes back submitted. */
+  sendProposal ( opportunityId: string, body: { mailboxId: string; to: string; subject: string; body: string; documentIds: string[] } ): Observable<Opportunity> {
+    return this.http.post<Envelope<Opportunity>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/send`, body ).pipe(
+      map( ( r ) => r.data ),
+      tap( ( updated ) => this.replace( updated ) ),
+    );
+  }
+
+  /** Portal-only RFPs: recorded by hand after uploading on the portal. */
+  markSubmitted ( opportunityId: string, note = '' ): Observable<Opportunity> {
+    return this.http.post<Envelope<Opportunity>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/submitted`, { note } ).pipe(
+      map( ( r ) => r.data ),
+      tap( ( updated ) => this.replace( updated ) ),
+    );
+  }
+
   // ── Inboxes ────────────────────────────────────────────────────
   listInboxes (): Observable<DocsInbox[]> {
     return this.http.get<Envelope<DocsInbox[]>>( `${ this.base }/inboxes` ).pipe( map( ( r ) => r.data || [] ) );

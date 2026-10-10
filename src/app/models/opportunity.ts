@@ -23,6 +23,8 @@ export interface Opportunity {
   status: OpportunityStatus;
   rfpDocumentId: string;
   proposalDocumentId: string;
+  /** What was sent (Review & send), or null. */
+  submissionRecord?: { method: 'email' | 'portal'; to: string; from?: string; subject?: string; note?: string; submittedAt: string; attachments?: { filename: string; bytes: number }[] } | null;
   createdAt: string;
   updatedAt: string;
 }
