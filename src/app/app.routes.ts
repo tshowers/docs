@@ -25,7 +25,15 @@ export const routes: Routes = [
       import( './features/app-showcase/app-showcase.component' ).then( ( m ) => m.AppShowcaseComponent ),
   },
   {
+    // The signed-out header's About tab.
+    path: 'about',
+    data: { pageTitle: 'About' },
+    loadComponent: () =>
+      import( './features/landing/landing.component' ).then( ( m ) => m.LandingComponent ),
+  },
+  {
     path: 'help',
+    data: { pageTitle: 'Help' },
     loadComponent: () =>
       import( './features/help/help.component' ).then( ( m ) => m.HelpComponent ),
   },
@@ -59,14 +67,40 @@ export const routes: Routes = [
     redirectTo: 'docs',
   },
   {
-    path: 'docs/upload',
+    // The four tabs (design_handoff_todd_docs): Home, Opportunities,
+    // Documents, Knowledge. Each tab's old page redirects here once the tab
+    // owns it; Opportunities shows Proposal History until its own page lands.
+    path: 'opportunities',
+    data: { pageTitle: 'Opportunities' },
+    loadComponent: () =>
+      import( './features/proposal-history/proposal-history.component' ).then( ( m ) => m.ProposalHistoryComponent ),
+  },
+  {
+    path: 'documents',
+    data: { pageTitle: 'Documents' },
+    loadComponent: () =>
+      import( './features/document-list/document-list.component' ).then( ( m ) => m.DocumentListComponent ),
+  },
+  {
+    path: 'docs/documents',
+    redirectTo: 'documents',
+  },
+  {
+    path: 'upload',
+    data: { pageTitle: 'Add files' },
     loadComponent: () =>
       import( './features/general-document-upload/general-document-upload.component' ).then( ( m ) => m.GeneralDocumentUploadComponent ),
   },
   {
-    path: 'docs/documents',
+    path: 'docs/upload',
+    redirectTo: 'upload',
+  },
+  {
+    // The header's New button. The editor is where every document opens.
+    path: 'new',
+    data: { pageTitle: 'New' },
     loadComponent: () =>
-      import( './features/document-list/document-list.component' ).then( ( m ) => m.DocumentListComponent ),
+      import( './features/document-editor/document-editor.component' ).then( ( m ) => m.DocumentEditorComponent ),
   },
   {
     path: 'docs/editor',
@@ -105,6 +139,7 @@ export const routes: Routes = [
   },
   {
     path: 'knowledge',
+    data: { pageTitle: 'Knowledge' },
     loadComponent: () =>
       import( './features/repository/repository.component' ).then( ( m ) => m.RepositoryComponent ),
   },

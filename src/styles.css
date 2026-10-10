@@ -1,6 +1,8 @@
+@import "@taliferro/ui/styles/tokens.css";
 @import "@taliferro/ui/styles/controls.css";
 @import "@taliferro/ui/styles/universal-menu.css";
 @import "@taliferro/ui/styles/site-footer.css";
+@import "@taliferro/ui/styles/app-header.css";
 
 /* You can add global styles to this file, and also import other style files */
 
@@ -146,21 +148,23 @@ html {
   height: 100%;
 }
 
+/* Find family tokens (tokens.css): the header's Light/Dark pill sets
+ * data-theme on <html>, so the page background follows it too. */
 body {
   margin: 0;
   min-height: 100%;
-  background: #f6f8fa;
-  color: #0d1117;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
 }
 
-app-root > router-outlet + *:not(app-landing) { padding-top:4.5rem; box-sizing:border-box; }
+/* Room for the phone bottom tab bar (docs-header). */
+@media (max-width: 760px) {
+  app-root { display: block; padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+}
 
 @media (prefers-color-scheme: dark) {
-  body {
-    background: #141a1e;
-    color: #e8edf2;
-  }
-
   /*
    * Bootstrap's own dark mode is opt-in via a [data-bs-theme="dark"]
    * attribute (its --bs-body-bg/--bs-table-bg variables never look at

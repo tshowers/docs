@@ -1,26 +1,24 @@
-import { AsyncPipe, NgIf } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { map } from 'rxjs';
 import { filter } from 'rxjs';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
+import { initTheme } from '@taliferro/ui/platform/theme';
 
 import { environment } from '../environments/environment';
-import { DocsAuthService } from './services/docs-auth.service';
 import { ToastComponent } from './shared/toast/toast.component';
-import { PlatformMenuComponent } from './shared/platform-menu/platform-menu.component';
+import { DocsHeaderComponent } from './shared/docs-header/docs-header.component';
 import { DocsAssistantLauncherComponent } from './shared/page/assistant-box/docs-assistant-launcher.component';
 import packageJson from '../../package.json';
 import { WriteAccessPromptComponent } from './shared/write-access/write-access-prompt.component';
 
 @Component({
   selector: 'app-root',
-  imports: [WriteAccessPromptComponent, RouterOutlet, ToastComponent, PlatformMenuComponent, DocsAssistantLauncherComponent, AsyncPipe, NgIf],
+  imports: [WriteAccessPromptComponent, RouterOutlet, ToastComponent, DocsHeaderComponent, DocsAssistantLauncherComponent, NgIf],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  private readonly authService = inject( DocsAuthService );
   private readonly router = inject( Router );
   private readonly updates = inject( SwUpdate );
   private isReloadingForUpdate = false;
@@ -30,21 +28,19 @@ export class AppComponent implements OnInit {
   readonly chunkRecoveryStorageKey = 'docs-chunk-recovery-attempted';
   updateNotice = '';
   chunkRecoveryNeedsManualRefresh = false;
-  readonly isAdmin$ = this.authService.getUser().pipe( map( user => user?.uid === environment.taliferroTenantId ) );
-  readonly isLoggedIn$ = this.authService.isLoggedIn();
-  readonly userName$ = this.authService.getUser().pipe( map( user => user?.displayName || '' ) );
-  readonly userEmail$ = this.authService.getUser().pipe( map( user => user?.email || '' ) );
   readonly isEmbedded = typeof window !== 'undefined'
     && new URLSearchParams( window.location.search ).get( 'embedded' ) === 'true';
 
   title = 'docs';
-
-  async signOut (): Promise<void> {
-    await this.authService.signOut();
-    await this.router.navigateByUrl( '/' );
-  }
+  /** The hosted-login callback is a bare hand-off screen. */
+  hideHeader = false;
 
   ngOnInit (): void {
+    initTheme();
+    this.hideHeader = this.isBareRoute( this.router.url );
+    this.router.events.pipe( filter( event => event instanceof NavigationEnd ) ).subscribe( ( event ) => {
+      this.hideHeader = this.isBareRoute( ( event as NavigationEnd ).urlAfterRedirects );
+    } );
     this.showUpdateNoticeAfterReload();
     if ( !environment.production ) return;
     window.addEventListener( 'error', this.handleWindowError, true );
@@ -142,9 +138,13 @@ export class AppComponent implements OnInit {
     void this.activateAndReload( version );
   }
 
+  private isBareRoute ( url: string ): boolean {
+    return /^\/(auth\/callback|mobile-handoff)(\/|\?|$)/.test( url || '' );
+  }
+
   private isEditingDocs (): boolean {
     const route = this.router.url.split( '?' )[0];
-    return ['/docs/editor', '/docs/upload', '/docs/rfp-upload', '/knowledge/response-flow'].some( path => route.startsWith( path ) );
+    return ['/new', '/upload', '/docs/editor', '/docs/upload', '/docs/rfp-upload', '/knowledge/response-flow'].some( path => route.startsWith( path ) );
   }
 
   private async activateAndReload ( version: string ): Promise<void> {
