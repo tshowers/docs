@@ -38,13 +38,15 @@ export const routes: Routes = [
   },
   {
     path: 'docs/success',
+    data: { flow: 'docs', pageTitle: 'Payment' },
     loadComponent: () =>
-      import( './features/docs-paid-success/docs-paid-success.component' ).then( ( m ) => m.DocsPaidSuccessComponent ),
+      import( './features/payment-success/payment-success.component' ).then( ( m ) => m.PaymentSuccessComponent ),
   },
   {
     path: 'knowledge/success',
+    data: { flow: 'knowledge', pageTitle: 'Payment' },
     loadComponent: () =>
-      import( './features/knowledge-paid-success/knowledge-paid-success.component' ).then( ( m ) => m.KnowledgePaidSuccessComponent ),
+      import( './features/payment-success/payment-success.component' ).then( ( m ) => m.PaymentSuccessComponent ),
   },
   {
     // The old Stripe plan pages now forward to the one "browse free,

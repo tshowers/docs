@@ -1,9 +1,11 @@
-<div class="not-found-shell" data-cy="not-found">
-  <div class="not-found-eyebrow">404</div>
-  <h1>We couldn't find that.</h1>
-  <p>The document or page you're looking for may have been moved, deleted, or never existed.</p>
-  <div class="not-found-actions">
-    <a class="btn-todd btn-todd--primary" routerLink="/docs">Go to Docs</a>
-    <a class="btn-todd" routerLink="/docs/documents">My Documents</a>
-  </div>
+<div class="nf" data-cy="not-found">
+  <img class="nf__avatar" src="assets/avatar-todd-sm.png" alt="" />
+  <h1>I couldn't find that page</h1>
+  <p>The link may be old, or the item was moved or deleted. Search for it, or go back to Home.</p>
+  <form class="nf__ask" (submit)="$event.preventDefault(); search()">
+    <dk-icon name="search" [size]="20" />
+    <input name="q" [value]="query()" (input)="query.set($any($event.target).value)" placeholder="Search documents, knowledge and opportunities…" aria-label="Search" />
+    <button type="submit" class="dk-btn dk-btn--primary" [disabled]="!query().trim()">Go</button>
+  </form>
+  <a class="dk-btn" routerLink="/docs"><dk-icon name="home" />Home</a>
 </div>
