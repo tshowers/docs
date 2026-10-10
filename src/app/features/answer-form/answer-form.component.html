@@ -1,0 +1,133 @@
+<div class="dk-page af" data-cy="answer-form">
+  <header class="af__bar">
+    <button type="button" class="dk-circle af__back" (click)="cancel()" aria-label="Back"><dk-icon name="chevron-left" /></button>
+    <div class="af__heading"><h1>{{ isEdit() ? 'Edit answer' : 'Add an answer' }}</h1><p class="dk-muted">Knowledge</p></div>
+    <button type="button" class="dk-btn" (click)="cancel()">Cancel</button>
+    <button type="button" class="dk-btn dk-btn--primary" (click)="save()" [disabled]="saving() || loading()" appWriteAction="save this answer" data-cy="answer-save">{{ saving() ? 'Saving…' : 'Save' }}</button>
+  </header>
+
+  @if (loading()) {
+    <div class="af__pulse" aria-busy="true"></div>
+  } @else {
+    <div class="af__grid">
+      <form class="af__main" (ngSubmit)="save()">
+        <label class="af__label" for="af-question">Question</label>
+        <textarea id="af-question" class="af__question" name="question" rows="1" [(ngModel)]="form.question" (blur)="suggest()" placeholder="What does a proposal or customer ask?" data-cy="answer-question"></textarea>
+
+        <label class="af__label" for="af-category">Category</label>
+        <select id="af-category" class="af__select" name="category" [(ngModel)]="form.category" data-cy="answer-category">
+          <option value="">Choose a category…</option>
+          @for (c of categories(); track c) { <option [value]="c">{{ c }}</option> }
+          @if (form.category && !categories().includes(form.category)) { <option [value]="form.category">{{ form.category }}</option> }
+        </select>
+
+        <div class="af__label af__label--row"><span>Answers</span><small class="dk-muted">At least one. Each can cite a link or a document.</small></div>
+        @for (a of form.answers; track $index; let i = $index) {
+          <section class="af__answer">
+            <span class="af__num">{{ i + 1 }}</span>
+            <div class="af__answer-body">
+              <textarea [name]="'answer' + i" rows="2" [(ngModel)]="a.answer" (blur)="suggest()" placeholder="The answer, in your words…" [attr.data-cy]="'answer-text-' + i"></textarea>
+              <div class="af__chips">
+                @if (a.source) {
+                  <span class="af__chip"><dk-icon name="link" [size]="13" />{{ linkLabel(a.source) }}<button type="button" (click)="a.source = ''" aria-label="Remove link"><dk-icon name="x" [size]="12" /></button></span>
+                }
+                @if (a.document) {
+                  <span class="af__chip"><dk-icon name="file" [size]="13" />{{ a.document.name }}<button type="button" (click)="a.document = null" aria-label="Remove document"><dk-icon name="x" [size]="12" /></button></span>
+                }
+                @if (linkFor === i) {
+                  <span class="af__inline"><input name="linkDraft" [(ngModel)]="linkDraft" placeholder="https://…" (keydown.enter)="$event.preventDefault(); saveLink()" /><button type="button" class="af__add" (click)="saveLink()">Add</button></span>
+                } @else {
+                  @if (!a.source) { <button type="button" class="af__add" (click)="startLink(i)"><dk-icon name="link" [size]="13" />Add a link</button> }
+                  @if (!a.document) { <button type="button" class="af__add" (click)="openAttach({ kind: 'answer', index: i })"><dk-icon name="file" [size]="13" />Attach a document</button> }
+                }
+                @if (form.answers.length > 1) { <button type="button" class="af__remove" (click)="removeAnswer(i)">Remove</button> }
+              </div>
+            </div>
+          </section>
+        }
+        <button type="button" class="dk-btn af__more" (click)="addAnswer()"><dk-icon name="plus" />Add another answer</button>
+
+        <section class="af__card">
+          <h2>Recommendations <span class="af__opt">Optional</span></h2>
+          @for (r of form.recommendations; track $index; let i = $index) {
+            <div class="af__rec">
+              <div class="af__seg" role="group" aria-label="Type">
+                @for (t of ['Practice', 'Policy', 'Resource']; track t) {
+                  <button type="button" [class.is-on]="r.type === t" (click)="r.type = $any(t)">{{ t }}</button>
+                }
+              </div>
+              <input [name]="'rec' + i" [(ngModel)]="r.text" placeholder="What to do…" />
+            </div>
+            <div class="af__chips af__chips--indent">
+              @if (r.document) {
+                <span class="af__chip"><dk-icon name="file" [size]="13" />{{ r.document.name }}<button type="button" (click)="r.document = null" aria-label="Remove document"><dk-icon name="x" [size]="12" /></button></span>
+              } @else {
+                <button type="button" class="af__add" (click)="openAttach({ kind: 'recommendation', index: i })"><dk-icon name="file" [size]="13" />Attach a document</button>
+              }
+              <input class="af__linkfield" [name]="'reclink' + i" [(ngModel)]="r.link" placeholder="Optional link" />
+              <button type="button" class="af__remove" (click)="form.recommendations.splice(i, 1)">Remove</button>
+            </div>
+          }
+          <button type="button" class="af__add" (click)="addRecommendation()"><dk-icon name="plus" [size]="13" />Add recommendation</button>
+        </section>
+
+        <section class="af__card">
+          <h2>Resources <span class="af__opt">Optional</span></h2>
+          <div class="af__chips">
+            @for (res of form.resources; track res.link; let i = $index) {
+              <span class="af__chip"><dk-icon name="link" [size]="13" />{{ linkLabel(res.link) }}<button type="button" (click)="form.resources.splice(i, 1)" aria-label="Remove link"><dk-icon name="x" [size]="12" /></button></span>
+            }
+            @if (addingResource) {
+              <span class="af__inline"><input name="resourceDraft" [(ngModel)]="resourceDraft" placeholder="https://…" (keydown.enter)="$event.preventDefault(); addResource()" /><button type="button" class="af__add" (click)="addResource()">Add</button></span>
+            } @else {
+              <button type="button" class="af__add" (click)="addingResource = true"><dk-icon name="plus" [size]="13" />Add a link</button>
+            }
+          </div>
+        </section>
+
+        <section class="af__card">
+          <h2>Keywords <span class="af__opt">Optional</span></h2>
+          <div class="af__chips">
+            @for (k of form.keywords; track k) {
+              <span class="af__chip">{{ k }}<button type="button" (click)="removeKeyword(k)" [attr.aria-label]="'Remove ' + k"><dk-icon name="x" [size]="12" /></button></span>
+            }
+            @if (suggestedKeywords().length) { <small class="dk-muted">TODD suggests</small> }
+            @for (k of suggestedKeywords(); track k) {
+              <button type="button" class="af__suggest" (click)="addKeyword(k)"><dk-icon name="plus" [size]="12" />{{ k }}</button>
+            }
+            <input class="af__kw" name="keywordDraft" [(ngModel)]="keywordDraft" placeholder="Type a keyword…" (keydown.enter)="$event.preventDefault(); addKeyword(keywordDraft)" />
+          </div>
+        </section>
+      </form>
+
+      <aside class="af__side">
+        <section class="af__status">
+          <header><h2>Status</h2><span class="dk-tag dk-tinted" [attr.data-tint]="status.ready ? 'green' : 'yellow'">{{ status.ready ? 'Ready' : 'Draft' }}</span></header>
+          <p><span class="af__check" [class.is-ok]="status.hasQuestion"><dk-icon [name]="status.hasQuestion ? 'check' : 'x'" [size]="12" /></span>Has a question</p>
+          <p><span class="af__check" [class.is-ok]="status.hasAnswer"><dk-icon [name]="status.hasAnswer ? 'check' : 'x'" [size]="12" /></span>Has at least one answer</p>
+          <small class="dk-muted">If either is missing, Save still works and the answer is saved as a <strong>Draft</strong>. TODD won't use drafts in proposals.</small>
+        </section>
+        <section class="dk-todd">
+          <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD</div>
+          <p>{{ toddPickedCategory() ? 'I picked the category from your question. ' : '' }}Leave the optional sections empty if you like; I'll suggest keywords once you've written the question and an answer.</p>
+        </section>
+      </aside>
+    </div>
+  }
+</div>
+
+@if (attachTarget) {
+  <div class="af__sheet-backdrop" (click)="attachTarget = null"></div>
+  <div class="af__sheet" role="dialog" aria-modal="true" aria-label="Attach a document">
+    <header><h2>Attach a document</h2><button type="button" class="dk-circle" (click)="attachTarget = null" aria-label="Close"><dk-icon name="x" /></button></header>
+    <label class="dk-search"><dk-icon name="search" [size]="18" /><input name="attachSearch" [(ngModel)]="attachSearch" placeholder="Search Documents…" /></label>
+    <div class="af__docs">
+      @for (d of attachChoices; track d.id) {
+        <button type="button" class="af__doc" (click)="attach({ name: d.title || d.name, src: d.src, type: d.type })"><dk-icon name="file" />{{ d.title || d.name }}</button>
+      } @empty {
+        <p class="dk-muted">No documents match.</p>
+      }
+    </div>
+    <label class="dk-btn af__upload">{{ uploading ? 'Uploading…' : 'Upload from this computer' }}<input type="file" hidden (change)="uploadAndAttach($event)" [disabled]="uploading" /></label>
+  </div>
+}

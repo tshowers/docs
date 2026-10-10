@@ -1,6 +1,10 @@
-describe( 'Knowledge Base response-flow lifecycle', () => {
+// Knowledge answers: Add an answer (3d) creates one, the answer page (2d)
+// shows it, Edit reopens the same page pre-filled, and Delete lives on the
+// answer page.
+describe( 'Knowledge answer lifecycle', () => {
   const id = 'docs-cypress-flow';
   let flow: any = null;
+  const auth = { onBeforeLoad: ( win: Window ) => win.localStorage.setItem( '__docsCypressAuth', 'true' ) };
 
   beforeEach( () => {
     cy.intercept( 'GET', '**/api/response-flows', ( req ) => req.reply( { statusCode: 200, body: flow ? [flow] : [] } ) ).as( 'listFlows' );
@@ -17,43 +21,33 @@ describe( 'Knowledge Base response-flow lifecycle', () => {
       flow = null;
       req.reply( { statusCode: 200, body: {} } );
     } ).as( 'deleteFlow' );
+    cy.intercept( 'POST', '**/api/docs/knowledge/suggest', { statusCode: 200, body: { success: true, data: { category: 'Support', isNewCategory: true, keywords: ['support'] } } } );
   } );
 
-  it( 'creates, reads in Knowledge Base, updates, and deletes a response flow', () => {
-    cy.visit( '/knowledge/response-flow', { onBeforeLoad: ( win ) => win.localStorage.setItem( '__docsCypressAuth', 'true' ) } );
-    cy.get( 'input[placeholder="Enter your question..."]' ).type( 'How do we support customers?' );
-    cy.contains( 'button', 'Next' ).click( { force: true } );
-    cy.get( 'textarea[placeholder="Type your response..."]' ).type( 'Support is available by email.' );
-    cy.get( 'input[placeholder="https://example.com"]' ).type( 'https://example.com/support' );
-    cy.contains( 'button', 'Add' ).click();
-    cy.contains( 'button', 'Next' ).click( { force: true } );
-    cy.get( 'input[placeholder="Recommended item..."]' ).type( 'Read the support guide' );
-    cy.get( 'input[placeholder="https://..."]' ).first().type( 'https://example.com/guide' );
-    cy.get( 'select' ).eq( 0 ).select( 'Resource' );
-    cy.contains( 'button', 'Add Recommendation' ).click();
-    cy.contains( 'button', 'Next' ).click( { force: true } );
-    cy.get( 'input[placeholder="https://..."]' ).type( 'https://example.com/contact' );
-    cy.contains( 'button', 'Add' ).click();
-    cy.contains( 'button', 'Next' ).click( { force: true } );
-    cy.get( 'input[placeholder*="Type a keyword"]' ).type( 'support' );
-    cy.contains( 'button', 'Add' ).click();
-    cy.contains( 'button', 'Submit' ).click( { force: true } );
-    cy.wait( '@createFlow' ).its( 'request.body.question' ).should( 'eq', 'How do we support customers?' );
+  it( 'adds, shows, edits and deletes an answer', () => {
+    cy.visit( '/knowledge/response-flow', auth );
+    cy.get( '[data-cy="answer-question"]' ).type( 'How do we support customers?' );
+    cy.get( '[data-cy="answer-text-0"]' ).type( 'Support is available by email.' );
+    cy.contains( 'button', 'Add a link' ).click();
+    cy.get( 'input[placeholder="https://…"]' ).type( 'example.com/support{enter}' );
+    cy.get( '[data-cy="answer-save"]' ).click();
+    cy.wait( '@createFlow' ).its( 'request.body' ).should( ( body ) => {
+      expect( body.question ).to.eq( 'How do we support customers?' );
+      expect( body.answers[0] ).to.deep.include( { answer: 'Support is available by email.', source: 'https://example.com/support' } );
+      expect( body.status ).to.eq( 'complete' );
+    } );
 
-    cy.visit( '/knowledge', { onBeforeLoad: ( win ) => win.localStorage.setItem( '__docsCypressAuth', 'true' ) } );
-    cy.wait( '@listFlows' );
-    cy.contains( 'How do we support customers?' ).should( 'be.visible' );
-    cy.get( 'button[title="Edit"]' ).click( { force: true } );
-    cy.get( 'input[placeholder="Enter your question..."]' ).should( 'have.value', 'How do we support customers?' ).clear().type( 'How do we support enterprise customers?' );
-    cy.contains( 'button', 'Next' ).click( { force: true } ).click( { force: true } ).click( { force: true } ).click( { force: true } );
-    cy.contains( 'button', 'Submit' ).click( { force: true } );
-    cy.wait( '@updateFlow' );
-    cy.visit( '/knowledge' );
-    cy.wait( '@listFlows' );
-    cy.contains( 'How do we support enterprise customers?' ).should( 'be.visible' );
+    cy.visit( `/knowledge/${id}`, auth );
+    cy.contains( 'h1', 'How do we support customers?' ).should( 'be.visible' );
+    cy.contains( 'button', 'Edit' ).click();
+    cy.get( '[data-cy="answer-question"]' ).should( 'have.value', 'How do we support customers?' ).clear().type( 'How do we support enterprise customers?' );
+    cy.get( '[data-cy="answer-save"]' ).click();
+    cy.wait( '@updateFlow' ).its( 'request.body.question' ).should( 'eq', 'How do we support enterprise customers?' );
+
+    cy.visit( `/knowledge/${id}`, auth );
     cy.on( 'window:confirm', () => true );
-    cy.get( 'button[title="Delete"]' ).click( { force: true } );
+    cy.get( 'button[aria-label="More actions"]' ).click();
+    cy.contains( 'button', 'Delete' ).click();
     cy.wait( '@deleteFlow' );
-    cy.contains( 'How do we support enterprise customers?' ).should( 'not.exist' );
   } );
 } );

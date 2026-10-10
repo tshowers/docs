@@ -159,14 +159,18 @@ export const routes: Routes = [
     redirectTo: '/upload?rfp=1',
   },
   {
+    // Add / Edit answer (3d): one page in place of the old wizard, at the
+    // wizard's address so existing links keep working.
     path: 'knowledge/response-flow',
+    data: { pageTitle: 'Answer' },
     loadComponent: () =>
-      import( './features/response-flow/response-flow.component' ).then( ( m ) => m.ResponseFlowComponent ),
+      import( './features/answer-form/answer-form.component' ).then( ( m ) => m.AnswerFormComponent ),
   },
   {
     path: 'knowledge/response-flow/:id',
+    data: { pageTitle: 'Answer' },
     loadComponent: () =>
-      import( './features/response-flow/response-flow.component' ).then( ( m ) => m.ResponseFlowComponent ),
+      import( './features/answer-form/answer-form.component' ).then( ( m ) => m.AnswerFormComponent ),
   },
   {
     path: 'knowledge',
