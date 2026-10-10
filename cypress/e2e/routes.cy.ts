@@ -4,7 +4,9 @@ const routes = [
   '/docs/upload', '/docs/documents', '/docs/editor', '/docs/editor/e2e-doc',
   '/docs/proposal-history', '/docs/rfp-list', '/docs/rfp-upload',
   '/knowledge/response-flow', '/knowledge/response-flow/e2e-flow',
-  '/knowledge', '/login'
+  '/knowledge', '/login',
+  '/about', '/help', '/opportunities', '/opportunities/inbox', '/documents',
+  '/upload', '/upload?rfp=1', '/new'
 ];
 
 describe( 'Docs accessible routes', () => {

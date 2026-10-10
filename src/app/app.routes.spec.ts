@@ -14,7 +14,7 @@ describe( 'Docs route table', () => {
     // create with the app"); the vault and upload moved under the
     // Documents tab; RFP list, Proposal History and RFP upload under
     // Opportunities.
-    expect( routes.filter( route => route.redirectTo ).map( route => route.redirectTo ) ).toEqual( ['pricing', 'pricing', 'docs', 'documents', 'upload', 'opportunities', 'opportunities', '/upload?rfp=1'] );
-    expect( routes.filter( route => route.loadComponent ).length ).toBe( 29 );
+    expect( routes.filter( route => route.redirectTo ).map( route => route.redirectTo ) ).toEqual( ['docs', 'pricing', 'pricing', 'docs', 'documents', 'upload', 'opportunities', 'opportunities', '/upload?rfp=1'] );
+    expect( routes.filter( route => route.loadComponent ).length ).toBe( 28 );
   } );
 } );

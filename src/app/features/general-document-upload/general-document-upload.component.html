@@ -9,6 +9,12 @@
 
   <p class="dk-kicker">{{ rfpMode ? 'Opportunities' : 'Add files' }}</p>
   <h1 class="up__title">{{ headline() }}</h1>
+  @if (link) {
+    <div class="dk-todd up__link">
+      <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />That's a link to the RFP</div>
+      <p>I can't sign in to portals to fetch it. <a [href]="link" target="_blank" rel="noopener">Open it</a>, download the RFP document, and drop it here.</p>
+    </div>
+  }
   @if (rfpMode && !rows().length) {
     <p class="up__lead dk-muted">Drop the RFP itself (a PDF or Word file). TODD reads it, scores it against your profile and adds it to Opportunities.</p>
   }

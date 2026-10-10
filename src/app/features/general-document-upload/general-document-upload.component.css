@@ -104,3 +104,6 @@ button.up__chip {
   .up__badge { width: 44px; height: 44px; }
   .up__chip { grid-column: 2; justify-self: start; }
 }
+
+.up__link { margin-bottom: 16px; }
+.up__link a { color: var(--blue-ink) !important; font-weight: 700; }

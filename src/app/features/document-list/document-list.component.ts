@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { Document } from '../../models/document.model';
 import {
-  DOCUMENT_KINDS, DocumentKind, documentExtension, documentKind, documentKindInfo, documentMatches, documentSurface, documentTitle, shortDocumentDate,
+  DOCUMENT_KINDS, DocumentKind, documentExtension, documentKind, documentKindInfo, documentMatches, documentSurface, documentTitle, parseDay, shortDocumentDate,
 } from '../../models/document-kind';
 import { PageAction } from '../../models/page-actions.models';
 import { DocsAuthService } from '../../services/docs-auth.service';
@@ -159,8 +159,8 @@ export class DocumentListComponent implements OnInit, OnDestroy {
   /** The yellow flag: an RFP's due date or a compliance file's expiry, when it's ahead. */
   private flagFor ( doc: Document, kind: DocumentKind ): string {
     if ( !doc.dueDate ) return '';
-    const date = new Date( doc.dueDate );
-    if ( isNaN( date.getTime() ) || date.getTime() < Date.now() ) return '';
+    const date = parseDay( doc.dueDate );
+    if ( !date || date.getTime() < Date.now() ) return '';
     const label = date.toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } );
     return kind === 'compliance' ? `Expires ${ label }` : `Due ${ label }`;
   }

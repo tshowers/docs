@@ -124,6 +124,14 @@ export function shortDocumentDate ( doc: Partial<Document> | null | undefined, n
     : date.toLocaleDateString( 'en-US', { month: 'short', year: 'numeric' } );
 }
 
+/** A date the API stores as "2026-11-30" is that local day, not midnight UTC. */
+export function parseDay ( value: unknown ): Date | null {
+  if ( !value ) return null;
+  const text = String( value );
+  const date = /^\d{4}-\d{2}-\d{2}$/.test( text ) ? new Date( `${ text }T12:00:00` ) : new Date( text );
+  return isNaN( date.getTime() ) ? null : date;
+}
+
 export function documentMatches ( doc: Partial<Document>, term: string ): boolean {
   const query = text( term );
   if ( !query ) return true;

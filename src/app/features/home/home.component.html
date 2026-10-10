@@ -1,0 +1,83 @@
+<div class="dk-page home">
+  @if (signedIn() === false) {
+    <div class="dk-banner home__banner" role="note">
+      <dk-icon name="alert-circle" [size]="18" />
+      <p><strong>You're not signed in.</strong> Look around as much as you like. To use Docs with your own files, sign in. Nothing you do here is saved.</p>
+      <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/login">Sign in</a>
+      <a class="dk-btn dk-btn--bg dk-btn--sm" routerLink="/get-started">Get started</a>
+    </div>
+  }
+
+  <section class="home__hero">
+    <img class="home__icon" src="assets/todd-docs-icon.png" alt="" />
+    <h1>What do you need to write, find or answer?</h1>
+    <form class="home__ask" (submit)="$event.preventDefault(); submit()">
+      <dk-icon name="search" [size]="22" />
+      <input name="ask" [value]="ask()" (input)="ask.set($any($event.target).value)" [placeholder]="signedIn() === false ? 'Try it: search for anything, or ask a question…' : 'Search documents, ask Knowledge, or paste an RFP link…'" aria-label="Search or ask" autocomplete="off" />
+      <button type="submit" class="dk-btn dk-btn--primary dk-btn--lg" [disabled]="!ask().trim()">Go</button>
+    </form>
+    <nav class="home__quick" aria-label="Quick actions">
+      @for (q of quick; track q.label) {
+        <a class="home__pill dk-tinted" [attr.data-tint]="q.tint" [routerLink]="q.route"><dk-icon [name]="q.icon" />{{ q.label }}</a>
+      }
+    </nav>
+    @if (guestAsked()) {
+      <div class="dk-todd home__guest">
+        <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />“{{ guestAsked() }}”</div>
+        <p>Signed in, I'd search your documents and Knowledge for this, or answer it from what your team has saved. Sign in to try it on your own work.</p>
+        <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/login">Sign in</a>
+      </div>
+    }
+  </section>
+
+  @if (signedIn()) {
+    <div class="home__cards">
+      <section class="home__card">
+        <header>
+          <h2>{{ fits().length ? fits().length + ' ' + (fits().length === 1 ? 'RFP fits' : 'RFPs fit') + ' you' : 'RFPs that fit you' }}</h2>
+          <a class="home__link" routerLink="/opportunities">All opportunities</a>
+        </header>
+        @if (!loaded()) {
+          <div class="home__skeleton"></div>
+        } @else if (fits().length) {
+          @for (o of fits().slice(0, 3); track o.id) {
+            <a class="home__row" [routerLink]="['/opportunities', o.id]">
+              <span class="home__score dk-tinted" [attr.data-tint]="fitTint(o.fit.score)">{{ o.fit.score }}</span>
+              <span class="home__rowtext"><strong>{{ o.title }}</strong><small class="dk-muted">{{ o.agency }}@if (o.dueDate) { · due {{ o.dueDate | date:'MMM d' }}}</small></span>
+              <dk-icon name="chevron-right" />
+            </a>
+          }
+        } @else {
+          <p class="dk-muted home__empty">Nothing new right now. TODD checks your RFP inbox every 10 minutes. <a class="home__link" routerLink="/opportunities/inbox">Inbox settings</a></p>
+        }
+      </section>
+
+      <section class="home__card">
+        <header><h2>Needs you</h2>@if (needs().length) { <span class="dk-muted">{{ needs().length }} {{ needs().length === 1 ? 'thing' : 'things' }}</span> }</header>
+        @for (n of needs().slice(0, 4); track n.key) {
+          <a class="home__row" [routerLink]="n.route" [queryParams]="n.queryParams || null">
+            <span class="home__dot dk-tinted" [attr.data-tint]="n.tint"><dk-icon [name]="n.icon" /></span>
+            <span class="home__rowtext"><strong class="home__need">{{ n.text }}</strong></span>
+            <span class="home__action">{{ n.action }}</span>
+          </a>
+        } @empty {
+          <p class="dk-muted home__empty">Nothing needs you right now.</p>
+        }
+      </section>
+    </div>
+  } @else if (signedIn() === false) {
+    <div class="home__pillars">
+      @for (p of pillars; track p.title) {
+        <article class="home__pillar">
+          <span class="home__pillar-icon dk-tinted" [attr.data-tint]="p.tint"><dk-icon [name]="p.icon" [size]="20" /></span>
+          <h2>{{ p.title }}</h2>
+          <p class="dk-muted">{{ p.copy }}</p>
+        </article>
+      }
+    </div>
+    <nav class="home__more">
+      <a class="dk-btn" routerLink="/about">What is Docs? →</a>
+      <a class="dk-btn" routerLink="/help">How to use it →</a>
+    </nav>
+  }
+</div>

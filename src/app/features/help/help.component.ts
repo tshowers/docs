@@ -4,14 +4,9 @@ import { RouterLink } from '@angular/router';
 import { DocsAuthService } from '../../services/docs-auth.service';
 import { GettingStarted, GettingStartedService, GettingStartedStep } from '../../services/getting-started.service';
 
-interface HelpPillar {
-  icon: string;
-  title: string;
-  copy: string;
-}
-
 interface HelpStep {
   number: string;
+  tint: string;
   title: string;
   copy: string;
   details: string[];
@@ -61,109 +56,94 @@ export class HelpComponent implements OnInit {
     return step.id;
   }
 
-  readonly audiences: string[] = [
-    'Small businesses and teams that bid on contracts and answer RFPs.',
-    'Teams that rely on contractors, part-time help, or turnover, and can’t afford to lose what people know when they leave.',
-    'Founders and operators whose notes, drafts, PDFs, images, and videos are scattered across email, drives, and chat tools.',
-  ];
+  /** The step nav: which step is in view. */
+  activeStep = '01';
 
-  readonly differences: HelpPillar[] = [
-    {
-      icon: 'fa-solid fa-file-signature',
-      title: 'From RFP to first draft',
-      copy: 'Upload an RFP and TODD drafts a proposal from it, so you start editing instead of starting from a blank page.',
-    },
-    {
-      icon: 'fa-solid fa-brain',
-      title: 'Knowledge stays when people leave',
-      copy: 'Response Flow captures the questions your team answers, with sourced answers and evidence, and keeps them in the Knowledge Base for the next person.',
-    },
-    {
-      icon: 'fa-solid fa-photo-film',
-      title: 'One home for every kind of file',
-      copy: 'RFP source files, drafts, notes, PDFs, images, videos, and music live in one searchable vault instead of five different tools.',
-    },
-  ];
+  goToStep ( number: string ): void {
+    this.activeStep = number;
+    document.getElementById( `step-${ number }` )?.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+  }
 
+  /** The first session, step by step (design 2c), rewritten for the four tabs. */
   readonly steps: HelpStep[] = [
     {
       number: '01',
+      tint: 'blue',
       title: 'Sign in and add your first file',
       copy: 'Docs gets useful as soon as it has something of yours in it. Start with one file you actually use, such as an RFP you received, a past proposal, or a capability statement.',
       details: [
         'Sign in so Docs can save your work. Guests can look around, but nothing is saved.',
-        'Open Upload and choose a file or drag it into the upload area.',
-        'Give it a clear name and any context, then wait for it to finish processing.',
-        'Your file now appears in My Documents, ready to search and reuse.',
+        'Choose New, then Add files, or drag a file onto the Add files page.',
+        'Docs gives it a readable name and a folder. An RFP goes straight to Opportunities, scored against your profile.',
       ],
-      route: '/docs/upload',
-      action: 'Upload your first file',
+      route: '/upload',
+      action: 'Add your first file',
     },
     {
       number: '02',
-      title: 'Keep everything in your document vault',
-      copy: 'My Documents is your searchable library for PDFs, images, videos, music, Word documents, and other files TODD should know about.',
+      tint: 'cyan',
+      title: 'Find anything in Documents',
+      copy: 'Documents is your searchable library for PDFs, images, videos, music, Word documents, and other files TODD should know about.',
       details: [
-        'Search by title, topic, author, or type.',
-        'Use Add Document to store another file at any time.',
-        'Open a document to see its details, or use its actions to edit and manage it.',
-        'Documents can also be attached to a contact from that contact’s actions menu.',
+        'Search by what a file says, not just its name.',
+        'Filter by RFPs, Proposals, Contracts, Pricing, Compliance or Media.',
+        'Open a file to see its preview, details and what it’s connected to.',
       ],
-      route: '/docs/documents',
-      action: 'Open My Documents',
+      route: '/documents',
+      action: 'Open Documents',
     },
     {
       number: '03',
-      title: 'Write notes and drafts in Document Studio',
-      copy: 'Document Studio is where you jot down thoughts, write drafts, and ask TODD to improve them. It’s the place for work that isn’t finished yet.',
+      tint: 'violet',
+      title: 'Turn an RFP into a proposal',
+      copy: 'Connect the inbox where your RFP alerts arrive, from OpenGov, King County, Bonfire and others, or add the RFP file yourself. Use a semi-dedicated inbox, like bids@yourcompany.com: TODD reads only the senders you list and never marks anything read. It scores each RFP against your profile.',
       details: [
-        'Paste text directly into the editor or drag in a .docx file.',
-        'Tell TODD what you want, such as fix grammar, sound more professional, make it shorter, expand it, turn it into bullets, or summarize it.',
-        'Choose Preview Changes to review TODD’s revision before you accept it.',
-        'Save it as a document or draft, then export to Word or PDF, or copy the text.',
+        'Opportunities lists RFPs that fit you, why they fit and what’s missing.',
+        'Choose Draft proposal. TODD writes what it can from your profile and Knowledge.',
+        'The RFP checklist tracks page limits, formatting and required attachments.',
+        'Review & send emails it from your own inbox to the address the RFP asks for, or packages it for a portal.',
       ],
-      route: '/docs/editor',
-      action: 'Open Document Studio',
+      route: '/opportunities',
+      action: 'Open Opportunities',
     },
     {
       number: '04',
-      title: 'Turn an RFP into a proposal',
-      copy: 'Docs keeps RFPs, deadlines, and proposal drafts together, and TODD can read an RFP and draft the response for you.',
+      tint: 'green',
+      title: 'Answer TODD’s questions',
+      copy: 'When a proposal asks something Docs doesn’t know yet, TODD asks you in the editor. Each answer is saved to Knowledge, so you only answer it once.',
       details: [
-        'Upload an RFP (PDF or Word) with the agency name, title, due date, and any notes or tags.',
-        'Find it again in RFPs and open the source file when you need it.',
-        'Click the Generate Proposal icon on an RFP to have TODD draft a response.',
-        'Use Proposal History to see proposals TODD has started or finished and open the draft.',
-        'Keep due dates up to date so urgent opportunities stand out.',
+        'Answer in your own words. TODD adds the keywords and category.',
+        'Untick Save to Knowledge if the answer only applies to this proposal.',
+        'Answers keep a record of every proposal that used them.',
       ],
-      route: '/docs/rfp-list',
-      action: 'Open RFPs',
+      route: '/opportunities',
+      action: 'See your proposals',
     },
     {
       number: '05',
-      title: 'Capture what your team knows',
-      copy: 'When someone answers a question well, save it. The Knowledge Base keeps answers, evidence, and sources so the knowledge stays with the business, not with whoever wrote it.',
+      tint: 'pink',
+      title: 'Keep Knowledge current',
+      copy: 'Knowledge holds every answer, with its evidence, recommendations and resources. TODD flags answers that are over a year old.',
       details: [
-        'Choose Add Knowledge Item to open Response Flow, a step-by-step guide for capturing knowledge.',
-        'Write the question, add one or more answers, and attach supporting documents or source links.',
-        'Add recommendations and resources, then tag the entry with keywords so it’s easy to find.',
-        'Save it as a draft if it isn’t ready yet, or submit it when the answer and evidence are complete.',
-        'Search the Knowledge Base whenever the same question comes up again.',
+        'Search Knowledge the same way you search Documents.',
+        'Open an answer to confirm it, edit it or turn it into a post.',
+        'You can still add an answer yourself from Knowledge.',
       ],
       route: '/knowledge',
-      action: 'Open Knowledge Base',
+      action: 'Open Knowledge',
     },
     {
       number: '06',
-      title: 'Check your workspace at Docs Home',
-      copy: 'Once you have some documents and knowledge saved, Docs Home gives you an overview of your workspace: what’s being used, what’s out of date, what’s duplicated, and what’s ready to reuse.',
+      tint: 'yellow',
+      title: 'Write something new',
+      copy: 'New starts any document: a cover letter, a capability statement, an edit of a Word file, or a blank page. Say what you’re writing and TODD picks the sources.',
       details: [
-        'Check the health meters to see how your workspace is doing at a glance.',
-        'Each row names a problem, such as stale or duplicate files, and what TODD suggests doing about it.',
-        'Use the shortcuts to jump to Documents, Knowledge Base, or the related task.',
+        'Ask TODD to fix grammar, shorten, expand or summarize.',
+        'Preview TODD’s changes before you accept them.',
+        'Export to Word or PDF, or copy the text.',
       ],
-      route: '/docs',
-      action: 'Open Docs Home',
+      route: '/new',
+      action: 'Start a document',
     },
   ];
 

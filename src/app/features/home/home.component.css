@@ -1,0 +1,81 @@
+:host { display: block; }
+
+.home__banner { max-width: 1120px; margin-left: auto; margin-right: auto; }
+.home__hero { max-width: 880px; margin: 0 auto; padding: 40px 0 8px; text-align: center; }
+.home__icon { width: 72px; height: 72px; border-radius: 20px; margin-bottom: 18px; box-shadow: var(--shadow); }
+.home__hero h1 { max-width: 680px; margin: 0 auto 26px !important; font-size: 48px; font-weight: 700; line-height: 1.04; letter-spacing: -0.04em; }
+
+.home__ask {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 64px;
+  padding: 0 8px 0 22px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  text-align: left;
+}
+
+.home__ask:focus-within { outline: 2px solid var(--blue); outline-offset: 2px; }
+.home__ask input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--text); font: 500 18px/1 var(--font); }
+.home__ask input::placeholder { color: var(--muted); }
+.home__ask .dk-btn--lg { height: 48px; }
+
+.home__quick { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
+.home__pill { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 999px; font-size: 15px; font-weight: 700; }
+.home__pill:hover { filter: brightness(.96); }
+.home__pill:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+.home__guest { margin-top: 18px; text-align: left; display: grid; gap: 8px; justify-items: start; }
+
+.home__cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 1120px; margin: 48px auto 0; }
+.home__card { display: grid; gap: 10px; align-content: start; padding: 18px; border-radius: 28px; background: var(--surface); }
+.home__card header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 4px 4px 6px; }
+.home__card h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.home__link { color: var(--blue-ink) !important; font-size: 13px; font-weight: 700; }
+
+.home__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 20px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.home__row:hover { background: var(--surface2); }
+.home__row:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.home__rowtext { display: grid; flex: 1; min-width: 0; gap: 2px; }
+.home__rowtext strong { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home__rowtext .home__need { font-weight: 600; white-space: normal; }
+.home__rowtext small { font-size: 13px; }
+
+.home__score { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%; font-size: 15px; font-weight: 700; }
+.home__dot { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 50%; }
+.home__action { color: var(--blue-ink); font-size: 13px; font-weight: 700; }
+.home__empty { padding: 4px 4px 8px; font-size: 14px; line-height: 1.5; }
+.home__skeleton { height: 180px; border-radius: 20px; background: var(--bg); animation: home-pulse 1.4s ease-in-out infinite; }
+@keyframes home-pulse { 50% { opacity: .55; } }
+
+.home__pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; max-width: 1120px; margin: 48px auto 0; }
+.home__pillar { display: grid; gap: 10px; align-content: start; padding: 22px; border-radius: 28px; background: var(--surface); }
+.home__pillar-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; }
+.home__pillar h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+.home__pillar p { font-size: 15px; line-height: 1.55; }
+.home__more { display: flex; flex-wrap: wrap; gap: 10px; max-width: 1120px; margin: 22px auto 0; }
+
+@media (max-width: 900px) {
+  .home__cards, .home__pillars { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .home__hero { padding-top: 8px; text-align: left; }
+  .home__icon { display: none; }
+  .home__hero h1 { font-size: 32px; }
+  .home__ask { height: 56px; padding-left: 16px; }
+  .home__ask input { font-size: 16px; }
+  .home__quick { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .home__pill { flex: none; }
+}

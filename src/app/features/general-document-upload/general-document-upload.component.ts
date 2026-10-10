@@ -87,6 +87,8 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   readonly rfpMode = this.route.snapshot.queryParamMap.get( 'rfp' ) === '1';
   /** "Attach the RFP" from the proposal editor: the file is that opportunity's RFP. */
   readonly attachTo = this.route.snapshot.queryParamMap.get( 'opportunity' ) || '';
+  /** A portal link pasted on Home: TODD can't sign in to portals, so it asks for the file. */
+  readonly link = this.route.snapshot.queryParamMap.get( 'link' ) || '';
 
   private tenantId = '';
   private userId = '';

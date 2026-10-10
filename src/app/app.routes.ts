@@ -1,13 +1,12 @@
 import { Routes } from '@angular/router';
-import { landingRedirectGuard } from './services/landing-redirect.guard';
 
 export const routes: Routes = [
   {
+    // Home (1b; 2a signed out) lives at /docs; the old landing page's
+    // content is About.
     path: '',
     pathMatch: 'full',
-    canActivate: [landingRedirectGuard],
-    loadComponent: () =>
-      import( './features/landing/landing.component' ).then( ( m ) => m.LandingComponent ),
+    redirectTo: 'docs',
   },
   {
     path: 'auth/callback',
@@ -25,11 +24,11 @@ export const routes: Routes = [
       import( './features/app-showcase/app-showcase.component' ).then( ( m ) => m.AppShowcaseComponent ),
   },
   {
-    // The signed-out header's About tab.
+    // The signed-out header's About tab (2b).
     path: 'about',
     data: { pageTitle: 'About' },
     loadComponent: () =>
-      import( './features/landing/landing.component' ).then( ( m ) => m.LandingComponent ),
+      import( './features/about/about.component' ).then( ( m ) => m.AboutComponent ),
   },
   {
     path: 'help',
@@ -59,8 +58,9 @@ export const routes: Routes = [
   },
   {
     path: 'docs',
+    data: { pageTitle: 'Docs' },
     loadComponent: () =>
-      import( './features/document-home/document-home.component' ).then( ( m ) => m.DocumentHomeComponent ),
+      import( './features/home/home.component' ).then( ( m ) => m.HomeComponent ),
   },
   {
     path: 'docs/landing',
