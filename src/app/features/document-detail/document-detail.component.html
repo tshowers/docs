@@ -1,0 +1,135 @@
+<div class="dk-page doc-detail">
+  <nav class="dk-resultnav" aria-label="Results">
+    <button type="button" class="dk-resultnav__back" (click)="back()">
+      <span class="dk-circle"><dk-icon name="chevron-left" /></span>
+      <span><small>Back</small><strong>To {{ backLabel() }}</strong></span>
+    </button>
+    <span class="dk-resultnav__count">@if (position() >= 0) {<strong>{{ position() + 1 }} of {{ total() }}</strong>}</span>
+    <span class="dk-resultnav__steps">
+      <button type="button" class="dk-circle" (click)="step(-1)" [disabled]="position() <= 0" aria-label="Previous document"><dk-icon name="chevron-left" /></button>
+      <button type="button" class="dk-circle" (click)="step(1)" [disabled]="position() < 0 || position() >= total() - 1" aria-label="Next document"><dk-icon name="chevron-right" /></button>
+    </span>
+  </nav>
+
+  @if (doc(); as d) {
+    <div class="doc-detail__grid">
+      <!-- Preview -->
+      <section class="doc-detail__preview" [class.is-video]="surface() === 'video'" aria-label="Preview">
+        @switch (surface()) {
+          @case ('image') {
+            <img class="doc-detail__image" [src]="d.src" [alt]="d.description || title()" />
+          }
+          @case ('video') {
+            <div class="doc-detail__player">
+              @if (playing()) {
+                @if (embedUrl()) {
+                  <iframe [src]="embedUrl()" [title]="title()" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                } @else {
+                  <video [src]="d.src" controls autoplay playsinline></video>
+                }
+              } @else {
+                <button type="button" class="doc-detail__play" (click)="playing.set(true)" aria-label="Play video"><dk-icon name="play" [size]="34" /></button>
+              }
+            </div>
+          }
+          @case ('pdf') {
+            <div class="doc-detail__page">
+              @if (safeSrc()) { <iframe [src]="safeSrc()" [title]="title() + ' preview'"></iframe> }
+            </div>
+          }
+          @default {
+            <div class="doc-detail__page doc-detail__page--plate">
+              <div class="dk-plate doc-detail__bigplate" [attr.data-tint]="info().tint"><b>{{ info().label }}</b><strong>{{ extension() }}</strong></div>
+              <p class="dk-muted">No preview for this file type. Open it to read it.</p>
+            </div>
+          }
+        }
+      </section>
+
+      <!-- Details -->
+      <aside class="doc-detail__side">
+        <header class="doc-detail__head">
+          <div class="dk-plate doc-detail__badge" [attr.data-tint]="info().tint"><strong>{{ surface() === 'image' ? 'IMG' : surface() === 'video' ? 'VID' : extension() }}</strong></div>
+          <div>
+            <h1>{{ title() }}</h1>
+            <p class="dk-muted">{{ subtitle() }}</p>
+          </div>
+        </header>
+
+        @if (postedLabel()) {
+          <span class="dk-tag dk-tinted doc-detail__posted" data-tint="green"><dk-icon name="check" />{{ postedLabel() }}</span>
+        } @else if (d.eligibleForSocial) {
+          <span class="dk-tag dk-tinted doc-detail__posted" data-tint="pink"><dk-icon name="megaphone" />Maya can use this for a post</span>
+        }
+
+        @if (editing()) {
+          <form class="doc-detail__edit dk-card" (ngSubmit)="saveEdit()">
+            <label>Title<input name="title" [(ngModel)]="editForm.title" [disabled]="saving()" /></label>
+            <label>Topic<input name="topic" [(ngModel)]="editForm.topic" [disabled]="saving()" /></label>
+            <label>Description<textarea name="description" rows="3" [(ngModel)]="editForm.description" [disabled]="saving()"></textarea></label>
+            @if (surface() === 'image' || surface() === 'video') {
+              <label class="doc-detail__check"><input type="checkbox" name="eligible" [(ngModel)]="editForm.eligibleForSocial" [disabled]="saving()" />Maya can pick this for a post</label>
+            }
+            <div class="doc-detail__actions">
+              <button type="submit" class="dk-btn dk-btn--primary" [disabled]="saving()" appWriteAction="save this document">{{ saving() ? 'Saving…' : 'Save' }}</button>
+              <button type="button" class="dk-btn dk-btn--bg" [disabled]="saving()" (click)="editing.set(false)">Cancel</button>
+            </div>
+          </form>
+        } @else {
+          <div class="doc-detail__actions dk-sticky-actions">
+            <button type="button" class="dk-btn dk-btn--primary" (click)="open()">
+              @if (surface() === 'video') { <dk-icon name="play" />Play } @else { Open }
+            </button>
+            <button type="button" class="dk-btn" (click)="startEdit()" appWriteAction="edit this document">Edit</button>
+            <button type="button" class="dk-btn" (click)="share()">Share</button>
+            @if ((surface() === 'image' || surface() === 'video') && !d.eligibleForSocial) {
+              <button type="button" class="dk-btn" (click)="sendToMaya()" appWriteAction="send this to Maya">Post</button>
+            }
+            <div class="doc-detail__more">
+              <button type="button" class="dk-btn dk-btn--icon" (click)="moreOpen.set(!moreOpen())" [attr.aria-expanded]="moreOpen()" aria-label="More actions"><dk-icon name="more" /></button>
+              @if (moreOpen()) {
+                <div class="doc-detail__menu" role="menu">
+                  @if (d.src) { <button type="button" role="menuitem" (click)="download()"><dk-icon name="download" />Download</button> }
+                  <button type="button" role="menuitem" class="is-danger" (click)="remove()" appWriteAction="delete this document"><dk-icon name="trash" />Delete</button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (metadata().length) {
+          <dl class="dk-meta">
+            @for (row of metadata(); track row.label) { <dt>{{ row.label }}</dt><dd>{{ row.value }}</dd> }
+          </dl>
+        }
+
+        @if (summary()) {
+          <div class="dk-todd">
+            <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />{{ surface() === 'image' ? 'Alt text' : 'Summary' }}</div>
+            <p>{{ summary() }}</p>
+          </div>
+        }
+
+        @if (connections().length) {
+          <section>
+            <h2 class="dk-kicker doc-detail__kicker">Connected to</h2>
+            <div class="doc-detail__chips">
+              @for (c of connections(); track c.label) {
+                @if (c.route) { <a class="dk-tag dk-tinted" [attr.data-tint]="c.tint" [routerLink]="c.route">{{ c.label }}</a> }
+                @else { <span class="dk-tag dk-tinted" [attr.data-tint]="c.tint">{{ c.label }}</span> }
+              }
+            </div>
+          </section>
+        }
+      </aside>
+    </div>
+  } @else if (notFound()) {
+    <div class="dk-empty">
+      <h2>That document isn't here</h2>
+      <p>It may have been deleted, or it belongs to a workspace you're not signed in to.</p>
+      <button type="button" class="dk-btn dk-btn--bg" (click)="back()">Back to Documents</button>
+    </div>
+  } @else {
+    <div class="doc-detail__grid" aria-busy="true"><div class="doc-detail__preview doc-detail__skeleton"></div><div></div></div>
+  }
+</div>

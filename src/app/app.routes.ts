@@ -82,6 +82,12 @@ export const routes: Routes = [
       import( './features/document-list/document-list.component' ).then( ( m ) => m.DocumentListComponent ),
   },
   {
+    path: 'documents/:id',
+    data: { pageTitle: 'Document' },
+    loadComponent: () =>
+      import( './features/document-detail/document-detail.component' ).then( ( m ) => m.DocumentDetailComponent ),
+  },
+  {
     path: 'docs/documents',
     redirectTo: 'documents',
   },

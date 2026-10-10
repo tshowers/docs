@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 
 import { currentTheme, toggleTheme, ThemeMode } from '@taliferro/ui/platform/theme';
 import { environment } from '../../../environments/environment';
 import { DocsAuthService } from '../../services/docs-auth.service';
+import { DkIconComponent } from '../dk-icon/dk-icon.component';
 import { PlatformMenuComponent } from '../platform-menu/platform-menu.component';
 
 type DocsTabId = 'home' | 'opportunities' | 'documents' | 'knowledge' | 'about' | 'help';
@@ -17,20 +17,6 @@ interface DocsTab {
   route: string;
   icon: string;
 }
-
-/** Lucide paths (stroke 2.75, round caps), from design_handoff_todd_docs. */
-const ICONS: Record<string, string> = {
-  plus: '<path d="M12 5v14M5 12h14"/>',
-  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
-  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
-  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
-  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
-  inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
-  folder: '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
-  book: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/>',
-  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
-  help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>',
-};
 
 const APP_TABS: DocsTab[] = [
   { id: 'home', label: 'Home', route: '/docs', icon: 'home' },
@@ -71,7 +57,7 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
 @Component( {
   selector: 'app-docs-header',
   standalone: true,
-  imports: [RouterLink, PlatformMenuComponent],
+  imports: [RouterLink, PlatformMenuComponent, DkIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host { display: block; }
@@ -95,12 +81,6 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
       font-size: 11px; font-weight: 700;
     }
 
-    /* <i>, not <span>: app-header.css hides every span in the theme pill on a phone. */
-    .dh-icon { display: inline-flex; flex: none; font-style: normal; }
-    .dh-icon ::ng-deep svg {
-      width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2.75;
-      stroke-linecap: round; stroke-linejoin: round;
-    }
 
     .dh-primary, button.dh-primary {
       display: inline-flex; align-items: center; gap: 6px; height: 42px; min-height: 0; padding: 0 18px;
@@ -170,13 +150,13 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
 
       <div class="ah-actions">
         @if (signedIn()) {
-          <a class="dh-primary dh-new-wide" routerLink="/new"><span class="dh-icon" style="width:16px;height:16px" [innerHTML]="icon('plus')"></span>New</a>
-          <a class="dh-primary dh-round" routerLink="/new" aria-label="New"><span class="dh-icon" style="width:16px;height:16px" [innerHTML]="icon('plus')"></span></a>
+          <a class="dh-primary dh-new-wide" routerLink="/new"><dk-icon name="plus" />New</a>
+          <a class="dh-primary dh-round" routerLink="/new" aria-label="New"><dk-icon name="plus" /></a>
         } @else {
           <button type="button" class="dh-primary dh-new-wide" (click)="signIn()">Sign in</button>
         }
         <button type="button" class="ah-pill ah-theme" (click)="flipTheme()" [attr.aria-label]="theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
-          <i class="dh-icon" style="width:16px;height:16px" [innerHTML]="icon(theme() === 'dark' ? 'sun' : 'moon')"></i><span class="dh-theme-label">{{ theme() === 'dark' ? 'Light' : 'Dark' }}</span>
+          <dk-icon [name]="theme() === 'dark' ? 'sun' : 'moon'" /><span class="dh-theme-label">{{ theme() === 'dark' ? 'Light' : 'Dark' }}</span>
         </button>
         <app-platform-menu [isAdmin]="isAdmin()" [isLoggedIn]="signedIn()" [userName]="userName()" [userEmail]="userEmail()" (signOut)="onSignOut()" />
       </div>
@@ -185,7 +165,7 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
     <nav class="dh-bottom" aria-label="Docs" [style.--dh-cols]="tabs().length">
       @for (tab of tabs(); track tab.id) {
         <a [routerLink]="tab.route" [class.is-active]="activeTab() === tab.id" [attr.aria-current]="activeTab() === tab.id ? 'page' : null">
-          <span class="dh-icon" style="width:22px;height:22px" [innerHTML]="icon(tab.icon)"></span>{{ tab.label }}
+          <dk-icon [name]="tab.icon" [size]="22" />{{ tab.label }}
         </a>
       }
     </nav>
@@ -195,8 +175,6 @@ export class DocsHeaderComponent {
   private readonly router = inject( Router );
   private readonly route = inject( ActivatedRoute );
   private readonly auth = inject( DocsAuthService );
-  private readonly sanitizer = inject( DomSanitizer );
-  private readonly iconCache = new Map<string, SafeHtml>();
 
   readonly theme = signal<ThemeMode>( currentTheme() );
   /** The Opportunities badge: RFPs that fit and still need a decision. Null hides it. */
@@ -228,13 +206,6 @@ export class DocsHeaderComponent {
     const tab = APP_TABS.find( ( item ) => item.id === this.activeTab() ) || SIGNED_OUT_TABS.find( ( item ) => item.id === this.activeTab() );
     return tab && tab.id !== 'home' ? tab.label : 'Docs';
   } );
-
-  icon ( name: string ): SafeHtml {
-    if ( !this.iconCache.has( name ) ) {
-      this.iconCache.set( name, this.sanitizer.bypassSecurityTrustHtml( `<svg viewBox="0 0 24 24" aria-hidden="true">${ ICONS[name] || '' }</svg>` ) );
-    }
-    return this.iconCache.get( name )!;
-  }
 
   flipTheme (): void {
     this.theme.set( toggleTheme() );

@@ -1,0 +1,181 @@
+:host { display: block; }
+
+.doc-detail__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 40px;
+  align-items: start;
+}
+
+/* ── Preview column ── */
+.doc-detail__preview {
+  border-radius: 28px;
+  background: var(--surface);
+  padding: 20px;
+  min-height: 420px;
+}
+
+.doc-detail__preview.is-video { padding: 0; background: none; }
+
+.doc-detail__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  border-radius: 20px;
+  background: var(--surface2);
+}
+
+.doc-detail__page {
+  aspect-ratio: 8.5 / 11;
+  max-height: 78vh;
+  margin: 0 auto;
+  border-radius: 14px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.doc-detail__page iframe { width: 100%; height: 100%; border: 0; }
+
+.doc-detail__page--plate {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.doc-detail__bigplate { width: 180px; height: 220px; border-radius: 20px; }
+.doc-detail__bigplate strong { font-size: 40px; }
+
+.doc-detail__player {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  border-radius: 28px;
+  background: #15171d;
+  overflow: hidden;
+}
+
+.doc-detail__player iframe,
+.doc-detail__player video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+
+.doc-detail__play,
+button.doc-detail__play {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  min-height: 0;
+  padding: 0 0 0 6px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.doc-detail__play:hover { background: rgba(255, 255, 255, .26); transform: none; }
+.doc-detail__play:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* ── Side column ── */
+.doc-detail__side {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.doc-detail__head { display: flex; gap: 16px; align-items: flex-start; }
+.doc-detail__head h1 { font-size: 26px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.doc-detail__head p { margin-top: 6px; font-size: 14px; }
+
+.doc-detail__badge {
+  width: 64px;
+  height: 80px;
+  flex: none;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  padding: 0;
+}
+
+.doc-detail__badge strong { font-size: 15px; }
+.doc-detail__posted { align-self: flex-start; }
+
+.doc-detail__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.doc-detail__more { position: relative; }
+
+.doc-detail__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 10;
+  min-width: 180px;
+  padding: 6px;
+  border-radius: 18px;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.doc-detail__menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 0;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--text);
+  font: 600 14px/1 var(--font);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.doc-detail__menu button:hover { background: var(--surface); transform: none; }
+.doc-detail__menu .is-danger { color: var(--t-pink-fg); }
+
+.doc-detail__edit { display: grid; gap: 12px; }
+
+.doc-detail__edit label { display: grid; gap: 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
+
+.doc-detail__edit input:not([type="checkbox"]),
+.doc-detail__edit textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--text);
+  font: 500 15px/1.4 var(--font);
+}
+
+.doc-detail__edit input:focus,
+.doc-detail__edit textarea:focus { outline: 2px solid var(--blue); outline-offset: 0; }
+
+.doc-detail__check { display: flex !important; align-items: center; gap: 8px; color: var(--text) !important; }
+
+.doc-detail__kicker { margin-bottom: 10px !important; }
+.doc-detail__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.doc-detail__skeleton { min-height: 560px; animation: doc-pulse 1.4s ease-in-out infinite; }
+@keyframes doc-pulse { 50% { opacity: .55; } }
+
+@media (max-width: 1100px) {
+  .doc-detail__grid { grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; }
+}
+
+@media (max-width: 860px) {
+  .doc-detail__grid { grid-template-columns: 1fr; gap: 20px; }
+  .doc-detail__side { position: static; }
+  .doc-detail__preview { min-height: 0; padding: 12px; }
+  .doc-detail__page { max-height: 70vh; }
+}

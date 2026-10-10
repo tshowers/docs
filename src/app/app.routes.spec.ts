@@ -5,7 +5,7 @@ describe( 'Docs route table', () => {
     expect( routes.map( route => route.path ) ).toEqual( [
       '', 'auth/callback', 'mobile-handoff', 'ios', 'about', 'help', 'docs/success', 'knowledge/success',
       'docs/pricing', 'knowledge/pricing', 'docs', 'docs/landing', 'opportunities', 'documents',
-      'docs/documents', 'upload', 'docs/upload', 'new', 'docs/editor', 'docs/editor/:id',
+      'documents/:id', 'docs/documents', 'upload', 'docs/upload', 'new', 'docs/editor', 'docs/editor/:id',
       'docs/proposal-history', 'docs/rfp-list', 'docs/rfp-upload', 'knowledge/response-flow',
       'knowledge/response-flow/:id', 'knowledge', 'get-started', 'profile', 'login',
       'pricing', '**'
@@ -14,6 +14,6 @@ describe( 'Docs route table', () => {
     // create with the app"); the vault and upload moved under the
     // Documents tab.
     expect( routes.filter( route => route.redirectTo ).map( route => route.redirectTo ) ).toEqual( ['pricing', 'pricing', 'docs', 'documents', 'upload'] );
-    expect( routes.filter( route => route.loadComponent ).length ).toBe( 26 );
+    expect( routes.filter( route => route.loadComponent ).length ).toBe( 27 );
   } );
 } );

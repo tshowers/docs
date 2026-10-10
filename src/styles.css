@@ -3,6 +3,7 @@
 @import "@taliferro/ui/styles/universal-menu.css";
 @import "@taliferro/ui/styles/site-footer.css";
 @import "@taliferro/ui/styles/app-header.css";
+@import "./app/shared/docs-kit.css";
 
 /* You can add global styles to this file, and also import other style files */
 
