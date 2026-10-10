@@ -32,6 +32,9 @@ describe( 'Docs get started wizard', () => {
     cy.get( '[data-cy="get-started-progress"] li' ).eq( 1 ).should( 'have.class', 'is-done' );
     cy.get( '[data-cy="get-started-input"]' ).type( 'Ada{enter}' );
     cy.get( '[data-cy="get-started-input"]' ).type( 'Lovelace{enter}' );
+    cy.contains( '[data-cy="get-started-question"]', 'Tell TODD about your company' );
+    cy.get( '[data-cy="get-started-role"]' ).type( 'Founder' );
+    cy.get( '[data-cy="get-started-description"]' ).type( 'Accessible web portals for counties.' );
     cy.get( '[data-cy="get-started-input"]' ).type( 'Analytical Co{enter}' );
 
     cy.contains( '[data-cy="get-started-question"]', 'create your account' );
@@ -40,6 +43,7 @@ describe( 'Docs get started wizard', () => {
       expect( draft ).to.include( {
         starterKey: 'timing', question: 'How long does it take?', answer: 'Usually two weeks.',
         firstName: 'Ada', lastName: 'Lovelace', companyName: 'Analytical Co', readyToSubmit: true,
+        role: 'Founder', companyDescription: 'Accessible web portals for counties.',
       } );
     } );
 

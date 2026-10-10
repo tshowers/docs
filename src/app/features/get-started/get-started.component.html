@@ -1,96 +1,107 @@
-<main class="gs-shell" data-cy="get-started-shell">
-  <section class="gs-card" aria-live="polite">
-    <div class="gs-card__nav">
-      <button *ngIf="stepIndex > 0" type="button" class="gs-back" (click)="back()" data-cy="get-started-back">
-        <span aria-hidden="true">&lsaquo;</span> Back
-      </button>
-      <span class="gs-count">Step {{ step.section + 1 }} of {{ sections.length }}</span>
-    </div>
-
-    <ol class="gs-progress" role="progressbar" aria-label="Setup progress"
-        [attr.aria-valuenow]="step.section + 1" aria-valuemin="1" [attr.aria-valuemax]="sections.length" data-cy="get-started-progress">
-      <li *ngFor="let section of sections; let i = index" class="gs-progress__segment"
-          [class.is-done]="sectionFill(i) >= 1" [class.is-active]="i === step.section">
-        <span class="gs-progress__track"><span class="gs-progress__fill" [style.width.%]="sectionFill(i) * 100"></span></span>
-        <span class="gs-progress__label">
-          <span *ngIf="sectionFill(i) >= 1" class="gs-progress__check" aria-hidden="true">&#10003;</span>{{ section }}
-        </span>
+<main class="gs" data-cy="get-started-shell">
+  <ol class="gs__steps" role="progressbar" aria-label="Setup progress"
+      [attr.aria-valuenow]="step.section + 1" aria-valuemin="1" [attr.aria-valuemax]="sections.length" data-cy="get-started-progress">
+    @for (section of sections; track section; let i = $index) {
+      <li class="gs__step" [class.is-done]="i < step.section" [class.is-active]="i === step.section" [attr.aria-current]="i === step.section ? 'step' : null">
+        <span class="gs__step-dot" aria-hidden="true">@if (i < step.section) { <dk-icon name="check" [size]="13" /> } @else { {{ i + 1 }} }</span>{{ section }}
       </li>
-    </ol>
+    }
+  </ol>
 
-    <ng-container [ngSwitch]="step.key">
-      <ng-container *ngSwitchCase="'question'">
-        <p class="gs-lede">You're already 1 step in. Write down how you answer a question customers ask, and Docs keeps it ready for proposals, emails and Maya &mdash; sign up only happens at the very end.</p>
-        <h1 class="gs-question" data-cy="get-started-question">What do customers ask you most?</h1>
-        <div class="gs-chips" role="radiogroup" aria-label="Customer question">
-          <button *ngFor="let option of starters" type="button" class="gs-chip" role="radio"
-                  [class.is-selected]="draft.starterKey === option.key" [attr.aria-checked]="draft.starterKey === option.key"
-                  (click)="chooseStarter(option)" data-cy="get-started-starter">
-            <span *ngIf="draft.starterKey === option.key" aria-hidden="true">&#10003;</span>
-            {{ option.label }}
-          </button>
+  <section class="gs__body" aria-live="polite">
+    @switch (step.key) {
+      @case ('question') {
+        <h1 data-cy="get-started-question">What do customers ask you most?</h1>
+        <p class="gs__lede">Write down how you answer it once, and Docs keeps it ready for proposals and emails. You sign up at the end.</p>
+        <div class="gs__chips" role="radiogroup" aria-label="Customer question">
+          @for (option of starters; track option.key) {
+            <button type="button" class="gs__chip" role="radio" [class.is-on]="draft.starterKey === option.key" [attr.aria-checked]="draft.starterKey === option.key"
+                    (click)="chooseStarter(option)" data-cy="get-started-starter">
+              @if (draft.starterKey === option.key) { <dk-icon name="check" [size]="14" /> }{{ option.label }}
+            </button>
+          }
         </div>
-        <form *ngIf="isOther" (ngSubmit)="next()">
-          <input #answerInput class="gs-input" name="question" aria-label="Your customer's question" placeholder="Type the question"
-                 [(ngModel)]="draft.question" (ngModelChange)="persist()" data-cy="get-started-input" />
-        </form>
-      </ng-container>
+        @if (isOther) {
+          <form (ngSubmit)="next()">
+            <label class="gs__label" for="gsQuestion">The question</label>
+            <input #answerInput id="gsQuestion" class="gs__input" name="question" placeholder="Type the question"
+                   [(ngModel)]="draft.question" (ngModelChange)="persist()" data-cy="get-started-input" />
+          </form>
+        }
+      }
 
-      <ng-container *ngSwitchCase="'answer'">
-        <h1 class="gs-question" data-cy="get-started-question">How do you answer it?</h1>
-        <p class="gs-hint">{{ isOther ? 'Answer the way you would on a call.' : 'We started it for you - change anything so it sounds like you.' }}</p>
-        <p class="gs-asked">{{ draft.question }}</p>
-        <textarea #answerInput class="gs-input gs-input--note" name="answer" rows="5" aria-label="Your answer"
+      @case ('answer') {
+        <h1 data-cy="get-started-question">How do you answer it?</h1>
+        <p class="gs__lede">{{ isOther ? 'Answer the way you would on a call.' : 'We started it for you. Change anything so it sounds like you.' }}</p>
+        <label class="gs__label" for="gsAnswer">{{ draft.question }}</label>
+        <textarea #answerInput id="gsAnswer" class="gs__input gs__input--area" name="answer" rows="5"
                   [(ngModel)]="draft.answer" (ngModelChange)="persist()" data-cy="get-started-answer"></textarea>
-      </ng-container>
+      }
 
-      <ng-container *ngSwitchCase="'preview'">
-        <h1 class="gs-question" data-cy="get-started-question">Here's your first answer</h1>
-        <p class="gs-hint">It goes into your Knowledge Base, ready to reuse. Continue and it's saved to your account.</p>
-        <div class="gs-preview" data-cy="get-started-preview">
-          <span class="gs-preview__category">{{ starter.category }}</span>
+      @case ('preview') {
+        <h1 data-cy="get-started-question">Here's your first answer</h1>
+        <p class="gs__lede">It goes into Knowledge, ready to reuse. Continue and it's saved to your account.</p>
+        <div class="gs__preview" data-cy="get-started-preview">
+          <span class="dk-tag dk-tinted" data-tint="cyan">{{ starter.category }}</span>
           <h2>{{ draft.question }}</h2>
           <p>{{ draft.answer }}</p>
-          <p class="gs-preview__keywords">{{ keywordLine }}</p>
+          <p class="gs__keywords">{{ keywordLine }}</p>
         </div>
-      </ng-container>
+      }
 
-      <ng-container *ngSwitchCase="'firstName'">
-        <h1 class="gs-question" data-cy="get-started-question">What's your first name?</h1>
-        <p class="gs-hint">So your documents know who wrote them.</p>
-        <form (ngSubmit)="next()"><input #answerInput class="gs-input" name="firstName" autocomplete="given-name" aria-label="First name"
-               [(ngModel)]="draft.firstName" (ngModelChange)="persist()" data-cy="get-started-input" /></form>
-      </ng-container>
+      @case ('firstName') {
+        <h1 data-cy="get-started-question">What's your first name?</h1>
+        <p class="gs__lede">So your documents know who wrote them.</p>
+        <form (ngSubmit)="next()">
+          <label class="gs__label" for="gsFirst">First name</label>
+          <input #answerInput id="gsFirst" class="gs__input" name="firstName" autocomplete="given-name"
+                 [(ngModel)]="draft.firstName" (ngModelChange)="persist()" data-cy="get-started-input" />
+        </form>
+      }
 
-      <ng-container *ngSwitchCase="'lastName'">
-        <h1 class="gs-question" data-cy="get-started-question">And your last name?</h1>
-        <form (ngSubmit)="next()"><input #answerInput class="gs-input" name="lastName" autocomplete="family-name" aria-label="Last name"
-               [(ngModel)]="draft.lastName" (ngModelChange)="persist()" data-cy="get-started-input" /></form>
-      </ng-container>
+      @case ('lastName') {
+        <h1 data-cy="get-started-question">And your last name?</h1>
+        <form (ngSubmit)="next()">
+          <label class="gs__label" for="gsLast">Last name</label>
+          <input #answerInput id="gsLast" class="gs__input" name="lastName" autocomplete="family-name"
+                 [(ngModel)]="draft.lastName" (ngModelChange)="persist()" data-cy="get-started-input" />
+        </form>
+      }
 
-      <ng-container *ngSwitchCase="'company'">
-        <h1 class="gs-question" data-cy="get-started-question">What's your company called?</h1>
-        <p class="gs-hint">It appears on proposals and documents you create.</p>
-        <form (ngSubmit)="next()"><input #answerInput class="gs-input" name="companyName" autocomplete="organization" aria-label="Company name"
-               [(ngModel)]="draft.companyName" (ngModelChange)="persist()" data-cy="get-started-input" /></form>
-      </ng-container>
+      @case ('company') {
+        <h1 data-cy="get-started-question">Tell TODD about your company</h1>
+        <p class="gs__lede">TODD uses this to score RFPs for you. You can change it any time in Profile.</p>
+        <label class="gs__label" for="gsCompany">Company name</label>
+        <input #answerInput id="gsCompany" class="gs__input" name="companyName" autocomplete="organization"
+               [(ngModel)]="draft.companyName" (ngModelChange)="persist()" (keydown.enter)="$event.preventDefault(); next()" data-cy="get-started-input" />
+        <label class="gs__label" for="gsRole">Your role</label>
+        <input id="gsRole" class="gs__input" name="role" autocomplete="organization-title"
+               [(ngModel)]="draft.role" (ngModelChange)="persist()" (keydown.enter)="$event.preventDefault(); next()" data-cy="get-started-role" />
+        <label class="gs__label" for="gsDescription">What does your company do?</label>
+        <textarea id="gsDescription" class="gs__input gs__input--area" name="companyDescription" rows="3" placeholder="A sentence or two is enough."
+                  [(ngModel)]="draft.companyDescription" (ngModelChange)="persist()" data-cy="get-started-description"></textarea>
+      }
 
-      <ng-container *ngSwitchCase="'signUp'">
-        <h1 class="gs-question" data-cy="get-started-question">Last step: create your account</h1>
-        <p class="gs-hint">"{{ draft.question }}" &middot; your answer is ready. Sign in with TODD to save it.</p>
-        <div class="gs-actions">
-          <button type="button" class="gs-button" [disabled]="isSigningIn" (click)="signIn()" data-cy="get-started-sign-in">
-            {{ isSigningIn ? 'Redirecting...' : 'Sign in with TODD' }}</button>
-        </div>
-      </ng-container>
-    </ng-container>
-
-    <div *ngIf="step.key !== 'signUp'" class="gs-actions">
-      <button *ngIf="step.key === 'company'" type="button" class="gs-button gs-button--ghost" (click)="skip()">Skip</button>
-      <button type="button" class="gs-button" [disabled]="!canAdvance" (click)="next()" data-cy="get-started-next">
-        {{ step.key === 'preview' ? 'Continue to sign up' : 'Next' }}</button>
-    </div>
-
-    <a class="gs-existing" routerLink="/login" [queryParams]="{ returnUrl: '/docs' }" data-cy="get-started-existing">Already have an account? Sign in</a>
+      @case ('signUp') {
+        <h1 data-cy="get-started-question">Last step: create your account</h1>
+        <p class="gs__lede">“{{ draft.question }}” · your answer is ready. Sign in with TODD to save it.</p>
+      }
+    }
   </section>
+
+  <div class="gs__actions">
+    @if (stepIndex > 0) {
+      <button type="button" class="dk-btn dk-btn--lg gs__back" (click)="back()" data-cy="get-started-back">Back</button>
+    }
+    <span class="gs__spacer"></span>
+    @if (step.key === 'signUp') {
+      <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" [disabled]="isSigningIn" (click)="signIn()" data-cy="get-started-sign-in">
+        {{ isSigningIn ? 'Redirecting…' : 'Sign in with TODD' }}<dk-icon name="chevron-right" [size]="16" /></button>
+    } @else {
+      <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" [disabled]="!canAdvance" (click)="next()" data-cy="get-started-next">
+        {{ step.key === 'preview' ? 'Continue to sign up' : 'Continue' }}<dk-icon name="chevron-right" [size]="16" /></button>
+    }
+  </div>
+
+  <a class="gs__existing" routerLink="/login" [queryParams]="{ returnUrl: '/docs' }" data-cy="get-started-existing">Already have an account? Sign in</a>
 </main>

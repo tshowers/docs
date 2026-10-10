@@ -41,6 +41,9 @@ export interface DocsSignupDraft {
   firstName: string;
   lastName: string;
   companyName: string;
+  /** Get started 3f: saved to Profile with the company name (blank fields only). */
+  role?: string;
+  companyDescription?: string;
   /** Set once the visitor reached the sign-in step; an abandoned draft is never submitted. */
   readyToSubmit: boolean;
 }
@@ -53,7 +56,7 @@ const STOP_WORDS = new Set( ['what', 'do', 'you', 'your', 'how', 'does', 'it', '
  * FirstAnswerDraft: a first Q&A answer (a Knowledge Base response flow),
  * then name and company. Kept in localStorage because sign-in leaves the
  * site for todd.taliferro.tech and comes back to /auth/callback. After
- * sign-in, submitIfPending() saves name/company to the TODD profile
+ * sign-in, submitIfPending() saves name, company, role and description to the TODD profile
  * (POST /api/onboarding/profile, blank fields only) and creates the answer
  * (POST /api/mobile/docs/knowledge-base - ID-token auth, works for web too).
  */
@@ -81,6 +84,8 @@ export class DocsSignupDraftService {
       firstName: existing?.firstName || '',
       lastName: existing?.lastName || '',
       companyName: existing?.companyName || '',
+      role: existing?.role || '',
+      companyDescription: existing?.companyDescription || '',
       readyToSubmit: false,
     };
   }
@@ -121,6 +126,8 @@ export class DocsSignupDraftService {
           firstName: draft.firstName,
           lastName: draft.lastName,
           companyName: draft.companyName,
+          profession: draft.role || '',
+          companyDescription: draft.companyDescription || '',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
         },
       }, { headers } ) ).catch( () => undefined );

@@ -3,6 +3,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { DocsAuthService } from '../../services/docs-auth.service';
 import { DocsSignupDraft, DocsSignupDraftService, STARTER_QUESTIONS, StarterQuestion } from '../../services/docs-signup-draft.service';
 
@@ -14,7 +15,8 @@ interface Step { key: StepKey; section: number; }
  * Pre-sign-in wizard - the web twin of docs-ios's OnboardingWizardView
  * (see ONBOARDING-PROFILE-BILLING-PLAYBOOK.md). One thing per screen under
  * a 4-segment progress bar whose first segment ("Start") is already done:
- * write a first Q&A answer for the Knowledge Base, then name and company,
+ * write a first Q&A answer for the Knowledge Base, then name and company
+ * (company name, role and what it does - design 3f, saved to Profile),
  * then sign in. The draft is saved after sign-in by
  * DocsSignupDraftService.submitIfPending() in AuthCallbackComponent.
  * Returning users skip to /login.
@@ -22,7 +24,7 @@ interface Step { key: StepKey; section: number; }
 @Component( {
   selector: 'app-get-started',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent],
   templateUrl: './get-started.component.html',
   styleUrl: './get-started.component.css',
 } )
@@ -101,12 +103,6 @@ export class GetStartedComponent implements OnInit {
     if ( this.step.key === 'signUp' ) this.draft.readyToSubmit = true;
     this.persist();
     this.focus();
-  }
-
-  skip (): void {
-    this.stepIndex++;
-    if ( this.step.key === 'signUp' ) this.draft.readyToSubmit = true;
-    this.persist();
   }
 
   back (): void {
