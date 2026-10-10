@@ -31,6 +31,70 @@
     <div class="docs-grid" aria-busy="true">
       @for (n of [1, 2, 3, 4, 5, 6, 7, 8]; track n) { <div class="docs-card docs-card--skeleton"></div> }
     </div>
+  } @else if (cards().length && tablet()) {
+    <!-- iPad (1k): library + inspector -->
+    <div class="docs-split" data-cy="docs-split">
+      <ul class="docs-library" aria-label="Documents">
+        @for (card of cards(); track card.id) {
+          <li>
+            <button type="button" class="docs-libitem" [class.is-selected]="selected()?.id === card.id" [attr.aria-current]="selected()?.id === card.id" (click)="pick(card)">
+              <span class="dk-plate docs-libitem__plate" [attr.data-tint]="card.tint"><strong>{{ card.extension }}</strong></span>
+              <span class="docs-libitem__text">
+                <strong>@for (part of card.title; track $index) {@if (part.hit) {<mark class="dk-hl">{{ part.text }}</mark>} @else {{{ part.text }}}}</strong>
+                <small class="dk-muted">{{ card.kindLabel }} · {{ card.folder }}@if (card.date) { · {{ card.date }}}</small>
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+      @if (selected(); as card) {
+        <section class="docs-inspector" aria-live="polite">
+          <header class="docs-inspector__head">
+            <span class="dk-plate docs-inspector__plate" [attr.data-tint]="card.tint"><strong>{{ card.extension }}</strong></span>
+            <div>
+              <h2>{{ card.doc.title || card.doc.name }}</h2>
+              <p class="dk-muted">{{ card.kindLabel }}@if (selectedOpportunity(); as o) {@if (o.source.receivedAt) { · received {{ o.source.receivedAt | date:'MMM d' }}}@if (o.source.from) { from {{ o.source.from }}}} @else {@if (card.date) { · {{ card.date }}}}</p>
+            </div>
+          </header>
+          <div class="docs-inspector__actions">
+            @if (selectedOpportunity(); as o) {
+              <a class="dk-btn dk-btn--primary" [routerLink]="['/opportunities', o.id]"><dk-icon name="pen" />Draft proposal</a>
+            }
+            <button type="button" class="dk-btn dk-btn--bg" (click)="openFile(card)">Open</button>
+            <button type="button" class="dk-btn dk-btn--bg" (click)="share(card)">Share</button>
+            <button type="button" class="dk-btn dk-btn--bg dk-btn--icon" (click)="open(card)" aria-label="More: details, edit, delete"><dk-icon name="more" /></button>
+          </div>
+          @if (selectedOpportunity(); as o) {
+            <div class="docs-inspector__read">
+              <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD's read · {{ o.fit.score }} match</div>
+              <ul>
+                @for (r of o.fit.reasons; track $index) { <li><dk-icon name="check" [size]="15" />{{ r }}</li> }
+                @for (g of o.fit.gaps; track $index) { <li class="is-gap"><dk-icon name="alert-circle" [size]="15" />{{ g }}</li> }
+              </ul>
+            </div>
+            <div class="docs-inspector__facts">
+              <div><span class="dk-kicker">Due</span><strong>{{ dueLabel(o) || 'Not stated' }}</strong></div>
+              <div><span class="dk-kicker">Value</span><strong>{{ o.estimatedValue || 'Not stated' }}</strong></div>
+              <div><span class="dk-kicker">Submit by</span><strong>{{ submitByLabel(o) }}</strong></div>
+            </div>
+          } @else {
+            @if (card.summary) {
+              <div class="docs-inspector__read">
+                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD's read</div>
+                <p>{{ card.summary }}</p>
+              </div>
+            }
+            @if (card.surface === 'image') { <img class="docs-inspector__image" [src]="card.doc.src" [alt]="card.doc.description || ''" /> }
+          }
+        </section>
+      } @else {
+        <section class="docs-inspector docs-inspector--empty">
+          <dk-icon name="file" [size]="40" />
+          <h2>Select a document</h2>
+          <p class="dk-muted">Its details, TODD's read and what you can do with it show here.</p>
+        </section>
+      }
+    </div>
   } @else if (cards().length) {
     <div class="docs-grid" data-cy="docs-grid">
       @for (card of cards(); track card.id) {

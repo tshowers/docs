@@ -317,7 +317,17 @@ button.dk-circle {
     background: var(--bg);
   }
 
-  .dk-resultnav { border-radius: 24px; }
-  .dk-resultnav__count { display: none; }
-  .dk-resultnav { grid-template-columns: 1fr auto; }
+  /* 2h/2i: back circle, "2 of 6", steps - no "Back to…" label. */
+  .dk-resultnav { padding: 0; background: none; margin-bottom: 18px; }
+  .dk-resultnav__back > span:last-child { display: none; }
+  .dk-resultnav__back .dk-circle, .dk-resultnav .dk-circle { background: var(--surface); }
+
+  /* Hit targets: 44px minimum on a phone (1k-1m, 2h-2i). */
+  .dk-btn.dk-btn--sm { height: 44px; }
+  .dk-btn.dk-btn--icon.dk-btn--sm { width: 44px; }
+  .dk-circle, button.dk-circle { width: 44px; height: 44px; }
+  .dk-filter, button.dk-filter { height: 44px; }
+
+  /* Sticky actions sit on the page background above the tab bar. */
+  .dk-sticky-actions { margin: 0 -16px; padding: 10px 16px; box-shadow: 0 -1px 0 var(--surface2); }
 }

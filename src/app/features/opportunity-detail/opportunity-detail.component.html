@@ -9,6 +9,11 @@
           <span class="dk-muted">{{ sourceLine() }}</span>
         </p>
         <h1 class="od__title">{{ o.title }}</h1>
+        <div class="od__chips">
+          @if (dueLabel(o)) { <span>{{ dueLabel(o) }}</span> }
+          @if (o.estimatedValue) { <span>{{ o.estimatedValue }}</span> }
+          <span>{{ submitBy(o) }}</span>
+        </div>
         @if (o.summary) { <p class="od__summary">{{ o.summary }}</p> }
 
         <div class="od__facts">
@@ -24,7 +29,7 @@
         }
 
         @if (o.criteria.length) {
-          <section>
+          <section class="od__criteria-wrap">
             <h2 class="dk-kicker od__kicker">What they'll score you on</h2>
             <ul class="od__criteria">
               @for (c of o.criteria; track $index) {

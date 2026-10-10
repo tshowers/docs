@@ -52,7 +52,14 @@
         }
       </section>
 
-      <section class="home__card">
+      @if (needs().length) {
+        <button type="button" class="home__needs-row" (click)="needsOpen.set(!needsOpen())" [attr.aria-expanded]="needsOpen()">
+          <img src="assets/avatar-todd-sm.png" alt="" />
+          <strong>{{ needs().length }} {{ needs().length === 1 ? 'thing needs' : 'things need' }} you</strong>
+          <dk-icon [name]="needsOpen() ? 'x' : 'chevron-right'" />
+        </button>
+      }
+      <section class="home__card home__card--needs" [class.is-open]="needsOpen()">
         <header><h2>Needs you</h2>@if (needs().length) { <span class="dk-muted">{{ needs().length }} {{ needs().length === 1 ? 'thing' : 'things' }}</span> }</header>
         @for (n of needs().slice(0, 4); track n.key) {
           <a class="home__row" [routerLink]="n.route" [queryParams]="n.queryParams || null">

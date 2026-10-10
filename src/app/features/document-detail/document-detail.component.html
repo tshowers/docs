@@ -80,10 +80,10 @@
             <button type="button" class="dk-btn dk-btn--primary" (click)="open()">
               @if (surface() === 'video') { <dk-icon name="play" />Play } @else { Open }
             </button>
-            <button type="button" class="dk-btn" (click)="startEdit()" appWriteAction="edit this document">Edit</button>
-            <button type="button" class="dk-btn" (click)="share()">Share</button>
+            <button type="button" class="dk-btn doc-detail__iconable" (click)="startEdit()" appWriteAction="edit this document" aria-label="Edit"><dk-icon name="pen" /><span>Edit</span></button>
+            <button type="button" class="dk-btn doc-detail__iconable" (click)="share()" aria-label="Share"><dk-icon name="send" /><span>Share</span></button>
             @if ((surface() === 'image' || surface() === 'video') && !d.eligibleForSocial) {
-              <button type="button" class="dk-btn" (click)="sendToMaya()" appWriteAction="send this to Maya">Post</button>
+              <button type="button" class="dk-btn doc-detail__iconable" (click)="sendToMaya()" appWriteAction="send this to Maya" aria-label="Post"><dk-icon name="megaphone" /><span>Post</span></button>
             }
             <div class="doc-detail__more">
               <button type="button" class="dk-btn dk-btn--icon" (click)="moreOpen.set(!moreOpen())" [attr.aria-expanded]="moreOpen()" aria-label="More actions"><dk-icon name="more" /></button>

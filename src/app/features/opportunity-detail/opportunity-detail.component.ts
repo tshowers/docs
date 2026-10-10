@@ -63,6 +63,7 @@ export class OpportunityDetailComponent implements OnInit {
   } );
 
   readonly dueLabel = dueLabel;
+  readonly submitBy = submitByLabel;
   readonly statusLabel = PROPOSAL_STATUS_LABEL;
 
   ngOnInit (): void {

@@ -5,6 +5,8 @@
 .od__main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .od__source { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 14px; }
 .od__title { font-size: 48px; font-weight: 700; line-height: 1.04; letter-spacing: -0.04em; overflow-wrap: anywhere; }
+.od__chips { display: none; }
+
 .od__summary { font-size: 18px; line-height: 1.6; color: var(--muted); max-width: 680px; }
 
 .od__facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
@@ -81,7 +83,32 @@
 }
 
 @media (max-width: 760px) {
-  .od__title { font-size: 30px; }
-  .od__facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .od__next { position: sticky; bottom: calc(68px + env(safe-area-inset-bottom)); z-index: 5; }
+  /* 1m: title, chips, TODD's fit, then the RFP's detail; the next step
+     sticks above the tab bar. The two columns flow as one. */
+  .od__grid { display: flex; flex-direction: column; align-items: stretch; gap: 14px; }
+  .od__main, .od__side { display: contents; }
+  /* Each block gets its order: Angular's scoping attributes would make a
+     catch-all child rule outrank these. */
+  .od__source { order: 1; }
+  .od__title { order: 2; font-size: 30px; }
+  .od__chips { order: 3; display: flex; flex-wrap: wrap; gap: 6px; }
+  .od__chips span { padding: 8px 12px; border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 700; }
+  .od__fit { order: 4; }
+  .od__summary { order: 5; font-size: 16px; }
+  .od__submit { order: 6; }
+  .od__criteria-wrap, .od__nocriteria { order: 7; }
+  .od__facts { display: none; }
+  .od__next {
+    order: 20;
+    position: sticky;
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    z-index: 5;
+    margin: 0 -16px;
+    padding: 12px 16px;
+    border-radius: 0;
+    background: var(--bg);
+    box-shadow: 0 -1px 0 var(--surface2);
+  }
+  .od__next .od__todd, .od__next > p { display: none; }
+  .od__next .od__pair .dk-btn { background: var(--surface); }
 }

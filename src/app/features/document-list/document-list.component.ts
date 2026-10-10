@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { Document } from '../../models/document.model';
+import { FIT_THRESHOLD, Opportunity, dueLabel, fitTint, submitByLabel } from '../../models/opportunity';
 import {
   DOCUMENT_KINDS, DocumentKind, documentExtension, documentKind, documentKindInfo, documentMatches, documentSurface, documentTitle, parseDay, shortDocumentDate,
 } from '../../models/document-kind';
@@ -11,6 +12,7 @@ import { PageAction } from '../../models/page-actions.models';
 import { DocsAuthService } from '../../services/docs-auth.service';
 import { DocsPageActionsService } from '../../services/docs-page-actions.service';
 import { DocumentsStoreService } from '../../services/documents-store.service';
+import { OpportunitiesService } from '../../services/opportunities.service';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { HighlightPart, highlightParts } from '../../shared/highlight';
 import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
@@ -53,6 +55,28 @@ export class DocumentListComponent implements OnInit, OnDestroy {
   private readonly pageActions = inject( DocsPageActionsService );
   private readonly destroyRef = inject( DestroyRef );
   private readonly isBrowser = isPlatformBrowser( inject( PLATFORM_ID ) );
+  private readonly opportunities = inject( OpportunitiesService );
+
+  /**
+   * iPad (1k): a library list and an inspector side by side, instead of
+   * the grid. Tablet widths only; phones and desktops keep the grid.
+   */
+  readonly tablet = signal( this.isBrowser && window.matchMedia( '(min-width: 761px) and (max-width: 1180px)' ).matches );
+  readonly selectedId = signal( '' );
+  readonly selected = computed<DocumentCard | null>( () => {
+    const cards = this.cards();
+    return cards.find( ( c ) => c.id === this.selectedId() ) || cards[0] || null;
+  } );
+  /** The opportunity an RFP document belongs to, for TODD's read and Draft proposal. */
+  readonly selectedOpportunity = computed<Opportunity | null>( () => {
+    const card = this.selected();
+    if ( !card || card.kind !== 'rfp' ) return null;
+    return this.opportunities.opportunities().find( ( o ) => o.rfpDocumentId === card.id ) || null;
+  } );
+  readonly fitTint = fitTint;
+  readonly dueLabel = dueLabel;
+  readonly submitByLabel = submitByLabel;
+  readonly fitThreshold = FIT_THRESHOLD;
 
   readonly query = signal( '' );
   readonly kind = signal<DocumentKind | 'all'>( 'all' );
@@ -101,6 +125,15 @@ export class DocumentListComponent implements OnInit, OnDestroy {
       this.kind.set( kind && DOCUMENT_KINDS.some( ( info ) => info.kind === kind ) ? kind : 'all' );
     } );
     this.store.load().pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => this.restoreScroll() );
+    if ( this.isBrowser ) {
+      const query = window.matchMedia( '(min-width: 761px) and (max-width: 1180px)' );
+      const update = () => this.tablet.set( query.matches );
+      query.addEventListener( 'change', update );
+      this.destroyRef.onDestroy( () => query.removeEventListener( 'change', update ) );
+    }
+    this.auth.isLoggedIn().pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( ( value ) => {
+      if ( value ) this.opportunities.load().subscribe();
+    } );
     this.publishPageActions();
   }
 
@@ -132,6 +165,26 @@ export class DocumentListComponent implements OnInit, OnDestroy {
       scrollY: this.isBrowser ? window.scrollY : 0,
     } );
     void this.router.navigate( ['/documents', card.id] );
+  }
+
+  /** On iPad a row opens in the inspector; elsewhere it opens the document page. */
+  pick ( card: DocumentCard ): void {
+    if ( this.tablet() ) this.selectedId.set( card.id );
+    else this.open( card );
+  }
+
+  async share ( card: DocumentCard ): Promise<void> {
+    if ( !this.isBrowser ) return;
+    const url = `${ window.location.origin }/documents/${ card.id }`;
+    try {
+      if ( navigator.share ) await navigator.share( { title: documentTitle( card.doc ), url } );
+      else await navigator.clipboard.writeText( url );
+    } catch { /* share sheet dismissed */ }
+  }
+
+  openFile ( card: DocumentCard ): void {
+    if ( card.doc.src && this.isBrowser ) window.open( card.doc.src, '_blank', 'noopener' );
+    else this.open( card );
   }
 
   trackCard ( _index: number, card: DocumentCard ): string {

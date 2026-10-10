@@ -150,5 +150,10 @@ button.kd__link {
   .kd__answer { grid-template-columns: 32px 1fr; padding: 16px; }
   .kd__num { width: 32px; height: 32px; }
   .kd__answer p { font-size: 16px; }
-  .kd__recs li { border-radius: 20px; align-items: flex-start; }
+  .kd__recs li { padding: 0; background: none; border-radius: 0; gap: 10px; }
+  .kd__recs li > div strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kd__recs li > div a { display: none; }
+  .kd__answer p { font-size: 16px; }
+  .kd__cite a.dk-muted { display: none; }
+  .kd__actions > .dk-btn { flex: 1; }
 }

@@ -103,6 +103,8 @@ export class HomeComponent implements OnInit {
   readonly guestAsked = signal( '' );
   readonly inboxes = signal<DocsInbox[]>( [] );
   readonly openQuestions = signal<Record<string, number>>( {} );
+  /** Phone (1l): "N things need you" opens the list. */
+  readonly needsOpen = signal( false );
   readonly loaded = this.opportunities.loaded;
 
   readonly fits = computed( () => this.opportunities.opportunities()
