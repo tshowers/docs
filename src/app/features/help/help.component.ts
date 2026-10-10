@@ -173,6 +173,14 @@ export class HelpComponent implements OnInit {
       answer: 'TODD is the AI assistant built into Docs. It improves your drafts, writes proposals from RFPs, and answers questions about the page you’re on. Docs is one of the workspaces TODD powers.',
     },
     {
+      question: 'Where do my RFPs come from?',
+      answer: 'From an inbox you connect on Opportunities (RFP inbox). Use a semi-dedicated one, like bids@yourcompany.com, where your OpenGov, Bonfire, King County or city portal alerts arrive. Every 10 minutes TODD reads only the messages from the senders you list, never marks anything read and never moves or deletes mail, then scores each RFP against your profile. You can also add an RFP file yourself with Add an RFP.',
+    },
+    {
+      question: 'Why a semi-dedicated inbox?',
+      answer: 'TODD finds RFPs by watching for alert emails. In an inbox that\'s mostly alerts, none get buried, and your personal mail stays out of the picture. If your alerts already arrive at a shared address like info@, you can connect that; Outreach and Docs can use the same inbox.',
+    },
+    {
       question: 'Do I need an account to try Docs?',
       answer: 'No. You can explore every page as a guest. To upload files, save drafts, or add knowledge, sign in so your work is saved to your workspace.',
     },

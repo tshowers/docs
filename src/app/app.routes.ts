@@ -68,12 +68,23 @@ export const routes: Routes = [
   },
   {
     // The four tabs (design_handoff_todd_docs): Home, Opportunities,
-    // Documents, Knowledge. Each tab's old page redirects here once the tab
-    // owns it; Opportunities shows Proposal History until its own page lands.
+    // Documents, Knowledge. Each tab's old pages redirect into it.
     path: 'opportunities',
     data: { pageTitle: 'Opportunities' },
     loadComponent: () =>
-      import( './features/proposal-history/proposal-history.component' ).then( ( m ) => m.ProposalHistoryComponent ),
+      import( './features/opportunities/opportunities.component' ).then( ( m ) => m.OpportunitiesComponent ),
+  },
+  {
+    path: 'opportunities/inbox',
+    data: { pageTitle: 'RFP inbox' },
+    loadComponent: () =>
+      import( './features/rfp-inbox/rfp-inbox.component' ).then( ( m ) => m.RfpInboxComponent ),
+  },
+  {
+    path: 'opportunities/:id',
+    data: { pageTitle: 'Opportunity' },
+    loadComponent: () =>
+      import( './features/opportunity-detail/opportunity-detail.component' ).then( ( m ) => m.OpportunityDetailComponent ),
   },
   {
     path: 'documents',
@@ -120,18 +131,15 @@ export const routes: Routes = [
   },
   {
     path: 'docs/proposal-history',
-    loadComponent: () =>
-      import( './features/proposal-history/proposal-history.component' ).then( ( m ) => m.ProposalHistoryComponent ),
+    redirectTo: 'opportunities',
   },
   {
     path: 'docs/rfp-list',
-    loadComponent: () =>
-      import( './features/rfp-list/rfp-list.component' ).then( ( m ) => m.RfpListComponent ),
+    redirectTo: 'opportunities',
   },
   {
     path: 'docs/rfp-upload',
-    loadComponent: () =>
-      import( './features/rfp-upload/rfp-upload.component' ).then( ( m ) => m.RfpUploadComponent ),
+    redirectTo: '/upload?rfp=1',
   },
   {
     path: 'knowledge/response-flow',

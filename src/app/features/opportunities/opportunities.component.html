@@ -1,0 +1,98 @@
+<div class="dk-page opp-page">
+  @if (signedIn() === false) {
+    <div class="dk-banner" role="note">
+      <dk-icon name="alert-circle" [size]="18" />
+      <p><strong>You're not signed in.</strong> Opportunities lists the RFPs TODD finds in your inbox, scored against your profile. Sign in to connect yours.</p>
+      <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/login">Sign in</a>
+    </div>
+  }
+
+  <p class="dk-kicker">{{ today | date:'EEEE, MMMM d' }}</p>
+  <h1 class="opp-headline">{{ signedIn() === false ? 'RFPs that fit what you do.' : headline() }}</h1>
+  <p class="opp-todd">
+    <img src="assets/avatar-todd-sm.png" alt="" />
+    <span>{{ toddLine() }}
+      @if (setAside().length) {
+        <button type="button" class="opp-link" (click)="showSetAside.set(!showSetAside())">{{ showSetAside() ? 'Hide them' : 'See the ' + setAside().length }}</button>
+      }
+    </span>
+  </p>
+
+  @if (failing(); as bad) {
+    <div class="opp-alert" role="alert">
+      <dk-icon name="alert-circle" [size]="18" />
+      <p><strong>Docs can't reach {{ bad.emailAddress }}.</strong> Reconnect it so TODD keeps finding RFPs for you.</p>
+      <a class="dk-btn dk-btn--bg dk-btn--sm" routerLink="/opportunities/inbox">Fix it</a>
+    </div>
+  }
+
+  @if (signedIn() && !loaded()) {
+    <div class="opp-grid" aria-busy="true">@for (n of [1, 2, 3]; track n) { <div class="opp-card opp-card--skeleton"></div> }</div>
+  } @else if (visibleCards().length) {
+    <div class="opp-grid">
+      @for (o of visibleCards(); track o.id) {
+        <article class="opp-card" [class.is-aside]="o.fit.score < 75">
+          <header class="opp-card__head">
+            <span class="opp-score dk-tinted" [attr.data-tint]="fitTint(o.fit.score)">{{ o.fit.score }}</span>
+            <div>
+              <strong>{{ o.agency || 'Unknown agency' }}</strong>
+              <small class="dk-muted">{{ o.source.kind === 'upload' ? 'Added by you' : 'via ' + (o.source.label || o.source.from) }}</small>
+            </div>
+          </header>
+          <h2 class="opp-card__title"><a [routerLink]="['/opportunities', o.id]">{{ o.title }}</a></h2>
+          <div class="opp-chips">
+            @if (dueLabel(o)) { <span class="opp-chip">{{ dueLabel(o) }}</span> }
+            @if (o.estimatedValue) { <span class="opp-chip">{{ o.estimatedValue }}</span> }
+          </div>
+          <ul class="opp-lines">
+            @for (r of o.fit.reasons.slice(0, 2); track $index) { <li><dk-icon name="check" [size]="15" />{{ r }}</li> }
+            @for (g of o.fit.gaps.slice(0, 1); track $index) { <li class="is-gap"><dk-icon name="alert-circle" [size]="15" />{{ g }}</li> }
+          </ul>
+          <div class="opp-card__actions">
+            <button type="button" class="dk-btn dk-btn--primary" (click)="draft(o)" [disabled]="drafting() === o.id" appWriteAction="draft a proposal">{{ drafting() === o.id ? 'Starting…' : 'Draft proposal' }}</button>
+            <a class="dk-btn dk-btn--bg" [routerLink]="['/opportunities', o.id]">Details</a>
+          </div>
+        </article>
+      }
+    </div>
+  } @else if (signedIn()) {
+    <div class="dk-empty opp-empty">
+      <h2>{{ watched().length ? 'Nothing new yet' : 'Where do your RFP alerts arrive?' }}</h2>
+      <p>{{ watched().length ? 'TODD checks ' + watched()[0].emailAddress + ' every 10 minutes. New alerts will appear here, scored against your profile.' : 'Connect that inbox and TODD reads every alert from OpenGov, Bonfire, King County and the other portals you choose.' }}</p>
+      @if (!watched().length) { <a class="dk-btn dk-btn--primary" routerLink="/opportunities/inbox"><dk-icon name="inbox" />Connect an inbox</a> }
+    </div>
+  }
+
+  @if (proposals().length) {
+    <section class="opp-proposals">
+      <h2 class="dk-kicker">Your proposals</h2>
+      <div class="opp-proposals__grid">
+        @for (p of proposals(); track p.id) {
+          <a class="opp-row" [routerLink]="['/opportunities', p.id]">
+            <div>
+              <strong>{{ p.agency ? p.agency + ' · ' : '' }}{{ p.title }}</strong>
+              <small class="dk-muted">{{ dueLabel(p) || 'No due date' }}</small>
+            </div>
+            <span class="dk-tag dk-tinted" [attr.data-tint]="statusLabel[p.status].tint">{{ statusLabel[p.status].label }}</span>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  @if (signedIn()) {
+    <footer class="opp-inbox">
+      <dk-icon name="inbox" [size]="18" />
+      <p>
+        @if (inboxes() === null) { Checking which inbox TODD watches… }
+        @else if (watched().length) {
+          TODD watches <strong>{{ watched()[0].emailAddress }}</strong>@if (watched().length > 1) { and {{ watched().length - 1 }} more} for alerts from {{ senderNames(watched()[0].rfpSenders) }}.@if (watched()[0].rfpLastSyncAt) { Checked {{ checkedAgo(watched()[0].rfpLastSyncAt) }}.}
+        } @else {
+          RFP alerts from OpenGov, King County and Bonfire can come straight here. Connect the inbox they arrive in, or add an RFP file yourself.
+        }
+      </p>
+      <a class="dk-btn dk-btn--sm" routerLink="/opportunities/inbox">{{ watched().length ? 'Manage' : 'Connect an inbox' }}</a>
+      <a class="dk-btn dk-btn--sm" [routerLink]="['/upload']" [queryParams]="{ rfp: 1 }" appWriteAction="add an RFP"><dk-icon name="upload" />Add an RFP</a>
+    </footer>
+  }
+</div>

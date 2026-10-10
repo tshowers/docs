@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
@@ -6,6 +6,7 @@ import { filter, map } from 'rxjs/operators';
 import { currentTheme, toggleTheme, ThemeMode } from '@taliferro/ui/platform/theme';
 import { environment } from '../../../environments/environment';
 import { DocsAuthService } from '../../services/docs-auth.service';
+import { OpportunitiesService } from '../../services/opportunities.service';
 import { DkIconComponent } from '../dk-icon/dk-icon.component';
 import { PlatformMenuComponent } from '../platform-menu/platform-menu.component';
 
@@ -38,6 +39,8 @@ const SIGNED_OUT_TABS: DocsTab[] = [
  */
 export function docsTabForUrl ( url: string ): DocsTabId | null {
   const path = ( url || '' ).split( /[?#]/ )[0];
+  // "Add an RFP" is the upload page opened from Opportunities.
+  if ( /^\/upload\?(.*&)?rfp=1(&|#|$)/.test( url || '' ) ) return 'opportunities';
   if ( path === '/docs' || path === '/docs/' ) return 'home';
   if ( /^\/(opportunities|docs\/(rfp-list|rfp-upload|proposal-history))(\/|$)/.test( path ) ) return 'opportunities';
   if ( /^\/(documents|upload|new|docs\/(documents|upload|editor))(\/|$)/.test( path ) ) return 'documents';
@@ -176,9 +179,11 @@ export class DocsHeaderComponent {
   private readonly route = inject( ActivatedRoute );
   private readonly auth = inject( DocsAuthService );
 
+  private readonly opportunities = inject( OpportunitiesService );
+
   readonly theme = signal<ThemeMode>( currentTheme() );
-  /** The Opportunities badge: RFPs that fit and still need a decision. Null hides it. */
-  readonly opportunityCount = signal<number | null>( null );
+  /** The Opportunities badge: open RFPs that fit and still need a decision. 0 hides it. */
+  readonly opportunityCount = computed( () => this.signedIn() ? this.opportunities.fitCount() : 0 );
 
   private readonly user = toSignal( this.auth.getUser(), { initialValue: null } );
   readonly signedIn = computed( () => !!this.user() );
@@ -206,6 +211,12 @@ export class DocsHeaderComponent {
     const tab = APP_TABS.find( ( item ) => item.id === this.activeTab() ) || SIGNED_OUT_TABS.find( ( item ) => item.id === this.activeTab() );
     return tab && tab.id !== 'home' ? tab.label : 'Docs';
   } );
+
+  constructor () {
+    effect( () => {
+      if ( this.signedIn() && !this.opportunities.loaded() ) untracked( () => this.opportunities.load().subscribe() );
+    } );
+  }
 
   flipTheme (): void {
     this.theme.set( toggleTheme() );

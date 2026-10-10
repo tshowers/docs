@@ -1,0 +1,93 @@
+<div class="dk-page od">
+  <a class="dk-btn dk-btn--sm od-back" routerLink="/opportunities"><dk-icon name="chevron-left" />Opportunities</a>
+
+  @if (opportunity(); as o) {
+    <div class="od__grid">
+      <article class="od__main">
+        <p class="od__source">
+          @if (o.solicitationNumber) { <span class="dk-tag dk-tinted" data-tint="violet">{{ o.solicitationNumber }}</span> }
+          <span class="dk-muted">{{ sourceLine() }}</span>
+        </p>
+        <h1 class="od__title">{{ o.title }}</h1>
+        @if (o.summary) { <p class="od__summary">{{ o.summary }}</p> }
+
+        <div class="od__facts">
+          @for (f of facts(); track f.label) {
+            <div class="od__fact"><span class="dk-kicker">{{ f.label }}</span><strong>{{ f.value }}</strong></div>
+          }
+        </div>
+
+        @if (o.submission.email) {
+          <p class="od__submit dk-muted">Proposals go to <strong>{{ o.submission.email }}</strong>.</p>
+        } @else if (o.submission.method === 'portal' && o.portalUrl) {
+          <p class="od__submit dk-muted">Submitted through the <a [href]="o.portalUrl" target="_blank" rel="noopener">agency's portal</a>.</p>
+        }
+
+        @if (o.criteria.length) {
+          <section>
+            <h2 class="dk-kicker od__kicker">What they'll score you on</h2>
+            <ul class="od__criteria">
+              @for (c of o.criteria; track $index) {
+                <li><span class="od__points">{{ c.points || '–' }}</span><span>{{ c.name }}</span></li>
+              }
+            </ul>
+          </section>
+        } @else {
+          <p class="dk-muted od__nocriteria">The alert didn't list the scoring criteria. TODD will read them from the RFP when it drafts.</p>
+        }
+      </article>
+
+      <aside class="od__side">
+        <section class="od__fit dk-tinted" [attr.data-tint]="tint()">
+          <header>
+            <span class="od__score">{{ o.fit.score }}</span>
+            <h2>{{ fitHeading() }}</h2>
+          </header>
+          <ul>
+            @for (r of o.fit.reasons; track $index) { <li><dk-icon name="check" [size]="15" />{{ r }}</li> }
+            @for (g of o.fit.gaps; track $index) { <li class="is-gap"><dk-icon name="alert-circle" [size]="15" />{{ g }}</li> }
+          </ul>
+        </section>
+
+        <section class="od__next">
+          @if (o.status === 'new' || o.status === 'dismissed') {
+            <div class="dk-todd__head od__todd"><img src="assets/avatar-todd-sm.png" alt="" />Before I draft</div>
+            <p>I'll write what I can from your profile, Knowledge and past proposals, and ask you for anything I don't know as I go.</p>
+            <button type="button" class="dk-btn dk-btn--primary dk-btn--lg od__wide" (click)="draft()" [disabled]="!!busy()" appWriteAction="draft a proposal"><dk-icon name="pen" />{{ busy() === 'draft' ? 'Starting…' : 'Draft proposal' }}</button>
+            <div class="od__pair">
+              <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
+              @if (o.status === 'dismissed') {
+                <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('new')" [disabled]="!!busy()" appWriteAction="restore this RFP">Bring it back</button>
+              } @else {
+                <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('dismissed')" [disabled]="!!busy()" appWriteAction="set this RFP aside">Not for us</button>
+              }
+            </div>
+          } @else {
+            <div class="od__status">
+              <span class="dk-tag dk-tinted" [attr.data-tint]="statusLabel[o.status].tint">{{ statusLabel[o.status].label }}</span>
+              <span class="dk-muted">{{ dueLabel(o) }}</span>
+            </div>
+            @if (o.proposalDocumentId) {
+              <a class="dk-btn dk-btn--primary dk-btn--lg od__wide" [routerLink]="['/docs/editor', o.proposalDocumentId]"><dk-icon name="pen" />Open the proposal</a>
+            }
+            <div class="od__pair">
+              <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
+              @if (o.status === 'submitted') {
+                <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('won')" [disabled]="!!busy()" appWriteAction="mark this won">We won</button>
+                <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('lost')" [disabled]="!!busy()" appWriteAction="mark this lost">We lost</button>
+              }
+            </div>
+          }
+        </section>
+      </aside>
+    </div>
+  } @else if (notFound()) {
+    <div class="dk-empty">
+      <h2>That opportunity isn't here</h2>
+      <p>It may have been removed, or it belongs to a workspace you're not signed in to.</p>
+      <a class="dk-btn dk-btn--bg" routerLink="/opportunities">Back to Opportunities</a>
+    </div>
+  } @else {
+    <div class="od__skeleton" aria-busy="true"></div>
+  }
+</div>

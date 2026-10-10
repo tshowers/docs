@@ -1,0 +1,82 @@
+:host { display: block; }
+
+.ri { max-width: 880px; }
+.ri-back { margin-bottom: 20px; }
+.ri__title { margin: 6px 0 18px !important; font-size: 44px; font-weight: 700; line-height: 1.05; letter-spacing: -0.04em; }
+.ri__why { margin-bottom: 24px; }
+
+.ri__inbox,
+.ri__connect,
+.ri__others { display: grid; gap: 14px; margin-bottom: 16px; padding: 22px; border-radius: 28px; background: var(--surface); }
+
+.ri__inbox header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ri__inbox h2, .ri__connect h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.ri__inbox header p { margin-top: 4px !important; font-size: 13px; }
+
+.ri__senders { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.ri__sender {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 6px 0 12px;
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ri__sender button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.ri__sender button:hover { background: var(--surface2); color: var(--text); transform: none; }
+
+.ri__add { display: inline-flex; gap: 6px; }
+
+.ri__add input,
+.ri__form input,
+.ri__form select {
+  height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: 500 14px/1 var(--font);
+}
+
+.ri__form input, .ri__form select { height: 44px; border-radius: 14px; }
+.ri__add input:focus, .ri__form input:focus, .ri__form select:focus { outline: 2px solid var(--blue); outline-offset: 0; }
+
+.ri__actions, .ri__ways { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.ri__used { margin-left: 8px; }
+.ri__other { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+
+.ri__form { display: grid; gap: 12px; padding-top: 6px; }
+.ri__form label { display: grid; gap: 6px; font-size: 13px; font-weight: 700; color: var(--muted); }
+.ri__hint { font-size: 13px; line-height: 1.5; }
+.ri__result { padding: 10px 14px; border-radius: 14px; background: var(--t-pink); color: var(--t-pink-fg); font-size: 14px; }
+.ri__result.is-ok { background: var(--t-green); color: var(--t-green-fg); }
+
+.ri__skeleton { height: 240px; border-radius: 28px; background: var(--surface); animation: ri-pulse 1.4s ease-in-out infinite; }
+@keyframes ri-pulse { 50% { opacity: .55; } }
+
+@media (max-width: 760px) {
+  .ri__title { font-size: 30px; }
+  .ri__add { width: 100%; }
+  .ri__add input { flex: 1; min-width: 0; }
+}

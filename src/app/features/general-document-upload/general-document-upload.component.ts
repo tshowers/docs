@@ -1,591 +1,335 @@
-import { Component, OnInit, OnDestroy, Input, EventEmitter, Output, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { Subscription, combineLatest } from 'rxjs';
 
-import { LoggerService } from '../../services/logger.service';
+import { Document } from '../../models/document.model';
+import { documentExtension, documentKindInfo } from '../../models/document-kind';
+import { fitTint } from '../../models/opportunity';
 import { DocService, DocumentLimits } from '../../services/doc.service';
 import { DocsAssistantSignalService } from '../../services/docs-assistant-signal.service';
 import { DocsAuthService } from '../../services/docs-auth.service';
-import { Document } from '../../models/document.model';
-import { SoundService } from '../../services/sound.service';
-import { DocsTipService } from '../../services/docs-tip.service';
-import { PreloaderComponent } from '../../shared/preloader/preloader.component';
-import { BackToTopComponent } from '../../shared/back-to-top/back-to-top.component';
-import { ToddTipComponent } from '../../shared/todd-tip/todd-tip.component';
-import { DocsNotificationService } from '../../services/docs-notification.service';
 import { DocsPageActionsService } from '../../services/docs-page-actions.service';
-import { PageAction } from '../../models/page-actions.models';
-import { ClickSoundDirective } from '../../shared/directives/click-sound.directive';
-import { CockpitBrowseModeBannerComponent } from '../../shared/cockpit-browse-mode-banner/cockpit-browse-mode-banner.component';
+import { DocumentsStoreService } from '../../services/documents-store.service';
+import { LoggerService } from '../../services/logger.service';
+import { OpportunitiesService } from '../../services/opportunities.service';
+import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 
-interface FileUploadItem {
+type RowState = 'uploading' | 'saved' | 'reading' | 'opportunity' | 'not-rfp' | 'error';
+
+interface UploadRow {
+  key: string;
   file: File;
   progress: number;
-  status: 'pending' | 'uploading' | 'done' | 'error';
-  errorMsg?: string;
+  state: RowState;
+  title: string;
+  /** TODD's line under the title. */
+  note: string;
+  folder: string;
+  tint: string;
+  extension: string;
+  documentId: string;
+  opportunityId: string;
+  score: number | null;
   eligibleForSocial: boolean;
+  isMedia: boolean;
+}
+
+/** "final_FINAL_v3.docx" -> "Final FINAL v3": a readable title until someone renames it. */
+export function titleFromFileName ( name: string ): string {
+  const base = String( name || '' ).replace( /\.[a-z0-9]{1,5}$/i, '' ).replace( /[_]+/g, ' ' ).replace( /\s+/g, ' ' ).trim();
+  return base ? base.charAt( 0 ).toUpperCase() + base.slice( 1 ) : 'Untitled file';
+}
+
+/** Whether a file's name says it's a solicitation. */
+export function looksLikeRfp ( name: string ): boolean {
+  return /\b(rfp|rfq|rfi|itb|ifb|solicitation|bid)\b/i.test( String( name || '' ).replace( /[_\-.]+/g, ' ' ) );
 }
 
 /**
- * Ported from features/document/general-document-upload/general-document-upload.component.ts.
- *
- * The monorepo original extends TopDogComponent (readiness gating built
- * around RoutePerfService, SettingsService, DiagnosticComponent, and
- * SayIt-context switching - none of which exist in this app, and none of
- * which this component's own template actually renders). Per the port
- * plan, this replicates the auth-context-watching approach
- * web-products/network's ContactHomeComponent uses instead: a plain
- * combineLatest over tenantId/userId/isLoggedIn, no base-class readiness
- * machinery. ToddAssistantBusService's signalState$ subscription is
- * dropped, same as every other cockpit page ported from Network.
- *
- * This is one of the components that uploads straight to Firebase Storage
- * from the browser (`getStorage`/`ref`/`uploadBytesResumable`/
- * `getDownloadURL`) - storage path `${tenantId}/documents/${file.name}`
- * preserved exactly, since it must match whatever Storage security rules
- * already exist server-side for this bucket.
+ * Add files (design_handoff_todd_docs 1i): drop or browse, and each file
+ * uploads straight away with a readable title and a folder. An RFP (opened
+ * from "Add an RFP", or named like one) is read by TODD and added to
+ * Opportunities with its fit score; any other row can be marked as an RFP.
+ * Storage path `${tenantId}/documents/${file.name}` is unchanged - it must
+ * match the bucket's security rules.
  */
 @Component( {
   selector: 'app-general-document-upload',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterModule,
-    BackToTopComponent,
-    PreloaderComponent,
-    ToddTipComponent, ClickSoundDirective, CockpitBrowseModeBannerComponent],
+  imports: [CommonModule, RouterModule, DkIconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './general-document-upload.component.html',
   styleUrl: './general-document-upload.component.css'
 } )
-export class GeneralDocumentUploadComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() item!: Document;
-  isSmallScreen: boolean = window.innerWidth < 992;
-  isLoading = false;
+export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
+  private readonly auth = inject( DocsAuthService );
+  private readonly docService = inject( DocService );
+  private readonly docsStore = inject( DocumentsStoreService );
+  private readonly opportunities = inject( OpportunitiesService );
+  private readonly assistantBus = inject( DocsAssistantSignalService );
+  private readonly pageActions = inject( DocsPageActionsService );
+  private readonly logger = inject( LoggerService );
+  private readonly router = inject( Router );
+  private readonly route = inject( ActivatedRoute );
+  private readonly cdr = inject( ChangeDetectorRef );
+  private readonly storage = getStorage();
 
-  docTipText: string = '';
+  @ViewChild( 'fileInput' ) fileInput?: ElementRef<HTMLInputElement>;
 
-  document: Document = {
-    src: '',
-    name: '',
-    type: 'document', // Default type, can be changed as needed
-    author: '',
-    uploadDate: '',
-    contactId: '',
-    title: '',
-    topic: '',
-    description: ''
-  };
+  readonly rows = signal<UploadRow[]>( [] );
+  readonly dragging = signal( false );
+  readonly limits = signal<DocumentLimits | null>( null );
+  readonly signedIn = signal<boolean | null>( null );
+  /** Opened from "Add an RFP": every file is read as an RFP. */
+  readonly rfpMode = this.route.snapshot.queryParamMap.get( 'rfp' ) === '1';
 
-  @Output() backToList = new EventEmitter<void>();
+  private tenantId = '';
+  private userId = '';
+  private author = '';
+  private authSub?: Subscription;
 
-  storage = getStorage();
-  @ViewChild( 'fileInput' ) fileInput!: ElementRef<HTMLInputElement>;
-  selectedFiles: FileUploadItem[] = [];
-  downloadURL: string | null = null;
-  error: string | null = null;
-  backendErrorCode: string | null = null;
-  processing: boolean = false;
-  showDocumentListOnMobile = false;
-  docLimits: DocumentLimits | null = null;
+  readonly headline = computed( () => {
+    const rows = this.rows();
+    if ( !rows.length ) return this.rfpMode ? 'Add an RFP' : 'Add files';
+    const busy = rows.filter( ( r ) => r.state === 'uploading' || r.state === 'reading' ).length;
+    if ( busy ) return `Adding ${ rows.length } ${ rows.length === 1 ? 'file' : 'files' }…`;
+    const failed = rows.filter( ( r ) => r.state === 'error' ).length;
+    const done = rows.length - failed;
+    return failed ? `${ done } added. ${ failed } didn't make it.` : `${ done } ${ done === 1 ? 'file' : 'files' } added.`;
+  } );
 
-  userId: string | null = null;
-  tenantId: string = '';
-  isLoggedIn = false;
-  private authContextSubscription?: Subscription;
+  readonly limitMessage = computed( () => {
+    const l = this.limits();
+    if ( !l || l.isPaidUser ) return '';
+    if ( l.remainingFreeDocuments <= 0 ) return `You've used all ${ l.freeDocumentLimit } free documents. Upgrade to keep adding files.`;
+    return `${ l.remainingFreeDocuments } of ${ l.freeDocumentLimit } free documents left`;
+  } );
 
-  get canUploadDocuments (): boolean {
-    return this.isLoggedIn && !!this.userId;
-  }
-
-  get uploadDisabledReason (): string {
-    return 'Sign in to upload and save documents. Free accounts can save up to 10 documents.';
-  }
-
-  get docLimitMessage (): string {
-    const limits = this.docLimits;
-    if ( !limits || limits.isPaidUser ) return '';
-    if ( limits.currentCount <= 0 ) return `${limits.freeDocumentLimit} free documents available`;
-    if ( limits.remainingFreeDocuments <= 0 ) return 'You have used all 10 free documents. Upgrade to keep uploading.';
-    return `${limits.remainingFreeDocuments} of ${limits.freeDocumentLimit} free documents left`;
-  }
-
-  constructor (
-    private authService: DocsAuthService,
-    private soundService: SoundService,
-    private logger: LoggerService,
-    private router: Router,
-    private tipService: DocsTipService,
-    private docService: DocService,
-    private notificationService: DocsNotificationService,
-    private assistantBus: DocsAssistantSignalService,
-    private pageActionsService: DocsPageActionsService ) { }
+  readonly fitTint = fitTint;
 
   ngOnInit (): void {
-    this.docTipText = this.tipService.getRandomTipText( 'documents' );
-
-    this.authContextSubscription = combineLatest( [
-      this.authService.getTenantId(),
-      this.authService.getUserId(),
-      this.authService.isLoggedIn(),
-    ] ).subscribe( ( [tenantId, userId, isLoggedIn] ) => {
-      this.tenantId = tenantId || '';
-      this.userId = userId || null;
-      this.isLoggedIn = isLoggedIn;
-      this.loadDocLimits();
-      this.publishPageContext();
+    this.authSub = combineLatest( [this.auth.getTenantId(), this.auth.getUserId(), this.auth.isLoggedIn(), this.auth.getUser()] )
+        .subscribe( ( [tenantId, userId, isLoggedIn, user] ) => {
+          this.tenantId = String( tenantId || '' );
+          this.userId = String( userId || '' );
+          this.author = String( ( user as { displayName?: string } | null )?.displayName || '' );
+          this.signedIn.set( !!isLoggedIn && !!userId );
+          if ( this.signedIn() ) this.docService.getLimits().subscribe( { next: ( l ) => this.limits.set( l ), error: () => this.limits.set( null ) } );
+          this.publishContext();
+        } );
+    this.pageActions.setPageActions( {
+      pageId: 'general-document-upload',
+      context: { pageId: 'general-document-upload', feature: 'documents', entityType: 'document' },
+      actions: [
+        { id: 'upload-browse', label: 'Choose files', icon: 'fa-solid fa-upload', kind: 'callback', handler: () => this.browse(), order: 10, group: 'context' },
+        { id: 'upload-documents', label: 'Documents', icon: 'fa-solid fa-folder', kind: 'route', route: '/documents', order: 20, group: 'context' },
+        { id: 'upload-opportunities', label: 'Opportunities', icon: 'fa-solid fa-inbox', kind: 'route', route: '/opportunities', order: 30, group: 'context' },
+      ],
     } );
-
-    this.publishPageContext();
   }
 
   ngOnDestroy (): void {
-    this.authContextSubscription?.unsubscribe();
-    this.pageActionsService.clearPageActions( 'general-document-upload' );
+    this.authSub?.unsubscribe();
+    this.pageActions.clearPageActions( 'general-document-upload' );
   }
 
-  ngOnChanges ( changes: SimpleChanges ): void {
-    if ( changes['item'] && changes['item'].currentValue ) {
-      this.setDocument();
-      this.publishPageContext();
-    }
-  }
-
-  toggleSelection () {
-    this.soundService.playSound( "toggleOn" );
-  }
-  private publishPageContext (): void {
-    this.assistantBus.setPageContext( {
-      feature: 'documents',
-      page: 'general-document-upload',
-      route: this.router.url,
-      mode: this.document?.id ? 'edit' : 'create',
-      title: this.document?.id ? 'Edit Upload' : 'Upload Document',
-      description: 'Upload a document, image, or video and save its metadata.',
-      allowedActions: [
-        'select_file',
-        'drop_file',
-        'upload_document',
-        'clear_selected_file'
-      ],
-      selectedEntityType: 'document',
-      selectedEntityId: this.document?.id || '',
-      summary: {
-        isAuthenticated: this.canUploadDocuments,
-        interactionMode: this.canUploadDocuments ? 'member' : 'guest',
-        hasAuthor: !!this.document?.author,
-        hasTitle: !!this.document?.title,
-        hasTopic: !!this.document?.topic,
-        hasDescription: !!this.document?.description,
-        hasSelectedFile: this.selectedFiles.length > 0,
-        hasDownloadUrl: !!this.downloadURL,
-        isProcessing: this.processing,
-        uploadProgress: this.selectedFiles.length > 0
-          ? this.selectedFiles.reduce( ( sum, f ) => sum + f.progress, 0 ) / this.selectedFiles.length
-          : 0
-      },
-      dataPreview: {
-        title: this.document?.title || '',
-        topic: this.document?.topic || '',
-        description: this.document?.description || '',
-        selectedFileName: this.selectedFiles.length === 1
-          ? this.selectedFiles[0].file.name
-          : this.selectedFiles.length > 1 ? `${this.selectedFiles.length} files selected` : '',
-        downloadURL: this.downloadURL || ''
-      }
-    } );
-
-    this.publishPageActions();
-  }
-
-  openFilePicker (): void {
-    this.soundService.playSound( 'click' );
-
-    if ( !this.canUploadDocuments || this.processing ) {
-      this.notificationService.show(
-        'Upload Notice',
-        'You can explore Documents freely. Log in to upload and save a document.',
-        'warning'
-      );
-      this.error = this.uploadDisabledReason;
-      this.publishPageContext();
-      return;
-    }
-
-    this.fileInput?.nativeElement?.click();
-  }
-
-  setDocument (): void {
-
-    this.document = this.item;
-    this.logger.debug( "Setting this.document to ", this.document );
-    this.publishPageContext();
-  }
-
-  private publishPageActions (): void {
-    this.pageActionsService.setPageActions( {
-      pageId: 'general-document-upload',
-      context: {
-        pageId: 'general-document-upload',
-        feature: 'documents',
-        entityType: 'document',
-        entityId: this.document?.id || ''
-      },
-      actions: this.buildPageActions()
-    } );
-  }
-
-  private buildPageActions (): PageAction[] {
-    return [
-      {
-        id: 'general-document-upload-submit',
-        label: this.document?.id ? 'Update Upload' : 'Upload',
-        icon: 'fa-solid fa-cloud-arrow-up',
-        kind: 'callback',
-        handler: () => {
-          const submitEvent = new Event( 'submit', { cancelable: true } );
-          this.onSubmit( submitEvent );
-        },
-        disabled: () => this.processing || !this.canUploadDocuments,
-        order: 10,
-        group: 'context'
-      },
-      {
-        id: 'general-document-upload-response-flow',
-        label: 'Response Flow',
-        icon: 'fa-solid fa-layer-group',
-        kind: 'route',
-        route: '/knowledge/response-flow',
-        order: 20,
-        group: 'context'
-      },
-      {
-        id: 'general-document-upload-editor',
-        label: 'Editor',
-        icon: 'fa-solid fa-file-lines',
-        kind: 'route',
-        route: '/docs/editor',
-        order: 30,
-        group: 'context'
-      },
-      {
-        id: 'general-document-upload-proposal-history',
-        label: 'Proposal History',
-        icon: 'fa-solid fa-clock-rotate-left',
-        kind: 'route',
-        route: '/docs/proposal-history',
-        order: 40,
-        group: 'context'
-      },
-      {
-        id: 'general-document-upload-rfp-upload',
-        label: 'RFP Upload',
-        icon: 'fa-solid fa-upload',
-        kind: 'route',
-        route: '/docs/rfp-upload',
-        order: 50,
-        group: 'context'
-      },
-      {
-        id: 'general-document-upload-rfps',
-        label: 'RFPs',
-        icon: 'fa-solid fa-folder-open',
-        kind: 'route',
-        route: '/docs/rfp-list',
-        order: 60,
-        group: 'context'
-      },
-    ];
-  }
-
-  private loadDocLimits (): void {
-    if ( !this.canUploadDocuments ) {
-      this.docLimits = null;
-      this.publishPageContext();
-      return;
-    }
-
-    this.docService.getLimits().subscribe( {
-      next: ( limits ) => {
-        this.docLimits = limits;
-        this.publishPageContext();
-      },
-      error: ( error ) => {
-        this.logger.warn( 'Unable to load document limits', error );
-        this.docLimits = null;
-        this.publishPageContext();
-      }
-    } );
+  browse (): void {
+    if ( !this.signedIn() ) return;
+    this.fileInput?.nativeElement.click();
   }
 
   onFileSelect ( event: Event ): void {
-    if ( !this.canUploadDocuments ) {
-      this.notificationService.show( 'Upload Notice', 'You can explore Documents freely. Log in to upload and save a document.', 'warning' );
-      this.error = this.uploadDisabledReason;
-      this.publishPageContext();
-      return;
-    }
-
     const input = event.target as HTMLInputElement;
-    if ( input.files && input.files.length > 0 ) {
-      const newFiles = Array.from( input.files );
-      this.selectedFiles.push( ...newFiles.map( f => ( { file: f, progress: 0, status: 'pending' as const, eligibleForSocial: false } ) ) );
-      this.error = null;
-      this.backendErrorCode = null;
-      this.soundService.playSound( "click" );
-      this.publishPageContext();
-    }
+    this.add( Array.from( input.files || [] ) );
+    input.value = '';
   }
 
   onDrop ( event: DragEvent ): void {
     event.preventDefault();
-    if ( !this.canUploadDocuments ) {
-      this.notificationService.show( 'Upload Notice', 'You can explore Documents freely. Log in to upload and save a document.', 'warning' );
-      this.error = this.uploadDisabledReason;
-      this.publishPageContext();
-      return;
-    }
-    event.stopPropagation();
-    this.removeDragData( event );
-    if ( event.dataTransfer && event.dataTransfer.files.length > 0 ) {
-      const newFiles = Array.from( event.dataTransfer.files );
-      this.selectedFiles.push( ...newFiles.map( f => ( { file: f, progress: 0, status: 'pending' as const, eligibleForSocial: false } ) ) );
-      this.error = null;
-      this.backendErrorCode = null;
-      this.publishPageContext();
-    }
+    this.dragging.set( false );
+    this.add( Array.from( event.dataTransfer?.files || [] ) );
   }
 
   onDragOver ( event: DragEvent ): void {
     event.preventDefault();
-    event.stopPropagation();
-    if ( !this.canUploadDocuments ) {
-      return;
-    }
-    event.dataTransfer!.dropEffect = 'copy';
+    if ( event.dataTransfer ) event.dataTransfer.dropEffect = this.signedIn() ? 'copy' : 'none';
+    this.dragging.set( true );
   }
 
-  onDragLeave ( event: DragEvent ): void {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  removeDragData ( event: DragEvent ): void {
-    if ( event.dataTransfer ) {
-      event.dataTransfer.clearData();
-    }
-  }
-
-  onSubmit ( event: Event ): void {
-    event.preventDefault();
-    if ( !this.canUploadDocuments ) {
-      this.notificationService.show( 'Upload Notice', 'You can explore Documents freely. Log in to upload and save a document.', 'warning' );
-      this.error = this.uploadDisabledReason;
-      this.publishPageContext();
-      return;
-    }
-    if ( this.docLimits && !this.docLimits.isPaidUser && !this.docLimits.canCreateDocument ) {
-      this.error = 'You have used all 10 free documents. Upgrade to keep uploading.';
-      this.backendErrorCode = 'DOCUMENT_QUOTA_EXCEEDED';
-      this.publishPageContext();
-      return;
-    }
-    if ( this.selectedFiles.length === 0 ) {
-      this.error = 'Please select at least one file to upload';
-      this.publishPageContext();
-      return;
-    }
-    if ( !this.document || !this.document.author || !this.document.title || !this.document.topic ) {
-      this.error = 'Please fill in all required fields';
-      this.publishPageContext();
-      return;
-    }
-    this.uploadAll();
-  }
-
-  async uploadAll (): Promise<void> {
-    this.processing = true;
-    this.error = null;
-    this.backendErrorCode = null;
-    this.publishPageContext();
-
-    for ( const item of this.selectedFiles ) {
-      if ( item.status !== 'pending' ) continue;
-      item.status = 'uploading';
-      this.publishPageContext();
-      try {
-        await this.uploadSingleFile( item );
-        item.status = 'done';
-      } catch ( err ) {
-        item.status = 'error';
-        item.errorMsg = this.buildUploadFailureMessage( err );
-        this.backendErrorCode = this.extractBackendErrorCode( err );
-        this.logger.error( 'Upload error for', item.file.name, err );
+  private add ( files: File[] ): void {
+    if ( !files.length || !this.signedIn() ) return;
+    const limits = this.limits();
+    let room = limits && !limits.isPaidUser ? Math.max( 0, limits.remainingFreeDocuments ) : Infinity;
+    for ( const file of files ) {
+      const preview = { name: file.name, mimeType: file.type, type: this.typeFor( file ), src: '' } as Document;
+      const info = documentKindInfo( preview );
+      const row: UploadRow = {
+        key: `${ file.name }:${ file.size }:${ Date.now() }:${ Math.random() }`,
+        file,
+        progress: 0,
+        state: 'uploading',
+        title: titleFromFileName( file.name ),
+        note: 'Uploading…',
+        folder: info.plural,
+        tint: info.tint,
+        extension: documentExtension( preview ),
+        documentId: '',
+        opportunityId: '',
+        score: null,
+        eligibleForSocial: false,
+        isMedia: preview.type === 'image' || preview.type === 'video',
+      };
+      if ( room <= 0 ) {
+        this.rows.update( ( rows ) => [...rows, { ...row, state: 'error', note: 'Your free documents are used up. Upgrade to keep adding files.' }] );
+        continue;
       }
-      this.publishPageContext();
+      room -= 1;
+      this.rows.update( ( rows ) => [...rows, row] );
+      void this.upload( row.key );
     }
-
-    this.processing = false;
-    const anySuccess = this.selectedFiles.some( i => i.status === 'done' );
-    this.soundService.playSound( anySuccess && this.selectedFiles.every( i => i.status === 'done' ) ? 'finished' : 'error' );
-    if ( anySuccess ) {
-      this.loadDocLimits();
-      this.refreshDocumentList();
-    }
-    this.publishPageContext();
   }
 
-  private uploadSingleFile ( item: FileUploadItem ): Promise<void> {
-    return new Promise<void>( ( resolve, reject ) => {
-      const file = item.file;
-      const storageRef = ref( this.storage, this.tenantId + '/documents/' + file.name );
-      const uploadTask = uploadBytesResumable( storageRef, file );
+  private patch ( key: string, changes: Partial<UploadRow> ): void {
+    this.rows.update( ( rows ) => rows.map( ( r ) => r.key === key ? { ...r, ...changes } : r ) );
+    this.cdr.markForCheck();
+  }
 
-      uploadTask.on( 'state_changed',
-        ( snapshot ) => {
-          item.progress = ( snapshot.bytesTransferred / snapshot.totalBytes ) * 100;
-          this.publishPageContext();
-        },
-        reject,
-        () => {
-          getDownloadURL( uploadTask.snapshot.ref ).then( ( downloadURL ) => {
-            this.downloadURL = downloadURL;
-            const uploadDate = new Date().toISOString();
-            const payload: Document = {
-              src: downloadURL,
-              name: file.name,
-              type: this.determineFileType( file ),
-              mimeType: file.type,
-              uploadDate,
-              author: this.document.author,
-              title: this.document.title,
-              topic: this.document.topic,
-              description: this.document.description,
-              ownerId: this.userId || undefined,
-              tenantId: this.tenantId,
-              createdAt: uploadDate,
-              updatedAt: uploadDate,
-              recordKind: 'upload',
-              eligibleForSocial: item.eligibleForSocial
-            };
-            this.docService.createDocument( payload ).subscribe( {
-              next: ( created ) => {
-                if ( created?.id && !this.document.id ) {
-                  this.document.id = created.id;
-                }
-                resolve();
-              },
-              error: reject
-            } );
-          } ).catch( reject );
-        }
-      );
+  private row ( key: string ): UploadRow | undefined {
+    return this.rows().find( ( r ) => r.key === key );
+  }
+
+  private async upload ( key: string ): Promise<void> {
+    const row = this.row( key );
+    if ( !row ) return;
+    try {
+      const url = await new Promise<string>( ( resolve, reject ) => {
+        const task = uploadBytesResumable( ref( this.storage, `${ this.tenantId }/documents/${ row.file.name }` ), row.file );
+        task.on( 'state_changed', ( s ) => this.patch( key, { progress: Math.round( ( s.bytesTransferred / s.totalBytes ) * 100 ) } ), reject, () => {
+          getDownloadURL( task.snapshot.ref ).then( resolve ).catch( reject );
+        } );
+      } );
+      const now = new Date().toISOString();
+      const payload: Document = {
+        src: url,
+        name: row.file.name,
+        type: this.typeFor( row.file ),
+        mimeType: row.file.type,
+        storagePath: `${ this.tenantId }/documents/${ row.file.name }`,
+        sizeBytes: row.file.size,
+        uploadDate: now,
+        createdAt: now,
+        updatedAt: now,
+        author: this.author,
+        title: row.title,
+        topic: row.folder,
+        ownerId: this.userId || undefined,
+        tenantId: this.tenantId,
+        recordKind: 'upload',
+        eligibleForSocial: false,
+      };
+      const created = await new Promise<Document>( ( resolve, reject ) => this.docService.createDocument( payload ).subscribe( { next: resolve, error: reject } ) );
+      this.patch( key, { state: 'saved', documentId: String( created?.id || '' ), note: `Filed under ${ row.folder }.` } );
+      this.docsStore.loaded.set( false );
+      if ( this.rfpMode || looksLikeRfp( row.file.name ) ) await this.readAsRfp( key );
+    } catch ( error ) {
+      this.logger.error( 'Upload failed', row.file.name, error );
+      this.patch( key, { state: 'error', note: this.failureMessage( error ) } );
+    }
+    this.publishContext();
+  }
+
+  /** Sends an uploaded file to TODD to read as an RFP; it lands on Opportunities, scored. */
+  async readAsRfp ( key: string ): Promise<void> {
+    const row = this.row( key );
+    if ( !row?.documentId ) return;
+    this.patch( key, { state: 'reading', note: 'Reading it as an RFP and scoring it against your profile…' } );
+    try {
+      const text = await this.textFor( row.file );
+      const created = await new Promise<{ id: string; fit: { score: number } }[]>( ( resolve, reject ) =>
+        this.opportunities.createFromDocument( row.documentId, text ).subscribe( { next: resolve, error: reject } ) );
+      const best = [...created].sort( ( a, b ) => b.fit.score - a.fit.score )[0];
+      this.patch( key, {
+        state: 'opportunity',
+        folder: 'Opportunities',
+        tint: 'violet',
+        opportunityId: best?.id || '',
+        score: best ? best.fit.score : null,
+        note: created.length > 1 ? `This is an RFP with ${ created.length } opportunities. I added them to Opportunities and scored them.` : `This is an RFP. I added it to Opportunities and scored it ${ best?.fit.score ?? '' }.`,
+      } );
+    } catch ( error ) {
+      const code = error instanceof HttpErrorResponse ? error.error?.error : '';
+      this.patch( key, {
+        state: code === 'not_an_rfp' ? 'not-rfp' : 'saved',
+        note: code === 'not_an_rfp' ? `TODD didn't find an RFP in this file. It's filed under ${ row.folder }.` : `It's filed under ${ row.folder }, but TODD couldn't read it as an RFP. ${ error instanceof HttpErrorResponse && error.error?.message ? error.error.message : 'Try again in a moment.' }`,
+      } );
+    }
+  }
+
+  toggleSocial ( key: string ): void {
+    const row = this.row( key );
+    if ( !row?.documentId ) return;
+    const next = !row.eligibleForSocial;
+    this.patch( key, { eligibleForSocial: next } );
+    this.docService.updateDocument( row.documentId, { eligibleForSocial: next }, this.tenantId ).subscribe( {
+      error: () => this.patch( key, { eligibleForSocial: !next } ),
     } );
   }
 
-  clearForm (): void {
-    this.document.author = '';
-    this.document.title = '';
-    this.document.topic = '';
-    this.document.description = '';
-    this.selectedFiles = [];
-    this.downloadURL = null;
-    this.error = null;
-    this.backendErrorCode = null;
-    this.fileInput.nativeElement.value = '';
-    this.publishPageContext();
+  open ( row: UploadRow ): void {
+    if ( row.opportunityId ) void this.router.navigate( ['/opportunities', row.opportunityId] );
+    else if ( row.documentId ) void this.router.navigate( ['/documents', row.documentId] );
   }
 
-  refreshDocumentList (): void {
-    if ( this.showDocumentListOnMobile ) {
-      this.backToList.emit();
-      return;
+  /** PDFs go to TODD as files; Word and text files as their text. */
+  private async textFor ( file: File ): Promise<string> {
+    const name = file.name.toLowerCase();
+    if ( name.endsWith( '.pdf' ) || file.type.includes( 'pdf' ) ) return '';
+    if ( name.endsWith( '.docx' ) ) {
+      const mammoth = await import( 'mammoth' );
+      const result = await mammoth.extractRawText( { arrayBuffer: await file.arrayBuffer() } );
+      return result.value || '';
     }
-
-    this.router.navigate( ['/docs/documents'] );
+    if ( file.type.startsWith( 'text/' ) || /\.(txt|md|eml|html?)$/.test( name ) ) return file.text();
+    return '';
   }
 
-  removeFile ( index: number ): void {
-    this.selectedFiles.splice( index, 1 );
-    if ( this.selectedFiles.length === 0 ) {
-      this.fileInput.nativeElement.value = '';
-    }
-    this.publishPageContext();
+  private typeFor ( file: File ): Document['type'] {
+    const mime = ( file.type || '' ).toLowerCase();
+    if ( mime.startsWith( 'image/' ) || /\.(jpe?g|png|gif|bmp|svg|webp|heic|heif|avif)$/i.test( file.name ) ) return 'image';
+    if ( mime.startsWith( 'video/' ) || /\.(mp4|mov|avi|mkv|flv|wmv|webm|m4v)$/i.test( file.name ) ) return 'video';
+    return 'document';
   }
 
-  private extractBackendErrorCode ( error: unknown ): string | null {
+  private failureMessage ( error: unknown ): string {
     if ( error instanceof HttpErrorResponse ) {
-      return error.error?.code || null;
+      if ( typeof error.error?.message === 'string' && error.error.message.trim() ) return error.error.message.trim();
+      if ( error.status === 0 ) return 'TODD couldn\'t reach the server. Try again in a moment.';
+      if ( error.status === 403 ) return 'You don\'t have access to add documents right now.';
     }
-    return null;
+    return 'The upload didn\'t finish. Try again.';
   }
 
-  private buildUploadFailureMessage ( error: unknown ): string {
-    if ( error instanceof HttpErrorResponse ) {
-      const backendMessage = error.error?.message;
-      if ( typeof backendMessage === 'string' && backendMessage.trim() ) {
-        return backendMessage.trim();
-      }
-
-      if ( error.status === 403 ) {
-        return 'You do not have access to create this document right now.';
-      }
-
-      if ( error.status === 400 ) {
-        return 'The document details were invalid. Please review the form and try again.';
-      }
-
-      if ( error.status === 0 ) {
-        return 'We could not reach the server. Please try again in a moment.';
-      }
-    }
-
-    return 'We uploaded the file, but could not save the document record. Your form values and selected file are still here so you can try again.';
+  private publishContext (): void {
+    const rows = this.rows();
+    this.assistantBus.setPageContext( {
+      feature: 'documents',
+      page: 'general-document-upload',
+      route: this.router.url,
+      mode: 'create',
+      title: this.rfpMode ? 'Add an RFP' : 'Add files',
+      description: 'Upload files; TODD names and files each one, and reads RFPs into Opportunities.',
+      allowedActions: ['select_file', 'drop_file'],
+      selectedEntityType: 'document',
+      selectedEntityId: '',
+      summary: { isAuthenticated: !!this.signedIn(), fileCount: rows.length, uploading: rows.filter( ( r ) => r.state === 'uploading' ).length },
+      dataPreview: { files: rows.map( ( r ) => r.file.name ).join( ', ' ) },
+    } );
   }
 
-  isImageOrVideo ( file: File ): boolean {
-    const fileType = this.determineFileType( file );
-    return fileType === 'image' || fileType === 'video';
+  trackRow ( _index: number, row: UploadRow ): string {
+    return row.key;
   }
-
-  determineFileType ( file: File ): 'document' | 'image' | 'video' {
-    // Trust the browser-supplied MIME type first - it correctly covers
-    // formats an extension allowlist tends to miss (webp, heic, webm, m4v...).
-    // Extension sniffing is only a fallback for the rare case file.type is
-    // empty (some browsers omit it for certain drag-and-drop sources).
-    const mimeType = ( file.type || '' ).toLowerCase();
-    if ( mimeType.startsWith( 'image/' ) ) return 'image';
-    if ( mimeType.startsWith( 'video/' ) ) return 'video';
-
-    const fileExtension = file.name.split( '.' ).pop()?.toLowerCase();
-    if ( !fileExtension ) {
-      return 'document';
-    }
-    switch ( fileExtension ) {
-      case 'jpg':
-      case 'jpeg':
-      case 'png':
-      case 'gif':
-      case 'bmp':
-      case 'svg':
-      case 'webp':
-      case 'heic':
-      case 'heif':
-      case 'avif':
-        return 'image';
-      case 'mp4':
-      case 'mov':
-      case 'avi':
-      case 'mkv':
-      case 'flv':
-      case 'wmv':
-      case 'webm':
-      case 'm4v':
-        return 'video';
-      default:
-        return 'document';
-    }
-  }
-
 }
