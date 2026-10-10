@@ -33,6 +33,7 @@
     "@taliferro/ui": "file:../../taliferro-ui",
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",
+    "docx": "9.6.1",
     "firebase": "^12.18.0",
     "jszip": "3.10.1",
     "mammoth": "^1.9.0",

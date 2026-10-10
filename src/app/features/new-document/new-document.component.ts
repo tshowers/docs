@@ -95,7 +95,8 @@ export class NewDocumentComponent implements OnInit {
         this.excluded().knowledge ? [] : knowledge.map( ( k ) => k.id ),
         this.excluded().opportunity ? '' : opportunity?.id || '',
       ) );
-      void this.router.navigate( ['/docs/editor', result.documentId] );
+      // The tinted first draft (3a) rides along; the saved document is plain.
+      void this.router.navigate( ['/docs/editor', result.documentId], { state: { documentId: result.documentId, title: result.title, blocks: result.blocks, sources: result.sources } } );
     } catch ( error: any ) {
       this.writing.set( false );
       this.notifications.show( 'TODD couldn\'t write that', error?.error?.message || 'Try again in a moment.', 'warning' );

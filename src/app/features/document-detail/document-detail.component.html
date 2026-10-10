@@ -121,6 +121,20 @@
             </div>
           </section>
         }
+
+        @if (sources().length) {
+          <section>
+            <h2 class="dk-kicker doc-detail__kicker">Written from</h2>
+            <div class="doc-detail__sources">
+              @for (source of sources(); track source.kind) {
+                <div class="doc-detail__source">
+                  <span class="doc-detail__source-icon dk-tinted" [attr.data-tint]="sourceTint[source.kind].tint"><dk-icon [name]="sourceTint[source.kind].icon" [size]="15" /></span>
+                  <div><strong>{{ source.label }}</strong><span class="dk-muted">{{ source.detail }}</span></div>
+                </div>
+              }
+            </div>
+          </section>
+        }
       </aside>
     </div>
   } @else if (notFound()) {

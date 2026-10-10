@@ -13,6 +13,7 @@ import { DocService } from '../../services/doc.service';
 import { DocsNotificationService } from '../../services/docs-notification.service';
 import { DocumentsStoreService } from '../../services/documents-store.service';
 import { LoggerService } from '../../services/logger.service';
+import { SOURCE_TINT, normalizeSources } from '../../shared/studio-draft';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
 
@@ -71,6 +72,9 @@ export class DocumentDetailComponent implements OnInit {
   editForm = { title: '', topic: '', description: '', eligibleForSocial: false };
 
   readonly doc = computed<Document | null>( () => this.store.byId( this.id() ) || this.fetched() );
+  /** "Written from" (3a): what TODD drew on for a first draft from New. */
+  readonly sources = computed( () => normalizeSources( this.doc()?.sources ) );
+  readonly sourceTint = SOURCE_TINT;
   readonly info = computed( () => documentKindInfo( this.doc() ) );
   readonly surface = computed( () => documentSurface( this.doc() ) );
   readonly extension = computed( () => documentExtension( this.doc() ) );

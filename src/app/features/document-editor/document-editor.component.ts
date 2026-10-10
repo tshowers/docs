@@ -1,10 +1,11 @@
-import { Component, OnInit, HostListener, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { DocRichTextEditorComponent } from '../../shared/doc-rich-text-editor/doc-rich-text-editor.component';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { DocRichTextEditorComponent, EditorSelection } from '../../shared/doc-rich-text-editor/doc-rich-text-editor.component';
+import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
+import { DocSource, DraftBlock, SOURCE_TINT, hasText, normalizeSources, savedAgo, stripSourceTints, tintedDraftHtml } from '../../shared/studio-draft';
 import { Router } from '@angular/router';
-import { BackToTopComponent } from '../../shared/back-to-top/back-to-top.component';
 import { PreloaderComponent } from '../../shared/preloader/preloader.component';
 import { LoggerService } from '../../services/logger.service';
 import { Subscription } from 'rxjs';
@@ -18,7 +19,6 @@ import { DocService } from '../../services/doc.service';
 import { DocsOpenAiService } from '../../services/docs-open-ai.service';
 import { take } from 'rxjs/operators';
 
-import { ToddTipComponent } from '../../shared/todd-tip/todd-tip.component';
 import { DocsTipService } from '../../services/docs-tip.service';
 import { DocsNotificationService } from '../../services/docs-notification.service';
 import { SoundService } from '../../services/sound.service';
@@ -51,7 +51,7 @@ import { BrowseNoticeComponent } from '../../shared/write-access/browse-notice.c
 @Component( {
   selector: 'app-document-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, DocRichTextEditorComponent, ToddTipComponent, PreloaderComponent, BackToTopComponent, ClickSoundDirective, BrowseNoticeComponent],
+  imports: [CommonModule, FormsModule, RouterModule, DocRichTextEditorComponent, DkIconComponent, PreloaderComponent, ClickSoundDirective, BrowseNoticeComponent],
   templateUrl: './document-editor.component.html',
   styleUrls: ['./document-editor.component.css']
 } )
@@ -82,6 +82,54 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   toddPreview: string | null = null;
   isToddWorking: boolean = false;
   currentDocument: Document | null = null;
+
+  @ViewChild( DocRichTextEditorComponent ) private editor?: DocRichTextEditorComponent;
+
+  /** Studio presets (design 3b): run straight away on the selection or the whole page. */
+  readonly presets = [
+    { id: 'fix-grammar', label: 'Fix grammar', instruction: 'Fix spelling and grammar' },
+    { id: 'professional-tone', label: 'More professional', instruction: 'Rewrite to a more professional tone' },
+    { id: 'concise', label: 'Shorter', instruction: 'Rewrite to a more concise version' },
+    { id: 'expand', label: 'Expand', instruction: 'Expand with more detail and examples where helpful' },
+    { id: 'bulletize', label: 'Bullets', instruction: 'Convert to bullet points with clear sections' },
+    { id: 'summarize', label: 'Summarize', instruction: 'Summarize into an executive summary (5-7 bullets)' },
+  ];
+  readonly sourceTint = SOURCE_TINT;
+
+  /** "Written from" (3a), from New's compose or saved on the document. */
+  sources: DocSource[] = [];
+  /** The tinted first draft from New, until it's saved. */
+  firstDraft = false;
+  selection: EditorSelection | null = null;
+  lastPreset = '';
+  /** What TODD's revision replaces: the selected passage or the whole page. */
+  previewTarget: 'selection' | 'document' = 'document';
+  previewBefore = '';
+  /** Compose's tinted blocks, handed over by New in the navigation state. */
+  private readonly draftState: { documentId?: string; title?: string; blocks?: DraftBlock[]; sources?: DocSource[] } =
+    ( inject( Router ).getCurrentNavigation()?.extras?.state as any ) || {};
+
+  get isEmpty (): boolean {
+    return !hasText( this.htmlContent );
+  }
+
+  get isWordFile (): boolean {
+    return /\.docx$/i.test( this.currentDocument?.name || '' ) || this.currentDocument?.recordKind === 'upload';
+  }
+
+  /** The line under the title (3a-3c). */
+  get statusLine (): string {
+    if ( this.firstDraft ) return 'First draft by TODD · not saved yet';
+    if ( !this.docid ) return 'Not saved yet';
+    const saved = savedAgo( this.currentDocument?.updatedAt || this.currentDocument?.createdAt );
+    if ( this.isWordFile ) return [this.currentDocument?.name, 'opened from Word', saved].filter( Boolean ).join( ' · ' );
+    return saved ? saved.charAt( 0 ).toUpperCase() + saved.slice( 1 ) : 'Saved';
+  }
+
+  get selectionLabel (): string {
+    const n = this.selection?.paragraphs || 0;
+    return n ? `${ n } ${ n === 1 ? 'paragraph' : 'paragraphs' } selected` : '';
+  }
 
   /**
    * Viewing needs only a sign-in; creating, changing and deleting need the
@@ -292,6 +340,13 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
           this.documentName = doc.title || doc.name || 'Untitled';
           this.htmlContent = doc.htmlContent || '';
           this.downloadURL = doc.src || null;
+          this.sources = normalizeSources( doc.sources );
+          const draft = this.draftState;
+          if ( draft.documentId === doc.id && draft.blocks?.length ) {
+            this.sources = normalizeSources( draft.sources ).length ? normalizeSources( draft.sources ) : this.sources;
+            this.htmlContent = tintedDraftHtml( this.documentName, draft.blocks, this.sources );
+            this.firstDraft = true;
+          }
           this.logger.info( 'HTML CONTENT', this.htmlContent );
         }
         this.isProcessing = false;
@@ -374,14 +429,15 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
       // A real PDF (Letter, 1" margins, 11pt) - this used to save HTML with a
       // .pdf extension, which PDF readers can't open.
       const { buildProposalPdf } = await import( '../../shared/proposal-pdf' );
-      const { bytes } = await buildProposalPdf( this.htmlContent || '', { title } );
+      const { bytes } = await buildProposalPdf( stripSourceTints( this.htmlContent ), { title } );
       blob = new Blob( [bytes], { type: 'application/pdf' } );
     } else {
-      // Word opens HTML saved as .doc.
-      const htmlDoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title></head><body>${this.htmlContent}</body></html>`;
-      blob = new Blob( [htmlDoc], { type: 'application/msword' } );
+      // A real .docx (headings, lists, bold, italic, links) - this used to
+      // be HTML saved as .doc.
+      const { buildDocx } = await import( '../../shared/word-export' );
+      blob = await buildDocx( stripSourceTints( this.htmlContent ), { title } );
     }
-    const extension = format === 'doc' ? 'doc' : 'pdf';
+    const extension = format === 'doc' ? 'docx' : 'pdf';
     const url = URL.createObjectURL( blob );
 
     const link = document.createElement( 'a' );
@@ -396,7 +452,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   copyText (): void {
     try {
       const div = document.createElement( 'div' );
-      div.innerHTML = this.htmlContent || '';
+      div.innerHTML = stripSourceTints( this.htmlContent );
       const text = div.innerText || div.textContent || '';
       navigator.clipboard.writeText( text ).then( () => {
         this.notificationService.show( 'Copied', 'Document text copied to clipboard.', 'success' );
@@ -586,6 +642,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
         return;
       }
 
+      this.settleFirstDraft();
       const now = new Date().toISOString();
       const document: Document = {
         ...( this.currentDocument || {} ),
@@ -633,6 +690,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
         return;
       }
 
+      this.settleFirstDraft();
       const document: Document = {
         ...( this.currentDocument || {} ),
         id: this.docid,
@@ -676,11 +734,33 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
     this.publishPageContext();
   }
 
+  /** Tints go when the draft is first saved; the sources stay with the document. */
+  private settleFirstDraft (): void {
+    if ( !this.firstDraft && !this.htmlContent.includes( 'dk-src' ) ) return;
+    this.htmlContent = stripSourceTints( this.htmlContent );
+    this.firstDraft = false;
+  }
+
+  onSelectionChange ( selection: EditorSelection | null ): void {
+    this.selection = selection;
+  }
+
+  /** A preset fills the instruction and, when there's text, runs it. */
+  runPreset ( preset: { id: string; instruction: string } ): void {
+    this.setInstruction( preset.instruction );
+    this.lastPreset = preset.id;
+    if ( !this.isEmpty && this.canCrudDocuments && !this.isToddWorking ) this.runToddInstruction();
+  }
+
   runToddInstruction () {
     this.publishPageContext();
     if ( !this.instructionText.trim() ) return;
     this.isToddWorking = true;
-    const html = this.htmlContent || '';
+    const selected = this.editor?.selectionHtml() || '';
+    this.previewTarget = selected ? 'selection' : 'document';
+    this.previewBefore = selected ? ( this.selection?.text || '' ) : '';
+    if ( selected ) this.editor?.highlightSelection();
+    const html = stripSourceTints( selected || this.htmlContent );
 
     // Call OpenAI service to transform the current doc
     this.openaiService
@@ -717,8 +797,18 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
 
   applyToddPreview () {
     if ( !this.toddPreview ) return;
-    this.htmlContent = this.toddPreview;
+    if ( this.previewTarget === 'selection' ) {
+      if ( !this.editor?.replaceSelection( this.toddPreview ) ) {
+        this.notificationService.show( 'Selection lost', 'Select the passage again and ask TODD once more.', 'warning' );
+        return;
+      }
+    } else {
+      this.htmlContent = this.toddPreview;
+      this.firstDraft = false;
+    }
     this.toddPreview = null;
+    this.previewBefore = '';
+    this.lastPreset = '';
     this.instructionText = '';
     // Persist locally so a reload won’t lose changes
     this.persistLocalDraft();
@@ -726,8 +816,15 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
 
   }
 
+  retryToddPreview () {
+    this.toddPreview = null;
+    this.runToddInstruction();
+  }
+
   discardToddPreview () {
     this.toddPreview = null;
+    this.previewBefore = '';
+    this.editor?.clearHighlight();
     this.publishPageContext();
   }
 
