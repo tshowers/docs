@@ -1,4 +1,4 @@
-import { highlightParts } from './document-list.component';
+import { highlightParts } from './highlight';
 
 describe( 'highlightParts', () => {
   it( 'marks every case-insensitive match and keeps the original casing', () => {

@@ -1,0 +1,134 @@
+<div class="dk-page kd">
+  <nav class="dk-resultnav" aria-label="Results">
+    <button type="button" class="dk-resultnav__back" (click)="back()">
+      <span class="dk-circle"><dk-icon name="chevron-left" /></span>
+      <span><small>Back</small><strong>To {{ backLabel() }}</strong></span>
+    </button>
+    <span class="dk-resultnav__count">@if (position() >= 0) {<strong>{{ position() + 1 }} of {{ total() }}</strong>}</span>
+    <span class="dk-resultnav__steps">
+      <button type="button" class="dk-circle" (click)="step(-1)" [disabled]="position() <= 0" aria-label="Previous answer"><dk-icon name="chevron-left" /></button>
+      <button type="button" class="dk-circle" (click)="step(1)" [disabled]="position() < 0 || position() >= total() - 1" aria-label="Next answer"><dk-icon name="chevron-right" /></button>
+    </span>
+  </nav>
+
+  @if (item(); as it) {
+    <div class="kd__grid">
+      <article class="kd__main">
+        <div class="kd__tags">
+          @if (it.category) { <span class="dk-tag dk-tinted" data-tint="cyan">{{ it.category }}</span> }
+          @if (stale()) { <span class="dk-tag dk-tinted" data-tint="yellow">Still true?</span> }
+          @else if (confirmed()) { <span class="dk-tag dk-tinted" data-tint="green">Confirmed {{ confirmed() | date:'MMM d, y' }}</span> }
+          @if (it.type === 'bookmark') { <span class="dk-tag dk-tinted" data-tint="blue">via Find</span> }
+          @if (it.status === 'draft') { <span class="dk-tag dk-tinted" data-tint="yellow">Draft</span> }
+        </div>
+        <h1 class="kd__q">{{ it.question || 'Untitled question' }}</h1>
+
+        @if (it.answers.length || it.response || it.answer) {
+          <section class="kd__section">
+            <h2 class="dk-kicker">Evidence summary</h2>
+            <ol class="kd__answers">
+              @for (a of it.answers.length ? it.answers : [{ answer: it.response || it.answer || '' }]; track $index) {
+                <li class="kd__answer">
+                  <span class="kd__num">{{ $index + 1 }}</span>
+                  <div>
+                    <p>{{ a.answer }}</p>
+                    @if (a.source) {
+                      <div class="kd__cite">
+                        <span class="kd__chip"><dk-icon name="book" [size]="13" />{{ domainOf(a.source) }}</span>
+                        <a class="dk-muted" [href]="a.source" target="_blank" rel="noopener">{{ shortLink(a.source) }}</a>
+                        <button type="button" class="kd__link" (click)="copyCitation(a)">Copy citation</button>
+                      </div>
+                    }
+                    @if (a.document?.src) {
+                      <div class="kd__cite">
+                        <span class="kd__chip"><dk-icon name="file" [size]="13" />{{ a.document?.name || 'Document' }}</span>
+                        @if (a.document?.type) { <span class="dk-muted">{{ a.document?.type | titlecase }}</span> }
+                        <a class="kd__link" [href]="a.document?.src" target="_blank" rel="noopener">Open</a>
+                      </div>
+                    }
+                  </div>
+                </li>
+              }
+            </ol>
+          </section>
+        }
+
+        @if (it.recommendations.length) {
+          <section class="kd__section">
+            <h2 class="dk-kicker">Recommendations</h2>
+            <ul class="kd__recs">
+              @for (r of it.recommendations; track $index) {
+                <li>
+                  <span class="dk-tag dk-tinted" [attr.data-tint]="recommendationTint(r.type)">{{ r.type || 'Other' }}</span>
+                  <div>
+                    <strong>{{ r.text }}</strong>
+                    @if (r.link) { <a [href]="r.link" target="_blank" rel="noopener">{{ shortLink(r.link) }}</a> }
+                    @if (r.document?.src) { <a [href]="r.document?.src" target="_blank" rel="noopener">{{ r.document?.name }}</a> }
+                  </div>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        @if (it.resources.length || it.keywords.length) {
+          <div class="kd__pair">
+            @if (it.resources.length) {
+              <section>
+                <h2 class="dk-kicker">Resources</h2>
+                <ul class="kd__resources">
+                  @for (res of it.resources; track $index) {
+                    <li>
+                      <span class="kd__initial">{{ initial(res.link) }}</span>
+                      <div><a [href]="res.link" target="_blank" rel="noopener"><strong>{{ domainOf(res.link) }}</strong></a><small class="dk-muted">{{ shortLink(res.link) }}</small></div>
+                    </li>
+                  }
+                </ul>
+              </section>
+            }
+            @if (it.keywords.length) {
+              <section>
+                <h2 class="dk-kicker">Keywords</h2>
+                <div class="kd__keywords">@for (k of it.keywords; track k) { <span>{{ k }}</span> }</div>
+              </section>
+            }
+          </div>
+        }
+      </article>
+
+      <aside class="kd__side">
+        <div class="kd__actions dk-sticky-actions">
+          <button type="button" class="dk-btn dk-btn--primary" (click)="edit()" appWriteAction="edit this answer"><dk-icon name="pen" />Edit</button>
+          <button type="button" class="dk-btn" (click)="sendToMaya()" appWriteAction="send this to Maya">Send to Maya for a post</button>
+          <div class="kd__more">
+            <button type="button" class="dk-btn dk-btn--icon" (click)="moreOpen.set(!moreOpen())" [attr.aria-expanded]="moreOpen()" aria-label="More actions"><dk-icon name="more" /></button>
+            @if (moreOpen()) {
+              <div class="kd__menu" role="menu">
+                <button type="button" role="menuitem" class="is-danger" (click)="remove()" appWriteAction="delete this answer"><dk-icon name="trash" />Delete</button>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="dk-todd">
+          <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Where this came from</div>
+          <p>
+            @if (it.type === 'bookmark') { You saved this from Find@if (added()) { on {{ added() | date:'MMM d, y' }}}. }
+            @else if (added()) { Added to Knowledge on {{ added() | date:'MMM d, y' }}. }
+            @if (confirmed() && (!added() || confirmed()!.getTime() - added()!.getTime() > 86400000)) { Last confirmed {{ confirmed() | date:'MMM d, y' }}. }
+            @if (stale()) { It's over a year old, so check it's still true before it goes in a proposal. }
+            @else if (nextCheck()) { I'll flag it for a check on {{ nextCheck() | date:'MMM d, y' }}. }
+          </p>
+        </div>
+      </aside>
+    </div>
+  } @else if (notFound()) {
+    <div class="dk-empty">
+      <h2>That answer isn't here</h2>
+      <p>{{ signedIn() ? 'It may have been deleted.' : 'Sign in to see your workspace’s answers.' }}</p>
+      <button type="button" class="dk-btn dk-btn--bg" (click)="back()">Back to Knowledge</button>
+    </div>
+  } @else {
+    <div class="kd__skeleton" aria-busy="true"></div>
+  }
+</div>

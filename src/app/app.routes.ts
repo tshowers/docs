@@ -150,6 +150,12 @@ export const routes: Routes = [
       import( './features/repository/repository.component' ).then( ( m ) => m.RepositoryComponent ),
   },
   {
+    path: 'knowledge/:id',
+    data: { pageTitle: 'Answer' },
+    loadComponent: () =>
+      import( './features/knowledge-detail/knowledge-detail.component' ).then( ( m ) => m.KnowledgeDetailComponent ),
+  },
+  {
     // Pre-sign-in wizard: write a first Q&A answer, then name + company,
     // then sign in (web twin of docs-ios's OnboardingWizardView). /login
     // stays a direct handoff for returning users and deep links.
