@@ -366,13 +366,22 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
     this.publishPageContext();
   }
 
-  exportTo ( format: 'pdf' | 'doc' ) {
+  async exportTo ( format: 'pdf' | 'doc' ) {
     const title = this.documentName?.trim() || 'document';
     const sanitizedTitle = title.replace( /[^a-zA-Z0-9-_ ]/g, '' ).replace( /\s+/g, '_' );
-    const htmlDoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title></head><body>${this.htmlContent}</body></html>`;
-    const mimeType = format === 'doc' ? 'application/msword' : 'application/pdf';
+    let blob: Blob;
+    if ( format === 'pdf' ) {
+      // A real PDF (Letter, 1" margins, 11pt) - this used to save HTML with a
+      // .pdf extension, which PDF readers can't open.
+      const { buildProposalPdf } = await import( '../../shared/proposal-pdf' );
+      const { bytes } = await buildProposalPdf( this.htmlContent || '', { title } );
+      blob = new Blob( [bytes], { type: 'application/pdf' } );
+    } else {
+      // Word opens HTML saved as .doc.
+      const htmlDoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title></head><body>${this.htmlContent}</body></html>`;
+      blob = new Blob( [htmlDoc], { type: 'application/msword' } );
+    }
     const extension = format === 'doc' ? 'doc' : 'pdf';
-    const blob = new Blob( [htmlDoc], { type: mimeType } );
     const url = URL.createObjectURL( blob );
 
     const link = document.createElement( 'a' );
