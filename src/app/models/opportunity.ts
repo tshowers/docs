@@ -153,4 +153,6 @@ export interface ProposalDraft {
   checklist: ProposalCheck[];
   pages: number;
   updatedAt: string;
+  /** The document was edited in the editor, so TODD no longer writes into it. */
+  documentEdited?: boolean;
 }

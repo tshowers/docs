@@ -49,6 +49,9 @@
           </nav>
 
           <main class="pe__paper-wrap">
+            @if (d.documentEdited) {
+              <p class="pe__edited">You've edited this proposal in the editor, so TODD won't write over it. Answers you give here still go to Knowledge; copy any new text across in the editor.</p>
+            }
             <article class="pe__paper">
               @for (s of d.sections; track s.key) {
                 <section class="pe__part" [id]="'section-' + s.key">
