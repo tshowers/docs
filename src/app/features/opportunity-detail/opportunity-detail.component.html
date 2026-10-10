@@ -68,7 +68,7 @@
               <span class="dk-muted">{{ dueLabel(o) }}</span>
             </div>
             @if (o.proposalDocumentId) {
-              <a class="dk-btn dk-btn--primary dk-btn--lg od__wide" [routerLink]="['/docs/editor', o.proposalDocumentId]"><dk-icon name="pen" />Open the proposal</a>
+              <a class="dk-btn dk-btn--primary dk-btn--lg od__wide" [routerLink]="['/opportunities', o.id, 'proposal']"><dk-icon name="pen" />Open the proposal</a>
             }
             <div class="od__pair">
               <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>

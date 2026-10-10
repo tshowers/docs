@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { KnowledgeAnswer, KnowledgeItem, domainOf, isStale, normalizeKnowledge, recommendationTint, shortLink } from '../../models/knowledge';
 import { DocsNotificationService } from '../../services/docs-notification.service';
+import { DocumentsStoreService } from '../../services/documents-store.service';
 import { KnowledgeStoreService } from '../../services/knowledge-store.service';
 import { LoggerService } from '../../services/logger.service';
 import { ResponseFlowService } from '../../services/response-flow.service';
@@ -37,6 +38,7 @@ export class KnowledgeDetailComponent implements OnInit {
   private readonly route = inject( ActivatedRoute );
   private readonly router = inject( Router );
   private readonly store = inject( KnowledgeStoreService );
+  private readonly docs = inject( DocumentsStoreService );
   private readonly api = inject( ResponseFlowService );
   private readonly notifications = inject( DocsNotificationService );
   private readonly logger = inject( LoggerService );
@@ -69,6 +71,14 @@ export class KnowledgeDetailComponent implements OnInit {
     return confirmed ? new Date( confirmed.getFullYear() + 1, confirmed.getMonth(), confirmed.getDate() ) : null;
   } );
 
+  /** The proposals that used this answer, as far as Documents knows them. */
+  readonly usedIn = computed( () => ( this.item()?.usedInProposals || [] ).map( ( id ) => {
+    const doc = this.docs.byId( id );
+    const status = String( doc?.status || 'draft' ).toLowerCase();
+    const tint = status === 'won' ? 'green' : status === 'lost' ? 'pink' : status === 'submitted' ? 'blue' : 'yellow';
+    return { id, title: String( doc?.title || doc?.name || 'Proposal' ).replace( /^Proposal · /, '' ), status: status.charAt( 0 ).toUpperCase() + status.slice( 1 ), tint };
+  } ) );
+
   readonly resultSet = this.store.resultSet;
   readonly position = computed( () => this.resultSet()?.ids.indexOf( this.id() ) ?? -1 );
   readonly total = computed( () => this.resultSet()?.ids.length || 0 );
@@ -84,6 +94,7 @@ export class KnowledgeDetailComponent implements OnInit {
       this.moreOpen.set( false );
       this.notFound.set( false );
       this.fetched.set( null );
+      this.docs.load().pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe();
       this.store.load().pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( () => {
         if ( this.store.byId( this.id() ) ) return;
         if ( !this.store.signedIn() ) {

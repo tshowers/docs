@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { DocsInbox, FIT_THRESHOLD, Opportunity, OpportunityStatus, isOpen } from '../models/opportunity';
+import { DocsInbox, FIT_THRESHOLD, Opportunity, OpportunityStatus, ProposalDraft, isOpen } from '../models/opportunity';
 import { DocService } from './doc.service';
 
 interface Envelope<T> { success: boolean; data: T; message?: string; }
@@ -88,6 +88,24 @@ export class OpportunitiesService {
     const list = this.opportunities();
     const index = list.findIndex( ( o ) => o.id === item.id );
     this.opportunities.set( index >= 0 ? list.map( ( o ) => o.id === item.id ? item : o ) : [item, ...list] );
+  }
+
+  // ── Proposal editor ────────────────────────────────────────────
+  /** The draft, or null before TODD has planned it. */
+  getProposal ( opportunityId: string ): Observable<ProposalDraft | null> {
+    return this.http.get<Envelope<ProposalDraft | null>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal` ).pipe( map( ( r ) => r.data || null ) );
+  }
+
+  planProposal ( opportunityId: string, force = false ): Observable<ProposalDraft> {
+    return this.http.post<Envelope<ProposalDraft>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/plan`, { force } ).pipe( map( ( r ) => r.data ) );
+  }
+
+  draftSection ( opportunityId: string, sectionKey: string ): Observable<ProposalDraft> {
+    return this.http.post<Envelope<ProposalDraft>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/sections/${ encodeURIComponent( sectionKey ) }/draft`, {} ).pipe( map( ( r ) => r.data ) );
+  }
+
+  answerQuestion ( opportunityId: string, questionId: string, body: { answer?: string; saveToKnowledge?: boolean; skip?: boolean } ): Observable<{ draft: ProposalDraft; knowledge: { saved: boolean; id?: string; reason?: string } }> {
+    return this.http.post<Envelope<{ draft: ProposalDraft; knowledge: { saved: boolean; id?: string; reason?: string } }>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/questions/${ encodeURIComponent( questionId ) }`, body ).pipe( map( ( r ) => r.data ) );
   }
 
   // ── Inboxes ────────────────────────────────────────────────────

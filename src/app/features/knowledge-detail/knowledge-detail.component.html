@@ -110,10 +110,20 @@
           </div>
         </div>
 
+        @if (usedIn().length) {
+          <section class="kd__used">
+            <h2>Used in {{ usedIn().length }} {{ usedIn().length === 1 ? 'proposal' : 'proposals' }}</h2>
+            @for (p of usedIn(); track p.id) {
+              <a class="kd__usedrow" [routerLink]="['/documents', p.id]"><strong>{{ p.title }}</strong><span class="dk-tag dk-tinted" [attr.data-tint]="p.tint">{{ p.status }}</span></a>
+            }
+          </section>
+        }
+
         <div class="dk-todd">
           <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Where this came from</div>
           <p>
-            @if (it.type === 'bookmark') { You saved this from Find@if (added()) { on {{ added() | date:'MMM d, y' }}}. }
+            @if (it.origin?.proposalTitle) { I asked this while you drafted the {{ it.origin?.agency ? it.origin?.agency + ' ' : '' }}{{ it.origin?.proposalTitle }} proposal@if (added()) { on {{ added() | date:'MMM d, y' }}}. }
+            @else if (it.type === 'bookmark') { You saved this from Find@if (added()) { on {{ added() | date:'MMM d, y' }}}. }
             @else if (added()) { Added to Knowledge on {{ added() | date:'MMM d, y' }}. }
             @if (confirmed() && (!added() || confirmed()!.getTime() - added()!.getTime() > 86400000)) { Last confirmed {{ confirmed() | date:'MMM d, y' }}. }
             @if (stale()) { It's over a year old, so check it's still true before it goes in a proposal. }

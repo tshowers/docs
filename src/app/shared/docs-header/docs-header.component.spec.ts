@@ -16,6 +16,7 @@ describe( 'docsTabForUrl', () => {
     expect( docsTabForUrl( '/about' ) ).toBe( 'about' );
     expect( docsTabForUrl( '/help' ) ).toBe( 'help' );
     expect( docsTabForUrl( '/profile' ) ).toBeNull();
+    expect( docsTabForUrl( '/new' ) ).toBeNull();
     expect( docsTabForUrl( '/docs/documents-old' ) ).toBeNull();
   } );
 } );

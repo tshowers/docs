@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, PLAT
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
-import { freshnessLabel, isStale, knowledgeMatches, knowledgeTag, primaryAnswer } from '../../models/knowledge';
+import { freshnessLabel, isStale, knowledgeMatches, knowledgeTag, primaryAnswer, usedInLabel } from '../../models/knowledge';
 import { DocsAssistantSignalService } from '../../services/docs-assistant-signal.service';
 import { DocsPageActionsService } from '../../services/docs-page-actions.service';
 import { KnowledgeStoreService } from '../../services/knowledge-store.service';
@@ -67,7 +67,7 @@ export class RepositoryComponent implements OnInit, OnDestroy {
     question: highlightParts( item.question || 'Untitled question', this.query() ),
     answer: primaryAnswer( item ),
     tag: knowledgeTag( item ),
-    freshness: freshnessLabel( item ),
+    freshness: [usedInLabel( item ), freshnessLabel( item )].filter( Boolean ).join( ' · ' ),
   } ) ) );
 
   /** TODD's line above the grid. */

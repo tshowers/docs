@@ -94,6 +94,12 @@ button.kd__link {
 .kd__keywords { display: flex; flex-wrap: wrap; gap: 8px; }
 .kd__keywords span { padding: 7px 12px; border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 700; }
 
+.kd__used { display: grid; gap: 8px; padding: 18px; border-radius: 24px; background: var(--surface); }
+.kd__used h2 { margin-bottom: 4px !important; font-size: 15px; font-weight: 700; }
+.kd__usedrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--bg); font-size: 13px; }
+.kd__usedrow strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kd__usedrow:hover { background: var(--surface2); }
+
 .kd__side { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 16px; }
 .kd__actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .kd__more { position: relative; }

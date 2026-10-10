@@ -104,3 +104,53 @@ export const PROPOSAL_STATUS_LABEL: Record<OpportunityStatus, { label: string; t
   lost: { label: 'Lost', tint: 'pink' },
   dismissed: { label: 'Not for us', tint: 'grey' },
 };
+
+/** The proposal editor's draft (todd-backend docs/proposals/proposalDraft.model.js). */
+export interface ProposalBlock {
+  type: 'heading' | 'paragraph' | 'knowledge' | 'waiting';
+  text: string;
+  knowledgeId?: string;
+  knowledgeTitle?: string;
+  questionId?: string;
+}
+
+export interface ProposalSection {
+  key: string;
+  title: string;
+  ask: string;
+  criteria: string[];
+  status: 'pending' | 'drafting' | 'done' | 'waiting';
+  blocks: ProposalBlock[];
+  needsRedraft?: boolean;
+}
+
+export interface ProposalQuestion {
+  id: string;
+  sectionKey: string;
+  question: string;
+  why: string;
+  status: 'open' | 'answered' | 'skipped';
+  answer: string;
+  knowledgeId: string;
+}
+
+export interface ProposalCheck {
+  id: string;
+  kind: string;
+  label: string;
+  detail: string;
+  ok: boolean;
+  status: string;
+  documentId?: string;
+}
+
+export interface ProposalDraft {
+  opportunityId: string;
+  proposalDocumentId: string;
+  hasRfpFile: boolean;
+  sections: ProposalSection[];
+  questions: ProposalQuestion[];
+  checklist: ProposalCheck[];
+  pages: number;
+  updatedAt: string;
+}

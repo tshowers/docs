@@ -33,6 +33,10 @@ export interface KnowledgeItem {
   resources: { link: string }[];
   relatedDocumentIds?: string[];
   summary?: string;
+  /** Set when TODD asked this while drafting a proposal. */
+  origin?: { kind: string; opportunityId?: string; proposalDocumentId?: string; proposalTitle?: string; agency?: string; askedAt?: string } | null;
+  /** Proposal documents that used this answer. */
+  usedInProposals?: string[];
   createdAt?: string | null;
   updatedAt?: string | null;
 }
@@ -77,11 +81,17 @@ export function freshnessLabel ( item: Partial<KnowledgeItem>, now = new Date() 
   return `Confirmed ${ confirmed.toLocaleDateString( 'en-US', { month: 'short', year: 'numeric' } ) }`;
 }
 
+/** "Used in 3 proposals", or '' when none have. */
+export function usedInLabel ( item: Partial<KnowledgeItem> ): string {
+  const n = ( item.usedInProposals || [] ).length;
+  return n ? `Used in ${ n } ${ n === 1 ? 'proposal' : 'proposals' }` : '';
+}
+
 /** The small tag on a card: New, Still true?, Draft, or via Find. */
 export function knowledgeTag ( item: Partial<KnowledgeItem>, now = new Date() ): { label: string; tint: string } | null {
   if ( item.status === 'draft' ) return { label: 'Draft', tint: 'yellow' };
   if ( isStale( item, now ) ) return { label: 'Still true?', tint: 'yellow' };
-  if ( isNew( item, now ) ) return { label: 'New', tint: 'blue' };
+  if ( isNew( item, now ) ) return { label: item.origin?.proposalTitle ? `New · from the ${ item.origin.agency || item.origin.proposalTitle } draft` : 'New', tint: 'blue' };
   if ( item.type === 'bookmark' ) return { label: 'via Find', tint: 'cyan' };
   return null;
 }
@@ -123,5 +133,6 @@ export function normalizeKnowledge ( raw: any ): KnowledgeItem {
     keywords: Array.isArray( raw?.keywords ) ? raw.keywords : [],
     recommendations: Array.isArray( raw?.recommendations ) ? raw.recommendations : [],
     resources: Array.isArray( raw?.resources ) ? raw.resources.filter( ( r: any ) => r?.link ) : [],
+    usedInProposals: Array.isArray( raw?.usedInProposals ) ? raw.usedInProposals : [],
   };
 }

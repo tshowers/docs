@@ -1,0 +1,40 @@
+<div class="dk-page nd">
+  <h1 class="nd__title">What are you writing?</h1>
+
+  <form class="nd__ask" (submit)="$event.preventDefault(); start()">
+    <dk-icon name="pen" [size]="20" />
+    <input #briefInput name="brief" [value]="brief()" (input)="brief.set($any($event.target).value)" placeholder="A capability statement for the Port of Seattle…" aria-label="What are you writing?" [disabled]="writing()" autocomplete="off" />
+    <button type="submit" class="dk-btn dk-btn--primary dk-btn--lg" [disabled]="!brief().trim() || writing() || !signedIn()" appWriteAction="write a document">{{ writing() ? 'Writing…' : 'Start' }}</button>
+  </form>
+
+  @if (brief().trim() && signedIn()) {
+    <section class="nd__sources">
+      <p class="nd__from"><img src="assets/avatar-todd-sm.png" alt="" />{{ writing() ? 'Writing it now from' : 'I’ll write it from' }}</p>
+      <div class="nd__chips">
+        <span class="nd__chip dk-tinted" data-tint="blue"><dk-icon name="check" [size]="13" />Your profile</span>
+        @if (sources().knowledge.length) {
+          <button type="button" class="nd__chip dk-tinted" data-tint="cyan" [class.is-off]="excluded().knowledge" (click)="toggle('knowledge')" [attr.aria-pressed]="!excluded().knowledge">
+            <dk-icon [name]="excluded().knowledge ? 'x' : 'check'" [size]="13" />{{ sources().knowledge.length }} Knowledge {{ sources().knowledge.length === 1 ? 'answer' : 'answers' }}
+          </button>
+        }
+        @if (sources().opportunity; as o) {
+          <button type="button" class="nd__chip dk-tinted" data-tint="violet" [class.is-off]="excluded().opportunity" (click)="toggle('opportunity')" [attr.aria-pressed]="!excluded().opportunity">
+            <dk-icon [name]="excluded().opportunity ? 'x' : 'check'" [size]="13" />{{ o.agency || o.title }} RFP
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  @if (signedIn() === false) {
+    <p class="dk-muted nd__signin"><a routerLink="/login">Sign in</a> and TODD writes from your profile and Knowledge.</p>
+  }
+
+  <p class="dk-kicker nd__or">Or start from</p>
+  <div class="nd__tiles">
+    <button type="button" class="nd__tile dk-tinted" data-tint="violet" (click)="startFrom('rfp')"><dk-icon name="file" [size]="20" /><strong>Answer an RFP</strong><span>Pick an opportunity and TODD drafts it</span></button>
+    <button type="button" class="nd__tile dk-tinted" data-tint="blue" (click)="startFrom('cover')"><dk-icon name="pen" [size]="20" /><strong>Cover letter</strong><span>One page, from your profile</span></button>
+    <button type="button" class="nd__tile dk-tinted" data-tint="green" (click)="startFrom('word')"><dk-icon name="upload" [size]="20" /><strong>Edit a Word file</strong><span>Open a .docx and keep its formatting</span></button>
+    <button type="button" class="nd__tile dk-tinted" data-tint="yellow" (click)="startFrom('blank')"><dk-icon name="file" [size]="20" /><strong>Blank document</strong><span>Just you and the page</span></button>
+  </div>
+</div>

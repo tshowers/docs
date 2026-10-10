@@ -68,7 +68,7 @@
       <h2 class="dk-kicker">Your proposals</h2>
       <div class="opp-proposals__grid">
         @for (p of proposals(); track p.id) {
-          <a class="opp-row" [routerLink]="['/opportunities', p.id]">
+          <a class="opp-row" [routerLink]="p.status === 'drafting' ? ['/opportunities', p.id, 'proposal'] : ['/opportunities', p.id]">
             <div>
               <strong>{{ p.agency ? p.agency + ' · ' : '' }}{{ p.title }}</strong>
               <small class="dk-muted">{{ dueLabel(p) || 'No due date' }}</small>

@@ -37,7 +37,9 @@
             }
           </div>
         </div>
-        @if (row.state === 'opportunity' && row.score !== null) {
+        @if (row.state === 'opportunity' && attachTo) {
+          <button type="button" class="up__chip" (click)="open(row)"><dk-icon name="file" [size]="14" />Proposal</button>
+        } @else if (row.state === 'opportunity' && row.score !== null) {
           <button type="button" class="up__chip" (click)="open(row)"><span class="up__score dk-tinted" [attr.data-tint]="fitTint(row.score)">{{ row.score }}</span>Opportunities</button>
         } @else if (row.documentId) {
           <button type="button" class="up__chip" (click)="open(row)"><dk-icon name="folder" [size]="14" />{{ row.folder }}</button>
@@ -46,7 +48,9 @@
     }
   </div>
 
-  @if (rows().length && !rfpMode) {
+  @if (rows().length && attachTo) {
+    <p class="up__done"><a class="dk-btn dk-btn--primary" [routerLink]="['/opportunities', attachTo, 'proposal']">Back to the proposal</a></p>
+  } @else if (rows().length && !rfpMode) {
     <p class="up__done"><a class="dk-btn dk-btn--bg" routerLink="/documents">Go to Documents</a></p>
   } @else if (rows().length) {
     <p class="up__done"><a class="dk-btn dk-btn--bg" routerLink="/opportunities">Back to Opportunities</a></p>

@@ -43,7 +43,7 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
   if ( /^\/upload\?(.*&)?rfp=1(&|#|$)/.test( url || '' ) ) return 'opportunities';
   if ( path === '/docs' || path === '/docs/' ) return 'home';
   if ( /^\/(opportunities|docs\/(rfp-list|rfp-upload|proposal-history))(\/|$)/.test( path ) ) return 'opportunities';
-  if ( /^\/(documents|upload|new|docs\/(documents|upload|editor))(\/|$)/.test( path ) ) return 'documents';
+  if ( /^\/(documents|upload|docs\/(documents|upload|editor))(\/|$)/.test( path ) ) return 'documents';
   if ( /^\/knowledge(\/|$)/.test( path ) ) return 'knowledge';
   if ( path === '/' || /^\/about(\/|$)/.test( path ) ) return 'about';
   if ( /^\/help(\/|$)/.test( path ) ) return 'help';

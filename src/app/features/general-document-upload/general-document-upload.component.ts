@@ -85,6 +85,8 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   readonly signedIn = signal<boolean | null>( null );
   /** Opened from "Add an RFP": every file is read as an RFP. */
   readonly rfpMode = this.route.snapshot.queryParamMap.get( 'rfp' ) === '1';
+  /** "Attach the RFP" from the proposal editor: the file is that opportunity's RFP. */
+  readonly attachTo = this.route.snapshot.queryParamMap.get( 'opportunity' ) || '';
 
   private tenantId = '';
   private userId = '';
@@ -233,7 +235,8 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
       const created = await new Promise<Document>( ( resolve, reject ) => this.docService.createDocument( payload ).subscribe( { next: resolve, error: reject } ) );
       this.patch( key, { state: 'saved', documentId: String( created?.id || '' ), note: `Filed under ${ row.folder }.` } );
       this.docsStore.loaded.set( false );
-      if ( this.rfpMode || looksLikeRfp( row.file.name ) ) await this.readAsRfp( key );
+      if ( this.attachTo ) await this.attachToOpportunity( key );
+      else if ( this.rfpMode || looksLikeRfp( row.file.name ) ) await this.readAsRfp( key );
     } catch ( error ) {
       this.logger.error( 'Upload failed', row.file.name, error );
       this.patch( key, { state: 'error', note: this.failureMessage( error ) } );
@@ -268,6 +271,18 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Links the uploaded file as the opportunity's RFP, so TODD can draft from the real document. */
+  private async attachToOpportunity ( key: string ): Promise<void> {
+    const row = this.row( key );
+    if ( !row?.documentId ) return;
+    try {
+      await new Promise( ( resolve, reject ) => this.opportunities.update( this.attachTo, { rfpDocumentId: row.documentId } ).subscribe( { next: resolve, error: reject } ) );
+      this.patch( key, { state: 'opportunity', opportunityId: this.attachTo, folder: 'Opportunities', tint: 'violet', note: 'Attached as the RFP. TODD can redraft the proposal from it.' } );
+    } catch {
+      this.patch( key, { note: `It's filed under ${ row.folder }, but TODD couldn't attach it to the proposal. Try again.` } );
+    }
+  }
+
   toggleSocial ( key: string ): void {
     const row = this.row( key );
     if ( !row?.documentId ) return;
@@ -279,7 +294,8 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   }
 
   open ( row: UploadRow ): void {
-    if ( row.opportunityId ) void this.router.navigate( ['/opportunities', row.opportunityId] );
+    if ( row.opportunityId && this.attachTo ) void this.router.navigate( ['/opportunities', row.opportunityId, 'proposal'] );
+    else if ( row.opportunityId ) void this.router.navigate( ['/opportunities', row.opportunityId] );
     else if ( row.documentId ) void this.router.navigate( ['/documents', row.documentId] );
   }
 

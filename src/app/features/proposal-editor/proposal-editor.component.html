@@ -1,0 +1,130 @@
+<div class="pe">
+  <header class="pe__bar">
+    <a class="dk-circle pe__back" [routerLink]="['/opportunities', opportunityId()]" aria-label="Back to the opportunity"><dk-icon name="chevron-left" /></a>
+    <div class="pe__heading">
+      <h1>Proposal · {{ opportunity()?.title || '…' }}</h1>
+      <p class="dk-muted">{{ subtitle() }}</p>
+    </div>
+    @if (draft()?.proposalDocumentId) {
+      <a class="dk-btn" [routerLink]="['/docs/editor', draft()!.proposalDocumentId]"><dk-icon name="pen" />Edit in editor</a>
+    }
+  </header>
+
+  @switch (phase()) {
+    @case ('loading') { <div class="pe__state" aria-busy="true"><div class="pe__pulse"></div></div> }
+    @case ('planning') {
+      <div class="pe__state">
+        <div class="dk-todd pe__planning">
+          <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Reading the RFP</div>
+          <p>I'm working out the sections it asks for, what it will score, and what I'll need to ask you. This takes about a minute.</p>
+        </div>
+      </div>
+    }
+    @case ('error') {
+      <div class="dk-empty">
+        <h2>The proposal didn't open</h2>
+        <p>{{ errorMessage() }}</p>
+        <button type="button" class="dk-btn dk-btn--bg" (click)="retry()">Try again</button>
+      </div>
+    }
+    @case ('ready') {
+      @if (draft(); as d) {
+        <div class="pe__grid">
+          <nav class="pe__sections" aria-label="Sections">
+            @for (s of d.sections; track s.key) {
+              <button type="button" class="pe__section" [class.is-active]="currentKey() === s.key" (click)="goTo(s.key)">
+                <span class="pe__dot" [ngClass]="dotFor(s)"></span>{{ s.title }}
+              </button>
+            }
+            @if (!d.hasRfpFile) {
+              <div class="pe__hint">
+                <p>TODD only had the alert to go on.</p>
+                @if (opportunity()?.rfpDocumentId) {
+                  <button type="button" class="dk-btn dk-btn--sm" (click)="replan()" appWriteAction="replan this proposal">Redraft from the RFP</button>
+                } @else {
+                  <a class="dk-btn dk-btn--sm" [routerLink]="['/upload']" [queryParams]="{ rfp: 1, opportunity: opportunityId() }">Attach the RFP</a>
+                }
+              </div>
+            }
+          </nav>
+
+          <main class="pe__paper-wrap">
+            <article class="pe__paper">
+              @for (s of d.sections; track s.key) {
+                <section class="pe__part" [id]="'section-' + s.key">
+                  <h2>{{ s.title }}</h2>
+                  @if (!s.blocks.length) {
+                    @if (failedKeys().includes(s.key)) {
+                      <p class="pe__failed">TODD couldn't write this section. <button type="button" class="pe__link" (click)="retrySection(s.key)">Try again</button></p>
+                    } @else {
+                      <p class="dk-muted">{{ draftingKey() === s.key ? 'Drafting…' : 'Waiting to be drafted…' }}</p>
+                    }
+                  } @else {
+                    @for (b of s.blocks; track $index) {
+                      @switch (b.type) {
+                        @case ('heading') { <h3>{{ b.text }}</h3> }
+                        @case ('knowledge') {
+                          <div class="pe__from">
+                            <span class="dk-kicker">From Knowledge · {{ b.knowledgeTitle }}</span>
+                            <p>{{ b.text }}</p>
+                          </div>
+                        }
+                        @case ('waiting') {
+                          <div class="pe__waiting">
+                            <span class="dk-kicker">Waiting on your answer</span>
+                            <p>{{ b.text }}</p>
+                          </div>
+                        }
+                        @default { <p class="pe__p">{{ b.text }}</p> }
+                      }
+                    }
+                    @if (s.needsRedraft) { <p class="dk-muted pe__redraft">{{ draftingKey() === s.key ? 'Adding your answer…' : 'Your answer goes in next.' }}</p> }
+                  }
+                </section>
+              }
+            </article>
+          </main>
+
+          <aside class="pe__side">
+            @if (question(); as q) {
+              <section class="pe__ask">
+                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD · question {{ questionNumber().n }} of {{ questionNumber().of }}</div>
+                <h2>{{ q.question }}</h2>
+                @if (q.why) { <p class="dk-muted pe__why">{{ q.why }}</p> }
+                <textarea [(ngModel)]="answer" rows="5" placeholder="Answer in your own words…" aria-label="Your answer" [disabled]="answering()"></textarea>
+                <label class="pe__save"><input type="checkbox" [(ngModel)]="saveToKnowledge" [disabled]="answering()" />Save to Knowledge for next time</label>
+                <div class="pe__ask-actions">
+                  <button type="button" class="dk-btn dk-btn--primary" (click)="submitAnswer()" [disabled]="answering() || !answer.trim()" appWriteAction="answer TODD">{{ answering() ? 'Saving…' : 'Use this answer' }}</button>
+                  <button type="button" class="dk-btn dk-btn--bg" (click)="submitAnswer(true)" [disabled]="answering()">Skip</button>
+                </div>
+              </section>
+            } @else if (d.questions.length) {
+              <section class="pe__ask pe__ask--done">
+                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />That's everything</div>
+                <p>You've answered all {{ d.questions.length }} of TODD's questions.</p>
+              </section>
+            }
+
+            @if (d.checklist.length) {
+              <section class="pe__checks">
+                <header><h2>RFP checklist</h2><span class="dk-muted">{{ checklistOk() }} of {{ d.checklist.length }}</span></header>
+                <ul>
+                  @for (c of d.checklist; track c.id) {
+                    <li>
+                      <span class="pe__check" [class.is-ok]="c.ok"><dk-icon [name]="c.ok ? 'check' : 'x'" [size]="13" /></span>
+                      <div>
+                        <strong>{{ c.label }}</strong>
+                        <small class="dk-muted">{{ c.status }}</small>
+                        @if (!c.ok && c.kind === 'attachment') { <a class="pe__link" routerLink="/upload">Add it</a> }
+                      </div>
+                    </li>
+                  }
+                </ul>
+              </section>
+            }
+          </aside>
+        </div>
+      }
+    }
+  }
+</div>

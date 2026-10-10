@@ -120,9 +120,9 @@ export class OpportunitiesComponent implements OnInit {
     if ( this.drafting() ) return;
     this.drafting.set( opportunity.id );
     this.service.startProposal( opportunity ).subscribe( {
-      next: ( proposalId ) => {
+      next: () => {
         this.drafting.set( '' );
-        void this.router.navigate( ['/docs/editor', proposalId] );
+        void this.router.navigate( ['/opportunities', opportunity.id, 'proposal'] );
       },
       error: () => {
         this.drafting.set( '' );

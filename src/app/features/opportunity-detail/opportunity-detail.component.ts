@@ -83,9 +83,9 @@ export class OpportunityDetailComponent implements OnInit {
     if ( !o || this.busy() ) return;
     this.busy.set( 'draft' );
     this.service.startProposal( o ).subscribe( {
-      next: ( proposalId ) => {
+      next: () => {
         this.busy.set( '' );
-        void this.router.navigate( ['/docs/editor', proposalId] );
+        void this.router.navigate( ['/opportunities', o.id, 'proposal'] );
       },
       error: () => {
         this.busy.set( '' );

@@ -81,6 +81,13 @@ export const routes: Routes = [
       import( './features/rfp-inbox/rfp-inbox.component' ).then( ( m ) => m.RfpInboxComponent ),
   },
   {
+    // The proposal editor: TODD drafts, asks, and checks against the RFP.
+    path: 'opportunities/:id/proposal',
+    data: { pageTitle: 'Proposal' },
+    loadComponent: () =>
+      import( './features/proposal-editor/proposal-editor.component' ).then( ( m ) => m.ProposalEditorComponent ),
+  },
+  {
     path: 'opportunities/:id',
     data: { pageTitle: 'Opportunity' },
     loadComponent: () =>
@@ -113,11 +120,12 @@ export const routes: Routes = [
     redirectTo: 'upload',
   },
   {
-    // The header's New button. The editor is where every document opens.
+    // The header's New button (1j): TODD writes a first draft, then the
+    // editor - where every document opens - takes over.
     path: 'new',
     data: { pageTitle: 'New' },
     loadComponent: () =>
-      import( './features/document-editor/document-editor.component' ).then( ( m ) => m.DocumentEditorComponent ),
+      import( './features/new-document/new-document.component' ).then( ( m ) => m.NewDocumentComponent ),
   },
   {
     path: 'docs/editor',
