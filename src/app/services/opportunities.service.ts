@@ -51,6 +51,14 @@ export class OpportunitiesService {
     );
   }
 
+  /** Profile: re-score open opportunities against the saved profile. */
+  rescore (): Observable<Opportunity[]> {
+    return this.http.post<Envelope<Opportunity[]>>( `${ this.base }/opportunities/rescore`, {} ).pipe(
+      map( ( r ) => r.data || [] ),
+      tap( ( updated ) => updated.forEach( ( item ) => this.replace( item ) ) ),
+    );
+  }
+
   /** "Add an RFP": reads an RFP document already in Docs (PDF directly, other files as text). */
   createFromDocument ( documentId: string, text = '' ): Observable<Opportunity[]> {
     return this.http.post<Envelope<Opportunity[]>>( `${ this.base }/opportunities`, { documentId, text: text || undefined } ).pipe(

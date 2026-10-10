@@ -19,14 +19,30 @@ import { getProfileUrl } from '@taliferro/ui/platform/account-menu.model';
 import { DocsAuthService } from '../../services/docs-auth.service';
 import { DocsSignupDraftService } from '../../services/docs-signup-draft.service';
 import { ProfileApiService } from '../../services/profile-api.service';
+import { FIT_THRESHOLD, Opportunity, fitTint, isOpen } from '../../models/opportunity';
+import { OpportunitiesService } from '../../services/opportunities.service';
+
+/** The six fields TODD scores RFPs against (design 3e "Used for fit"). */
+export const FIT_FIELDS = ['companyName', 'profession', 'companyDescription', 'jobDescriptionForTODD', 'valueProp', 'companyGoal'] as const;
+
+/** Whether a save changed anything TODD scores against. */
+export function fitFieldsChanged ( before: Partial<ToddProfile> | null, after: Partial<ToddProfile> ): boolean {
+  return FIT_FIELDS.some( ( key ) => String( before?.[key] ?? '' ).trim() !== String( after[key] ?? '' ).trim() );
+}
 
 interface ChoiceField {
   key: 'companyDescription' | 'valueProp' | 'companyGoal';
   title: string;
+  hint: string;
   choices: ProfileChoice[];
 }
 
 /**
+ * Profile (design_handoff_todd_docs 3e): the six fields TODD scores RFPs
+ * against come first, then your details; on the right, how TODD uses them
+ * and the open opportunities with their scores, which are re-scored after
+ * a save that changes the first card.
+ *
  * In-app profile management - the web twin of the iOS apps'
  * TODDProfileKit ProfileView, replacing the menu's old link out to
  * todd.taliferro.tech/update-profile. Same fields and one-tap choices
@@ -44,9 +60,9 @@ interface ChoiceField {
 export class ProfileComponent implements OnInit, OnDestroy {
   readonly roles = PROFILE_ROLES;
   readonly choiceFields: ChoiceField[] = [
-    { key: 'companyDescription', title: 'What does your company do?', choices: COMPANY_DESCRIPTION_CHOICES },
-    { key: 'valueProp', title: 'Value proposition', choices: VALUE_PROPOSITION_CHOICES },
-    { key: 'companyGoal', title: 'Mission', choices: MISSION_CHOICES },
+    { key: 'companyDescription', title: 'Company description', hint: 'What you do, for whom', choices: COMPANY_DESCRIPTION_CHOICES },
+    { key: 'valueProp', title: 'Value proposition', hint: 'Why a buyer picks you', choices: VALUE_PROPOSITION_CHOICES },
+    { key: 'companyGoal', title: 'Company goal', hint: 'What you\u2019re aiming for this year', choices: MISSION_CHOICES },
   ];
   readonly timezones = this.supportedTimezones();
   readonly toddProfileUrl = getProfileUrl();
@@ -61,7 +77,36 @@ export class ProfileComponent implements OnInit, OnDestroy {
   isConfirmingDelete = false;
   isDeleting = false;
 
+  /** Open opportunities and their scores, beside the form. */
+  rescoring = false;
+  savedAt: Date | null = null;
+  readonly fitTint = fitTint;
+
+  get openOpportunities (): Opportunity[] {
+    return this.opportunities.opportunities()
+        .filter( ( o ) => ( o.status === 'new' || o.status === 'drafting' ) && isOpen( o ) )
+        .sort( ( a, b ) => b.fit.score - a.fit.score )
+        .slice( 0, 6 );
+  }
+
+  readonly fitThreshold = FIT_THRESHOLD;
+
+  /** "Dana Reyes · Taliferro Tech" */
+  get subtitle (): string {
+    if ( !this.profile ) return '';
+    return [`${ this.profile.firstName } ${ this.profile.lastName }`.trim(), this.profile.companyName].filter( Boolean ).join( ' · ' );
+  }
+
+  choiceValue ( field: ChoiceField ): string {
+    return this.profile ? this.profile[field.key] : '';
+  }
+
+  setChoiceValue ( field: ChoiceField, value: string ): void {
+    if ( this.profile ) this.profile[field.key] = value;
+  }
+
   constructor (
+    private readonly opportunities: OpportunitiesService,
     private readonly api: ProfileApiService,
     private readonly authService: DocsAuthService,
     private readonly signupDraft: DocsSignupDraftService,
@@ -83,6 +128,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       if ( signedIn && !this.loadedForUser ) {
         this.loadedForUser = true;
         void this.loadProfile();
+        this.opportunities.load().subscribe();
       }
     } );
   }
@@ -163,16 +209,28 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if ( !this.profile || this.isSaving ) return;
     this.isSaving = true;
     this.errorMessage = '';
+    const before = this.savedJson ? JSON.parse( this.savedJson ) as ToddProfile : null;
     try {
       this.setProfile( await this.api.save( this.profile ) );
       this.isEditing = false;
       this.justSaved = true;
+      this.savedAt = new Date();
       setTimeout( () => ( this.justSaved = false ), 2000 );
+      if ( fitFieldsChanged( before, this.profile! ) && this.openOpportunities.length ) this.rescore();
     } catch ( error: any ) {
       this.errorMessage = error?.error?.message || error?.message || 'We could not save your profile.';
     } finally {
       this.isSaving = false;
     }
+  }
+
+  /** TODD re-scores the open opportunities against the saved profile. */
+  rescore (): void {
+    this.rescoring = true;
+    this.opportunities.rescore().subscribe( {
+      next: () => { this.rescoring = false; },
+      error: () => { this.rescoring = false; },
+    } );
   }
 
   async deleteAccount (): Promise<void> {
