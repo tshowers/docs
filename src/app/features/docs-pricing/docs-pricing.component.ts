@@ -19,7 +19,7 @@ const DEFAULT_HIGHLIGHTS = [
   'Use documents across your workflows without losing context.'
 ];
 const DEFAULT_NOTES = [
-  'Free access includes up to 10 documents.',
+  'Browsing is free; saving documents needs the plan.',
   'The paid plan increases your limit to 100 documents.',
   'Need more than 100 documents? Contact us for enterprise pricing.'
 ];

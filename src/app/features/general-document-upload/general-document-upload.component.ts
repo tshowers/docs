@@ -16,6 +16,7 @@ import { DocumentsStoreService } from '../../services/documents-store.service';
 import { LoggerService } from '../../services/logger.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
+import { WriteAccessPromptService } from '../../shared/write-access/write-access-prompt.service';
 
 type RowState = 'uploading' | 'saved' | 'reading' | 'opportunity' | 'not-rfp' | 'error';
 
@@ -75,6 +76,15 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   private readonly router = inject( Router );
   private readonly route = inject( ActivatedRoute );
   private readonly cdr = inject( ChangeDetectorRef );
+  private readonly prompts = inject( WriteAccessPromptService );
+  /** Files dropped before subscribing - held in memory (nothing stored is free) and added once the purchase lands. */
+  private pendingFiles: File[] = [];
+  private readonly unlockSub = this.prompts.unlocked$.subscribe( ( unlocked ) => {
+    if ( !unlocked || !this.pendingFiles.length ) return;
+    const files = this.pendingFiles;
+    this.pendingFiles = [];
+    this.add( files );
+  } );
   private readonly storage = getStorage();
 
   @ViewChild( 'fileInput' ) fileInput?: ElementRef<HTMLInputElement>;
@@ -108,8 +118,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   readonly limitMessage = computed( () => {
     const l = this.limits();
     if ( !l || l.isPaidUser ) return '';
-    if ( l.remainingFreeDocuments <= 0 ) return `You've used all ${ l.freeDocumentLimit } free documents. Upgrade to keep adding files.`;
-    return `${ l.remainingFreeDocuments } of ${ l.freeDocumentLimit } free documents left`;
+    return 'Adding documents needs a Docs subscription.';
   } );
 
   readonly fitTint = fitTint;
@@ -137,6 +146,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
 
   ngOnDestroy (): void {
     this.authSub?.unsubscribe();
+    this.unlockSub.unsubscribe();
     this.pageActions.clearPageActions( 'general-document-upload' );
   }
 
@@ -166,7 +176,13 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   private add ( files: File[] ): void {
     if ( !files.length || !this.signedIn() ) return;
     const limits = this.limits();
-    let room = limits && !limits.isPaidUser ? Math.max( 0, limits.remainingFreeDocuments ) : Infinity;
+    const subscribed = !limits || limits.isPaidUser || this.prompts.unlocked;
+    if ( !subscribed ) {
+      this.pendingFiles = files;
+      this.prompts.open( { state: 'browsing', action: files.length === 1 ? 'add this file' : 'add these files' } );
+      return;
+    }
+    let room = limits && !limits.isPaidUser && !this.prompts.unlocked ? Math.max( 0, limits.remainingFreeDocuments ) : Infinity;
     for ( const file of files ) {
       const preview = { name: file.name, mimeType: file.type, type: this.typeFor( file ), src: '' } as Document;
       const info = documentKindInfo( preview );
@@ -187,7 +203,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
         isMedia: preview.type === 'image' || preview.type === 'video',
       };
       if ( room <= 0 ) {
-        this.rows.update( ( rows ) => [...rows, { ...row, state: 'error', note: 'Your free documents are used up. Upgrade to keep adding files.' }] );
+        this.rows.update( ( rows ) => [...rows, { ...row, state: 'error', note: 'Adding documents needs a Docs subscription.' }] );
         continue;
       }
       room -= 1;
