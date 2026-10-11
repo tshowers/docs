@@ -179,6 +179,13 @@ export const routes: Routes = [
       import( './features/repository/repository.component' ).then( ( m ) => m.RepositoryComponent ),
   },
   {
+    // "Save to Knowledge" from Find; before 'knowledge/:id' so "save" isn't an id.
+    path: 'knowledge/save',
+    data: { pageTitle: 'Save to Knowledge' },
+    loadComponent: () =>
+      import( './features/find-save/find-save.component' ).then( ( m ) => m.FindSaveComponent ),
+  },
+  {
     path: 'knowledge/:id',
     data: { pageTitle: 'Answer' },
     loadComponent: () =>

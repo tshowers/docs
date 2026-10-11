@@ -1,0 +1,35 @@
+<main class="fs">
+  <p class="fs__eyebrow dk-muted">Save to Knowledge · from Find</p>
+
+  @if (result(); as it) {
+    <article class="fs__card">
+      <h1 class="fs__question">{{ it.query }}</h1>
+      @if (it.title && it.title !== it.query) { <p class="fs__title">{{ it.title }}</p> }
+      @if (it.answer) { <p class="fs__answer">{{ it.answer }}</p> }
+      @if (it.url) { <p class="fs__source dk-muted">Source: {{ it.url }}</p> }
+    </article>
+  }
+
+  @switch (state()) {
+    @case ('checking') { <p class="dk-muted">Checking your sign-in…</p> }
+    @case ('saving') { <p class="dk-muted">Saving to your Knowledge…</p> }
+    @case ('signIn') {
+      <p>Sign in to save this to your Knowledge. It’s free to save answers from Find; editing them needs Docs.</p>
+      <button type="button" class="dk-btn dk-btn--primary" (click)="signIn()">Sign in to save</button>
+    }
+    @case ('limit') {
+      <p>{{ message() }}</p>
+      <div class="fs__actions">
+        <a class="dk-btn dk-btn--primary" routerLink="/pricing">Get Docs</a>
+        <a class="dk-btn dk-btn--bg" routerLink="/knowledge">Open Knowledge</a>
+      </div>
+    }
+    @case ('error') {
+      <p>{{ message() }}</p>
+      <div class="fs__actions">
+        @if (result()) { <button type="button" class="dk-btn dk-btn--primary" (click)="save()">Try again</button> }
+        <a class="dk-btn dk-btn--bg" routerLink="/knowledge">Open Knowledge</a>
+      </div>
+    }
+  }
+</main>
