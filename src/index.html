@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <script>try{var t=localStorage.getItem('tt-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
   <title>Docs — Proposals, RFPs, and your knowledge base | Taliferro Tech</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,7 +24,8 @@
   <meta name="twitter:image" content="https://docs.taliferro.tech/assets/docs.png">
   <meta name="twitter:image:alt" content="Docs by TODD — reusable proposals, documents, and knowledge">
 
-  <meta name="theme-color" content="#141a1e">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c0e13" media="(prefers-color-scheme: dark)">
   <!-- Explicit Docs branding for Safari and browsers that otherwise fall back
        to the legacy /favicon.ico asset. The query version also invalidates a
        previously cached Find icon. -->

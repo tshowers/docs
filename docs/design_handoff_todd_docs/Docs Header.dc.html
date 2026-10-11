@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;gap:16px;padding:20px 40px;color:var(--text)">
+<div style="flex:1;display:flex;align-items:center;gap:10px;min-width:0"><img src="public/assets/todd-docs-icon.png" alt="" style="width:34px;height:34px;border-radius:10px;object-fit:cover;flex:none"><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em">TODD</span><span style="font-size:22px;font-weight:700;letter-spacing:-0.02em;color:var(--muted)">Docs</span></div>
+<div style="display:flex;gap:6px;font-size:14px;font-weight:600"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><a href="{{ t.href }}" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;color:var(--text);background:{{ t.bg }}" style-hover="background:var(--surface)">{{ t.l }}<sc-if value="{{ t.n }}" hint-placeholder-val="{{ false }}"><span style="min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:var(--blue);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ t.n }}</span></sc-if></a></sc-for></div>
+<div style="flex:1;display:flex;justify-content:flex-end;align-items:center;gap:8px">
+<sc-if value="{{ inApp }}" hint-placeholder-val="{{ true }}"><a href="#1j" style="height:42px;padding:0 18px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px"><span style="{{ plusI }}"></span>New</a></sc-if><sc-if value="{{ out }}" hint-placeholder-val="{{ false }}"><a style="height:42px;padding:0 20px;border-radius:999px;background:var(--blue);color:#fff;display:flex;align-items:center;font-weight:700;font-size:14px;cursor:pointer">Sign in</a></sc-if>
+<a onClick="{{ onTheme }}" style="height:42px;padding:0 16px;border-radius:999px;background:var(--surface);color:var(--text);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:var(--surface2)"><span style="{{ themeIcon }}"></span>{{ themeLabel }}</a>
+<a style="height:42px;padding:0 16px;border-radius:999px;background:var(--text);color:var(--bg);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;cursor:pointer"><span style="{{ menuI }}"></span>Menu</a>
+</div></div></sc-if>
+<sc-if value="{{ isTab }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:12px;padding:20px 28px;color:var(--text)">
+<div style="flex:1;display:flex;align-items:center;gap:10px;min-width:0"><img src="public/assets/todd-docs-icon.png" alt="" style="width:32px;height:32px;border-radius:9px;object-fit:cover;flex:none"><span style="font-size:20px;font-weight:700;letter-spacing:-0.02em">TODD</span><span style="font-size:20px;font-weight:700;letter-spacing:-0.02em;color:var(--muted)">Docs</span></div>
+<div style="display:flex;gap:4px;font-size:14px;font-weight:600"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><a href="{{ t.href }}" style="padding:8px 12px;border-radius:999px;color:var(--text);background:{{ t.bg }}" style-hover="background:var(--surface)">{{ t.l }}</a></sc-for></div>
+<div style="flex:1;display:flex;justify-content:flex-end;align-items:center;gap:8px">
+<a href="#1j" aria-label="New" style="width:44px;height:44px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center"><span style="{{ plusI }}"></span></a>
+<a onClick="{{ onTheme }}" aria-label="{{ themeLabel }} mode" style="width:44px;height:44px;border-radius:50%;background:var(--surface);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="{{ themeIcon }}"></span></a>
+<a style="height:44px;padding:0 16px;border-radius:999px;background:var(--text);color:var(--bg);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700"><span style="{{ menuI }}"></span>Menu</a>
+</div></div></sc-if>
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:8px;padding:56px 16px 10px;color:var(--text)">
+<img src="public/assets/todd-docs-icon.png" alt="" style="width:32px;height:32px;border-radius:9px;object-fit:cover;flex:none"><span style="flex:1;font-size:18px;font-weight:700;letter-spacing:-0.02em">{{ title }}</span>
+<a onClick="{{ onTheme }}" aria-label="{{ themeLabel }} mode" style="width:44px;height:44px;border-radius:50%;background:var(--surface);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="{{ themeIcon }}"></span></a>
+<a style="height:44px;padding:0 14px;border-radius:999px;background:var(--text);color:var(--bg);display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700"><span style="{{ menuI }}"></span>Menu</a>
+</div></sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:90},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Home&quot;,&quot;Opportunities&quot;,&quot;Documents&quot;,&quot;Knowledge&quot;,&quot;About&quot;,&quot;Help&quot;,&quot;&quot;],&quot;default&quot;:&quot;Home&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;app&quot;,&quot;out&quot;],&quot;default&quot;:&quot;app&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desk&quot;,&quot;tab&quot;,&quot;phone&quot;],&quot;default&quot;:&quot;desk&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dark&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Docs&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;onTheme&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const P = { menu: '<path d="M4 6h16M4 12h16M4 18h16"/>', plus: '<path d="M12 5v14M5 12h14"/>', moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>', sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>' };
+    const ic = (k, s) => { const u = `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">${P[k]}</svg>`)}")`; return { width: s, height: s, flex: 'none', display: 'inline-block', background: 'currentColor', WebkitMask: `${u} center/contain no-repeat`, mask: `${u} center/contain no-repeat` }; };
+    const p = this.props, size = p.size ?? 'desk', act = p.active ?? '', dark = !!p.dark;
+    const out = (p.mode ?? 'app') === 'out';
+    const H = out ? { Home: '#2a', About: '#2b', Help: '#2c' } : { Home: '#1b', Opportunities: '#1d', Documents: '#1h', Knowledge: '#1g' };
+    const L = out ? ['Home', 'About', 'Help'] : ['Home', 'Opportunities', 'Documents', 'Knowledge'];
+    return {
+      isDesk: size === 'desk', isTab: size === 'tab', isPhone: size === 'phone', out, inApp: !out,
+      tabs: L.map(l => ({ l, href: H[l], n: l === 'Opportunities' ? '3' : '', bg: l === act ? 'var(--surface)' : 'transparent' })),
+      themeLabel: dark ? 'Light' : 'Dark', themeIcon: ic(dark ? 'sun' : 'moon', 16), menuI: ic('menu', 18), plusI: ic('plus', 16),
+      title: p.title ?? 'Docs', onTheme: p.onTheme
+    };
+  }
+}
+</script>
+</body>
+</html>

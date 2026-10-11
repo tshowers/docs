@@ -1,3 +1,4 @@
+import { DocSource, DraftBlock } from '../shared/studio-draft';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -47,6 +48,13 @@ export class DocService {
 
   removeDocument ( id: string, _userId?: string ): Observable<any> {
     return this.http.delete<any>( `${this.baseUrl}/${id}` );
+  }
+
+  /** New (1j): TODD writes a first draft from a brief and the chosen sources. */
+  compose ( brief: string, knowledgeIds: string[], opportunityId = '' ): Observable<{ documentId: string; title: string; blocks?: DraftBlock[]; sources?: DocSource[] }> {
+    return this.http.post<any>( `${this.baseUrl}/compose`, { brief, knowledgeIds, opportunityId: opportunityId || undefined } ).pipe(
+      map( response => response?.data ?? response )
+    );
   }
 
   getLimits (): Observable<DocumentLimits> {

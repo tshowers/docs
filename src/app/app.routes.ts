@@ -1,13 +1,12 @@
 import { Routes } from '@angular/router';
-import { landingRedirectGuard } from './services/landing-redirect.guard';
 
 export const routes: Routes = [
   {
+    // Home (1b; 2a signed out) lives at /docs; the old landing page's
+    // content is About.
     path: '',
     pathMatch: 'full',
-    canActivate: [landingRedirectGuard],
-    loadComponent: () =>
-      import( './features/landing/landing.component' ).then( ( m ) => m.LandingComponent ),
+    redirectTo: 'docs',
   },
   {
     path: 'auth/callback',
@@ -25,19 +24,29 @@ export const routes: Routes = [
       import( './features/app-showcase/app-showcase.component' ).then( ( m ) => m.AppShowcaseComponent ),
   },
   {
+    // The signed-out header's About tab (2b).
+    path: 'about',
+    data: { pageTitle: 'About' },
+    loadComponent: () =>
+      import( './features/about/about.component' ).then( ( m ) => m.AboutComponent ),
+  },
+  {
     path: 'help',
+    data: { pageTitle: 'Help' },
     loadComponent: () =>
       import( './features/help/help.component' ).then( ( m ) => m.HelpComponent ),
   },
   {
     path: 'docs/success',
+    data: { flow: 'docs', pageTitle: 'Payment' },
     loadComponent: () =>
-      import( './features/docs-paid-success/docs-paid-success.component' ).then( ( m ) => m.DocsPaidSuccessComponent ),
+      import( './features/payment-success/payment-success.component' ).then( ( m ) => m.PaymentSuccessComponent ),
   },
   {
     path: 'knowledge/success',
+    data: { flow: 'knowledge', pageTitle: 'Payment' },
     loadComponent: () =>
-      import( './features/knowledge-paid-success/knowledge-paid-success.component' ).then( ( m ) => m.KnowledgePaidSuccessComponent ),
+      import( './features/payment-success/payment-success.component' ).then( ( m ) => m.PaymentSuccessComponent ),
   },
   {
     // The old Stripe plan pages now forward to the one "browse free,
@@ -51,22 +60,81 @@ export const routes: Routes = [
   },
   {
     path: 'docs',
+    data: { pageTitle: 'Docs' },
     loadComponent: () =>
-      import( './features/document-home/document-home.component' ).then( ( m ) => m.DocumentHomeComponent ),
+      import( './features/home/home.component' ).then( ( m ) => m.HomeComponent ),
   },
   {
     path: 'docs/landing',
     redirectTo: 'docs',
   },
   {
-    path: 'docs/upload',
+    // The four tabs (design_handoff_todd_docs): Home, Opportunities,
+    // Documents, Knowledge. Each tab's old pages redirect into it.
+    path: 'opportunities',
+    data: { pageTitle: 'Opportunities' },
+    loadComponent: () =>
+      import( './features/opportunities/opportunities.component' ).then( ( m ) => m.OpportunitiesComponent ),
+  },
+  {
+    path: 'opportunities/inbox',
+    data: { pageTitle: 'RFP inbox' },
+    loadComponent: () =>
+      import( './features/rfp-inbox/rfp-inbox.component' ).then( ( m ) => m.RfpInboxComponent ),
+  },
+  {
+    // Review & send (1f): from the person's own inbox, or a portal package.
+    path: 'opportunities/:id/send',
+    data: { pageTitle: 'Review & send' },
+    loadComponent: () =>
+      import( './features/review-send/review-send.component' ).then( ( m ) => m.ReviewSendComponent ),
+  },
+  {
+    // The proposal editor: TODD drafts, asks, and checks against the RFP.
+    path: 'opportunities/:id/proposal',
+    data: { pageTitle: 'Proposal' },
+    loadComponent: () =>
+      import( './features/proposal-editor/proposal-editor.component' ).then( ( m ) => m.ProposalEditorComponent ),
+  },
+  {
+    path: 'opportunities/:id',
+    data: { pageTitle: 'Opportunity' },
+    loadComponent: () =>
+      import( './features/opportunity-detail/opportunity-detail.component' ).then( ( m ) => m.OpportunityDetailComponent ),
+  },
+  {
+    path: 'documents',
+    data: { pageTitle: 'Documents' },
+    loadComponent: () =>
+      import( './features/document-list/document-list.component' ).then( ( m ) => m.DocumentListComponent ),
+  },
+  {
+    path: 'documents/:id',
+    data: { pageTitle: 'Document' },
+    loadComponent: () =>
+      import( './features/document-detail/document-detail.component' ).then( ( m ) => m.DocumentDetailComponent ),
+  },
+  {
+    path: 'docs/documents',
+    redirectTo: 'documents',
+  },
+  {
+    path: 'upload',
+    data: { pageTitle: 'Add files' },
     loadComponent: () =>
       import( './features/general-document-upload/general-document-upload.component' ).then( ( m ) => m.GeneralDocumentUploadComponent ),
   },
   {
-    path: 'docs/documents',
+    path: 'docs/upload',
+    redirectTo: 'upload',
+  },
+  {
+    // The header's New button (1j): TODD writes a first draft, then the
+    // editor - where every document opens - takes over.
+    path: 'new',
+    data: { pageTitle: 'New' },
     loadComponent: () =>
-      import( './features/document-list/document-list.component' ).then( ( m ) => m.DocumentListComponent ),
+      import( './features/new-document/new-document.component' ).then( ( m ) => m.NewDocumentComponent ),
   },
   {
     path: 'docs/editor',
@@ -80,33 +148,41 @@ export const routes: Routes = [
   },
   {
     path: 'docs/proposal-history',
-    loadComponent: () =>
-      import( './features/proposal-history/proposal-history.component' ).then( ( m ) => m.ProposalHistoryComponent ),
+    redirectTo: 'opportunities',
   },
   {
     path: 'docs/rfp-list',
-    loadComponent: () =>
-      import( './features/rfp-list/rfp-list.component' ).then( ( m ) => m.RfpListComponent ),
+    redirectTo: 'opportunities',
   },
   {
     path: 'docs/rfp-upload',
-    loadComponent: () =>
-      import( './features/rfp-upload/rfp-upload.component' ).then( ( m ) => m.RfpUploadComponent ),
+    redirectTo: '/upload?rfp=1',
   },
   {
+    // Add / Edit answer (3d): one page in place of the old wizard, at the
+    // wizard's address so existing links keep working.
     path: 'knowledge/response-flow',
+    data: { pageTitle: 'Answer' },
     loadComponent: () =>
-      import( './features/response-flow/response-flow.component' ).then( ( m ) => m.ResponseFlowComponent ),
+      import( './features/answer-form/answer-form.component' ).then( ( m ) => m.AnswerFormComponent ),
   },
   {
     path: 'knowledge/response-flow/:id',
+    data: { pageTitle: 'Answer' },
     loadComponent: () =>
-      import( './features/response-flow/response-flow.component' ).then( ( m ) => m.ResponseFlowComponent ),
+      import( './features/answer-form/answer-form.component' ).then( ( m ) => m.AnswerFormComponent ),
   },
   {
     path: 'knowledge',
+    data: { pageTitle: 'Knowledge' },
     loadComponent: () =>
       import( './features/repository/repository.component' ).then( ( m ) => m.RepositoryComponent ),
+  },
+  {
+    path: 'knowledge/:id',
+    data: { pageTitle: 'Answer' },
+    loadComponent: () =>
+      import( './features/knowledge-detail/knowledge-detail.component' ).then( ( m ) => m.KnowledgeDetailComponent ),
   },
   {
     // Pre-sign-in wizard: write a first Q&A answer, then name + company,

@@ -1,0 +1,93 @@
+<div class="dk-page ri">
+  <a class="dk-btn dk-btn--sm ri-back" routerLink="/opportunities"><dk-icon name="chevron-left" />Opportunities</a>
+  <p class="dk-kicker">RFP inbox</p>
+  <h1 class="ri__title">The inbox TODD watches for RFPs</h1>
+
+  <div class="dk-todd ri__why">
+    <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Use a semi-dedicated inbox</div>
+    <p>Point your procurement alerts (OpenGov, Bonfire, King County, your city's portal) at an address like <strong>bids&#64;yourcompany.com</strong>, and connect that. Every 10 minutes TODD reads only messages from the senders you list below, never marks anything read, and never moves or deletes mail. An inbox that's mostly alerts means TODD finds every RFP and nothing slips past in personal mail.</p>
+  </div>
+
+  @if (inboxes() === null) {
+    <div class="ri__skeleton" aria-busy="true"></div>
+  } @else {
+    @for (inbox of watched(); track inbox.id) {
+      <section class="ri__inbox">
+        <header>
+          <div>
+            <h2>{{ inbox.emailAddress }}</h2>
+            <p class="dk-muted">
+              {{ inbox.providerLabel || inbox.provider }}
+              @if (inbox.purposes.includes('outreach')) { · also used by Outreach }
+              @if (inbox.rfpLastSyncAt) { · checked {{ checkedAgo(inbox.rfpLastSyncAt) }} }
+              @if (inbox.rfpFoundCount) { · {{ inbox.rfpFoundCount }} {{ inbox.rfpFoundCount === 1 ? 'RFP' : 'RFPs' }} found }
+            </p>
+          </div>
+          @if (inbox.rfpLastSyncStatus === 'failed') { <span class="dk-tag dk-tinted" data-tint="pink">Can't reach it</span> }
+          @else { <span class="dk-tag dk-tinted" data-tint="green">Watching</span> }
+        </header>
+
+        <h3 class="dk-kicker">Alerts come from</h3>
+        <div class="ri__senders">
+          @for (sender of inbox.rfpSenders; track sender) {
+            <span class="ri__sender">{{ sender }}<button type="button" (click)="removeSender(inbox, sender)" [attr.aria-label]="'Stop watching ' + sender" appWriteAction="change RFP senders"><dk-icon name="x" [size]="13" /></button></span>
+          }
+          <form class="ri__add" (ngSubmit)="addSender(inbox)">
+            <input [name]="'sender-' + inbox.id" [(ngModel)]="newSender[inbox.id]" placeholder="Add a sender or domain" aria-label="Add a sender" />
+            <button type="submit" class="dk-btn dk-btn--bg dk-btn--sm" [disabled]="busy() === 'senders:' + inbox.id" appWriteAction="change RFP senders"><dk-icon name="plus" />Add</button>
+          </form>
+        </div>
+
+        <div class="ri__actions">
+          <button type="button" class="dk-btn dk-btn--bg" (click)="checkNow(inbox)" [disabled]="!!busy()" appWriteAction="check this inbox">{{ busy() === 'check:' + inbox.id ? 'Checking…' : 'Check now' }}</button>
+          @if (inbox.rfpLastSyncStatus === 'failed' && inbox.provider === 'gmail') {
+            <button type="button" class="dk-btn dk-btn--bg" (click)="connectGoogle()" [disabled]="!!busy()">Reconnect Google</button>
+          }
+          <button type="button" class="dk-btn dk-btn--bg dk-btn--danger" (click)="watch(inbox, false)" [disabled]="!!busy()" appWriteAction="stop watching this inbox">Stop watching</button>
+        </div>
+      </section>
+    }
+
+    @if (others().length) {
+      <section class="ri__others">
+        <h2 class="dk-kicker">Your other connected inboxes</h2>
+        @for (inbox of others(); track inbox.id) {
+          <div class="ri__other">
+            <span><strong>{{ inbox.emailAddress }}</strong><small class="dk-muted ri__used">used by Outreach</small></span>
+            <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="watch(inbox, true)" [disabled]="!!busy()" appWriteAction="watch this inbox">Watch it for RFPs too</button>
+          </div>
+        }
+      </section>
+    }
+
+    <section class="ri__connect">
+      <h2>{{ watched().length ? 'Connect another inbox' : 'Connect your RFP inbox' }}</h2>
+      <div class="ri__ways">
+        <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" (click)="connectGoogle()" [disabled]="!!busy()" appWriteAction="connect an inbox">{{ busy() === 'google' ? 'Opening Google…' : 'Connect with Google' }}</button>
+        <button type="button" class="dk-btn dk-btn--bg dk-btn--lg" (click)="showForm.set(!showForm())">Use an app password</button>
+      </div>
+
+      @if (showForm()) {
+        <form class="ri__form" (ngSubmit)="connect()">
+          <label>Email address<input name="email" type="email" [(ngModel)]="form.emailAddress" required autocomplete="off" /></label>
+          <label>Provider
+            <select name="provider" [(ngModel)]="form.provider">
+              @for (p of providers; track p.id) { <option [value]="p.id">{{ p.label }}</option> }
+            </select>
+          </label>
+          <label>App password<input name="secret" type="password" [(ngModel)]="form.secret" required autocomplete="new-password" /></label>
+          @if (form.provider === 'other_imap') {
+            <label>IMAP server<input name="imap" [(ngModel)]="form.imapHost" placeholder="imap.yourhost.com" /></label>
+            <label>SMTP server<input name="smtp" [(ngModel)]="form.smtpHost" placeholder="smtp.yourhost.com" /></label>
+          }
+          <p class="dk-muted ri__hint">An app password is a separate password your email provider makes for apps like TODD. Your normal password won't work, and you can revoke it any time.</p>
+          @if (testResult(); as r) { <p class="ri__result" [class.is-ok]="r.ok">{{ r.message }}</p> }
+          <div class="ri__actions">
+            <button type="button" class="dk-btn dk-btn--bg" (click)="test()" [disabled]="!!busy() || !form.emailAddress || !form.secret">{{ busy() === 'test' ? 'Checking…' : 'Test it' }}</button>
+            <button type="submit" class="dk-btn dk-btn--primary" [disabled]="!!busy() || !form.emailAddress || !form.secret" appWriteAction="connect an inbox">{{ busy() === 'connect' ? 'Connecting…' : 'Connect' }}</button>
+          </div>
+        </form>
+      }
+    </section>
+  }
+</div>

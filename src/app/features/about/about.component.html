@@ -1,0 +1,68 @@
+<div class="dk-page about">
+  <header class="about__hero">
+    <div>
+      <p class="about__eyebrow"><span class="dk-tag dk-tinted" data-tint="blue">About Docs</span><span class="dk-muted">A Taliferro Tech product · Part of TODD</span></p>
+      <h1>The right document before the conversation starts.</h1>
+      <p class="about__lead">Docs turns your best proposals, response flows, and knowledge into reusable content—ready when the next opportunity needs it.</p>
+    </div>
+    <img src="assets/todd-docs-icon.png" alt="" />
+  </header>
+
+  <section class="about__problem">
+    <p class="dk-kicker">The problem</p>
+    <h2>The problem isn't that the document is stored somewhere. It's that nothing reuses it.</h2>
+    <div class="about__problems">@for (p of problems; track p) { <p>{{ p }}</p> }</div>
+  </section>
+
+  <section class="about__section">
+    <p class="dk-kicker">What Docs gives you</p>
+    <h2>A document layer connected to the work it supports.</h2>
+    <div class="about__outcomes">
+      @for (o of outcomes; track o.tag) {
+        <article class="about__outcome">
+          <span class="dk-tag dk-tinted" [attr.data-tint]="o.tint">{{ o.tag }}</span>
+          <h3>{{ o.title }}</h3>
+          <p class="dk-muted">{{ o.copy }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="about__how">
+    <div>
+      <p class="dk-kicker">How Docs works</p>
+      <h2>Connect your best work so TODD can put it to use.</h2>
+    </div>
+    <ol>
+      @for (s of steps; track s.n) { <li><span>{{ s.n }}</span><strong>{{ s.text }}</strong></li> }
+    </ol>
+  </section>
+
+  <section class="about__section">
+    <p class="dk-kicker">Questions worth asking</p>
+    <h2>Docs keeps the right answer close.</h2>
+    <div class="about__faq">
+      @for (f of faqs; track f.question; let i = $index) {
+        <div class="about__q" [class.is-open]="open() === i">
+          <button type="button" (click)="toggle(i)" [attr.aria-expanded]="open() === i"><span>{{ f.question }}</span><span aria-hidden="true">{{ open() === i ? '–' : '+' }}</span></button>
+          @if (open() === i) { <p class="dk-muted">{{ f.answer }}</p> }
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="about__cta">
+    <h2>The best proposal you ever wrote should not disappear after it is sent.</h2>
+    <p class="dk-muted">Add your past work and let TODD read it the next time a similar opportunity appears.</p>
+    <div class="about__ctas">
+      <a class="dk-btn dk-btn--primary" routerLink="/get-started">Get started →</a>
+      <a class="dk-btn" routerLink="/help">Read Docs Help →</a>
+      <a class="dk-btn" routerLink="/pricing" data-cy="landing-pricing">Pricing</a>
+    </div>
+  </section>
+
+  <footer class="about__foot">
+    <a routerLink="/docs">← Back to Docs</a>
+    <span class="dk-muted">Docs · Taliferro Tech, LLC</span>
+  </footer>
+</div>

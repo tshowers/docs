@@ -15,8 +15,9 @@ describe( 'Document editor buttons', () => {
     cy.get( '[data-demo="document-instructions"]' ).should( 'be.visible' );
   } );
 
-  it( 'renders all twelve primary workflow buttons', () => {
-    cy.get( '[data-cy^="editor-action-"]' ).should( 'have.length', 12 );
+  // Apply, Try again and Discard appear with TODD's revision (design 3b).
+  it( 'renders all eleven primary workflow buttons', () => {
+    cy.get( '[data-cy^="editor-action-"]' ).should( 'have.length', 11 );
   } );
 
   for ( const [ action, instruction ] of presetActions ) {
@@ -28,7 +29,7 @@ describe( 'Document editor buttons', () => {
 
   it( 'enables preview after an instruction and keeps preview-only actions gated', () => {
     cy.get( '[data-cy="editor-action-preview"]' ).should( 'be.disabled' );
-    cy.get( '[data-cy="editor-action-discard-preview"]' ).should( 'be.disabled' );
+    cy.get( '[data-cy="editor-action-discard-preview"]' ).should( 'not.exist' );
     cy.get( '[data-cy="editor-action-apply-preview"]' ).should( 'not.exist' );
 
     cy.get( '[data-demo="document-instructions"]' ).type( 'Make this clearer' );
@@ -37,5 +38,13 @@ describe( 'Document editor buttons', () => {
 
   it( 'keeps copy disabled until the editor has content', () => {
     cy.get( '[data-cy="editor-action-copy"]' ).should( 'be.disabled' );
+  } );
+
+  it( 'shows a blank page with the Word drop zone until there is text', () => {
+    cy.get( '.de__status' ).should( 'contain.text', 'Not saved yet' );
+    cy.get( '[data-demo="document-upload"]' ).should( 'be.visible' ).and( 'contain.text', 'Or drop a Word file here' );
+    cy.get( '[data-cy="editor-canvas"]' ).click().type( 'Hello' );
+    cy.get( '[data-demo="document-upload"]' ).should( 'not.exist' );
+    cy.get( '[data-cy="editor-action-copy"]' ).should( 'be.enabled' );
   } );
 } );

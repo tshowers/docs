@@ -1,51 +1,81 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, ViewEncapsulation, inject } from '@angular/core';
+
+import { DkIconComponent } from '../dk-icon/dk-icon.component';
+
+/** What's selected in the page, for "Ask TODD · 1 paragraph selected" (3b). */
+export interface EditorSelection {
+  text: string;
+  paragraphs: number;
+}
+
+/** Highlight name for the selection TODD is revising (CSS Custom Highlight API). */
+const HIGHLIGHT = 'dk-todd-selection';
 
 /**
- * Trimmed, document-only replacement for taliferrotech's
- * shared/page/email-editor/email-editor.component.ts (1553 lines). That
- * component is primarily an EMAIL composer - contact merge fields,
- * attachments, EmailService send integration, a signature-builder mode -
- * that also happens to expose a `mode="document"` input DocumentEditorComponent
- * used purely for its WYSIWYG surface. In 'document' mode, none of the
- * email/signature-specific code paths in the original ever execute (they're
- * all gated behind `if (this.mode === 'email' | 'signature')` checks), so
- * porting the full file would drag in EmailService, the Contact model, and
- * other compile-time dependencies this app has no other use for.
+ * The page inside Studio (design_handoff_todd_docs 3a-3c): a toolbar (B, I,
+ * U, H1, H2, list, link, then Visual / HTML) above a contenteditable page.
+ * Keeps the contract DocumentEditorComponent depends on - [htmlContent] in,
+ * (htmlContentChange) out - and adds what the TODD card needs: the current
+ * selection, its HTML, and replacing just that passage with TODD's
+ * revision. Content between <… docEditorEmpty> tags shows inside the page
+ * while it's empty (the Word drop zone in 3c).
  *
- * This keeps the exact same contract DocumentEditorComponent depends on -
- * `[htmlContent]` in, `(htmlContentChange)` out, a `mode` input kept for
- * API compatibility - and reimplements just the rich-text surface: a
- * contenteditable canvas with a formatting toolbar (bold/italic/underline/
- * strike, headings, lists, blockquote, link, undo/redo) plus an HTML
- * source view, using the browser's built-in `document.execCommand`.
+ * Styles are unencapsulated (every rule under .doc-editor-shell): the page
+ * is innerHTML, which Angular's scoped styles never reach.
  */
 @Component( {
   selector: 'app-doc-rich-text-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DkIconComponent],
   templateUrl: './doc-rich-text-editor.component.html',
   styleUrl: './doc-rich-text-editor.component.css',
+  encapsulation: ViewEncapsulation.None,
 } )
-export class DocRichTextEditorComponent implements OnChanges {
+export class DocRichTextEditorComponent implements OnChanges, AfterViewInit, OnDestroy {
   @Input() mode: 'email' | 'proposal' | 'signature' | 'document' = 'document';
   @Input() htmlContent = '';
   /** View only: no toolbar, nothing editable (signed in without Docs). */
   @Input() readonly = false;
   @Output() htmlContentChange = new EventEmitter<string>();
+  @Output() selectionChange = new EventEmitter<EditorSelection | null>();
 
   @ViewChild( 'editableCanvas' ) editableCanvasRef?: ElementRef<HTMLDivElement>;
 
+  private readonly zone = inject( NgZone );
   showSource = false;
   sourceDraft = '';
+  /** The last non-empty selection inside the page, kept while you use the TODD card. */
+  private savedRange: Range | null = null;
+
+  get isEmpty (): boolean {
+    return !String( this.htmlContent || '' ).replace( /<[^>]*>/g, '' ).replace( /&nbsp;/g, ' ' ).trim();
+  }
+
+  private readonly onSelectionChange = (): void => {
+    const canvas = this.editableCanvasRef?.nativeElement;
+    const selection = document.getSelection();
+    if ( !canvas || !selection || !selection.rangeCount ) return;
+    const range = selection.getRangeAt( 0 );
+    if ( !canvas.contains( range.commonAncestorContainer ) ) return;
+    const text = selection.toString().trim();
+    this.zone.run( () => {
+      if ( !text ) {
+        this.savedRange = null;
+        this.selectionChange.emit( null );
+        return;
+      }
+      this.savedRange = range.cloneRange();
+      const blocks = this.blocksIn( range );
+      this.selectionChange.emit( { text, paragraphs: Math.max( 1, blocks ) } );
+    } );
+  };
 
   ngOnChanges ( changes: SimpleChanges ): void {
     if ( changes['htmlContent'] && !changes['htmlContent'].firstChange ) {
       const canvas = this.editableCanvasRef?.nativeElement;
-      // Only push external updates in - typing inside the canvas already
-      // owns its own DOM, re-setting innerHTML on every keystroke would
-      // fight the caret position.
+      // Typing inside the canvas owns its DOM; only push outside changes in.
       if ( canvas && canvas.innerHTML !== this.htmlContent && document.activeElement !== canvas ) {
         canvas.innerHTML = this.htmlContent || '';
       }
@@ -54,9 +84,13 @@ export class DocRichTextEditorComponent implements OnChanges {
 
   ngAfterViewInit (): void {
     const canvas = this.editableCanvasRef?.nativeElement;
-    if ( canvas ) {
-      canvas.innerHTML = this.htmlContent || '';
-    }
+    if ( canvas ) canvas.innerHTML = this.htmlContent || '';
+    this.zone.runOutsideAngular( () => document.addEventListener( 'selectionchange', this.onSelectionChange ) );
+  }
+
+  ngOnDestroy (): void {
+    document.removeEventListener( 'selectionchange', this.onSelectionChange );
+    this.clearHighlight();
   }
 
   exec ( command: string, value?: string ): void {
@@ -79,6 +113,52 @@ export class DocRichTextEditorComponent implements OnChanges {
     this.emitFromCanvas();
   }
 
+  /** The selected passage's HTML, or '' when nothing is selected. */
+  selectionHtml (): string {
+    if ( !this.savedRange ) return '';
+    const holder = document.createElement( 'div' );
+    holder.appendChild( this.savedRange.cloneContents() );
+    return holder.innerHTML;
+  }
+
+  hasSelection (): boolean {
+    return !!this.savedRange;
+  }
+
+  /** Tints the passage TODD is revising, so it stays visible while you read the preview. */
+  highlightSelection (): void {
+    const registry = ( globalThis as any ).CSS?.highlights;
+    const HighlightCtor = ( globalThis as any ).Highlight;
+    if ( !this.savedRange || !registry || !HighlightCtor ) return;
+    registry.set( HIGHLIGHT, new HighlightCtor( this.savedRange ) );
+  }
+
+  clearHighlight (): void {
+    ( globalThis as any ).CSS?.highlights?.delete( HIGHLIGHT );
+  }
+
+  /** Puts TODD's revision where the selection was; returns false if there's no selection. */
+  replaceSelection ( html: string ): boolean {
+    const range = this.savedRange;
+    const canvas = this.editableCanvasRef?.nativeElement;
+    if ( !range || !canvas || !canvas.contains( range.commonAncestorContainer ) ) return false;
+    range.deleteContents();
+    const template = document.createElement( 'template' );
+    template.innerHTML = html;
+    range.insertNode( template.content );
+    this.savedRange = null;
+    this.clearHighlight();
+    this.emitFromCanvas();
+    this.selectionChange.emit( null );
+    return true;
+  }
+
+  private blocksIn ( range: Range ): number {
+    const holder = document.createElement( 'div' );
+    holder.appendChild( range.cloneContents() );
+    return holder.querySelectorAll( 'p, li, h1, h2, h3, blockquote, div.dk-src' ).length;
+  }
+
   private emitFromCanvas (): void {
     const canvas = this.editableCanvasRef?.nativeElement;
     if ( !canvas ) return;
@@ -86,8 +166,9 @@ export class DocRichTextEditorComponent implements OnChanges {
     this.htmlContentChange.emit( this.htmlContent );
   }
 
-  toggleSourceView (): void {
-    if ( !this.showSource ) {
+  setView ( view: 'visual' | 'html' ): void {
+    if ( ( view === 'html' ) === this.showSource ) return;
+    if ( view === 'html' ) {
       this.sourceDraft = this.htmlContent || '';
     } else {
       this.htmlContent = this.sourceDraft;
@@ -95,7 +176,12 @@ export class DocRichTextEditorComponent implements OnChanges {
       const canvas = this.editableCanvasRef?.nativeElement;
       if ( canvas ) canvas.innerHTML = this.htmlContent;
     }
-    this.showSource = !this.showSource;
+    this.showSource = view === 'html';
+  }
+
+  /** Kept for callers of the old toolbar toggle. */
+  toggleSourceView (): void {
+    this.setView( this.showSource ? 'visual' : 'html' );
   }
 
   onSourceChange ( value: string ): void {
