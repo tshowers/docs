@@ -223,7 +223,7 @@ export class DocsHeaderComponent {
   }
 
   signIn (): void {
-    this.auth.signIn( '/docs' );
+    this.auth.signIn( this.router.url || '/docs' );
   }
 
   async onSignOut (): Promise<void> {
