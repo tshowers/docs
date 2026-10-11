@@ -1,0 +1,36 @@
+.fs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+.fs__eyebrow {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fs__card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px 22px;
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.fs__question { margin: 0; font-size: 22px; }
+.fs__title { margin: 0; font-weight: 600; }
+.fs__answer { margin: 0; line-height: 1.5; }
+.fs__source { margin: 0; font-size: 13px; overflow-wrap: anywhere; }
+
+.fs__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
