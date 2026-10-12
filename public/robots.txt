@@ -1,6 +1,10 @@
 User-agent: *
 Allow: /
 Disallow: /docs
+Disallow: /opportunities
+Disallow: /documents
+Disallow: /upload
+Disallow: /new
 Disallow: /knowledge
 Disallow: /profile
 Disallow: /get-started

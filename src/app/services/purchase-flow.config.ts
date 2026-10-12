@@ -25,7 +25,7 @@ export const DOCS_PURCHASE_FLOW: ProductPurchaseFlowConfig = {
   checkoutEndpoint: '/docs/checkout',
   confirmEndpoint: '/docs/checkout/confirm',
   successRoute: '/docs/success',
-  postConfirmRoute: '/docs',
+  postConfirmRoute: '/',
 };
 
 export const KNOWLEDGE_PURCHASE_FLOW: ProductPurchaseFlowConfig = {

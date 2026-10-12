@@ -22,7 +22,7 @@ import { firstValueFrom } from 'rxjs';
 export class SignInComponent implements OnInit {
   isSigningIn = false;
 
-  private returnUrl = '/docs';
+  private returnUrl = '/';
 
   constructor (
     private route: ActivatedRoute,
@@ -31,7 +31,7 @@ export class SignInComponent implements OnInit {
   ) { }
 
   async ngOnInit (): Promise<void> {
-    this.returnUrl = this.route.snapshot.queryParamMap.get( 'returnUrl' ) || '/docs';
+    this.returnUrl = this.route.snapshot.queryParamMap.get( 'returnUrl' ) || '/';
     if ( await firstValueFrom( this.authService.getUser() ) ) {
       await this.router.navigateByUrl( this.returnUrl );
       return;

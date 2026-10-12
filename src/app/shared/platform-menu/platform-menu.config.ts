@@ -5,7 +5,7 @@ export const PLATFORM_MENU_CONFIG: MenuAppConfig = {
   app: 'docs',
   name: 'Docs',
   items: [
-    { label: 'Home', icon: 'home', route: '/docs' },
+    { label: 'Home', icon: 'home', route: '/' },
     { label: 'Opportunities', icon: 'list', route: '/opportunities', keywords: 'rfp rfps request for proposal proposals bids' },
     { label: 'Documents', icon: 'folder', route: '/documents', keywords: 'files vault' },
     { label: 'Knowledge', icon: 'book', route: '/knowledge', keywords: 'answers knowledge base' },

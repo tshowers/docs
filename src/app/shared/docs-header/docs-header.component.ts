@@ -20,14 +20,14 @@ interface DocsTab {
 }
 
 const APP_TABS: DocsTab[] = [
-  { id: 'home', label: 'Home', route: '/docs', icon: 'home' },
+  { id: 'home', label: 'Home', route: '/', icon: 'home' },
   { id: 'opportunities', label: 'Opportunities', route: '/opportunities', icon: 'inbox' },
   { id: 'documents', label: 'Documents', route: '/documents', icon: 'folder' },
   { id: 'knowledge', label: 'Knowledge', route: '/knowledge', icon: 'book' },
 ];
 
 const SIGNED_OUT_TABS: DocsTab[] = [
-  { id: 'home', label: 'Home', route: '/docs', icon: 'home' },
+  { id: 'home', label: 'Home', route: '/', icon: 'home' },
   { id: 'about', label: 'About', route: '/about', icon: 'info' },
   { id: 'help', label: 'Help', route: '/help', icon: 'help' },
 ];
@@ -41,11 +41,11 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
   const path = ( url || '' ).split( /[?#]/ )[0];
   // "Add an RFP" is the upload page opened from Opportunities.
   if ( /^\/upload\?(.*&)?rfp=1(&|#|$)/.test( url || '' ) ) return 'opportunities';
-  if ( path === '/docs' || path === '/docs/' ) return 'home';
+  if ( path === '/' || path === '/docs' || path === '/docs/' ) return 'home';
   if ( /^\/(opportunities|docs\/(rfp-list|rfp-upload|proposal-history))(\/|$)/.test( path ) ) return 'opportunities';
   if ( /^\/(documents|upload|docs\/(documents|upload|editor))(\/|$)/.test( path ) ) return 'documents';
   if ( /^\/knowledge(\/|$)/.test( path ) ) return 'knowledge';
-  if ( path === '/' || /^\/about(\/|$)/.test( path ) ) return 'about';
+  if ( /^\/about(\/|$)/.test( path ) ) return 'about';
   if ( /^\/help(\/|$)/.test( path ) ) return 'help';
   return null;
 }
@@ -134,7 +134,7 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
   `],
   template: `
     <header class="ah">
-      <a class="ah-brand" routerLink="/docs" aria-label="TODD Docs home">
+      <a class="ah-brand" routerLink="/" aria-label="TODD Docs home">
         <img class="ah-logo" src="assets/todd-docs-icon.png" alt="" />
         <span class="ah-name">TODD<small>Docs</small></span>
         <span class="dh-title">{{ pageTitle() }}</span>
@@ -222,8 +222,9 @@ export class DocsHeaderComponent {
     this.theme.set( toggleTheme() );
   }
 
+  /** Through the pre-sign-in wizard (ONBOARDING-PROFILE-BILLING-PLAYBOOK §1); it signs in from its last step, or straight away via "Already have an account?". */
   signIn (): void {
-    this.auth.signIn( this.router.url || '/docs' );
+    void this.router.navigate( ['/get-started'], { queryParams: { returnUrl: this.router.url || '/' } } );
   }
 
   async onSignOut (): Promise<void> {

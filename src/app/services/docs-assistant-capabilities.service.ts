@@ -112,7 +112,7 @@ export class DocsAssistantCapabilitiesService {
   private readonly routeIntentGuides: RouteIntentGuide[] = [
     {
       id: 'document-home-operations',
-      route: '/docs',
+      route: '/',
       phrases: [
         'open knowledge',
         'open the knowledge dashboard',

@@ -2,6 +2,8 @@ import { docsTabForUrl } from './docs-header.component';
 
 describe( 'docsTabForUrl', () => {
   it( 'lights the tab each page belongs to, old addresses included', () => {
+    expect( docsTabForUrl( '/' ) ).toBe( 'home' );
+    expect( docsTabForUrl( '/?ref=menu' ) ).toBe( 'home' );
     expect( docsTabForUrl( '/docs' ) ).toBe( 'home' );
     expect( docsTabForUrl( '/docs?ref=menu' ) ).toBe( 'home' );
     expect( docsTabForUrl( '/opportunities' ) ).toBe( 'opportunities' );

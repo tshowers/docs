@@ -115,12 +115,16 @@ export class GetStartedComponent implements OnInit {
     this.drafts.save( this.draft );
   }
 
+  /** Back to the page you were on when you chose Sign in (?returnUrl=), else the app. */
+  get returnUrl (): string {
+    const returnUrl = String( this.route.snapshot.queryParamMap.get( 'returnUrl' ) || '' ).trim();
+    return returnUrl.startsWith( '/' ) && !returnUrl.startsWith( '//' ) ? returnUrl : '/';
+  }
+
   signIn (): void {
     this.isSigningIn = true;
     this.persist();
-    // Back to the page you were on when you chose Sign in (?returnUrl=), else the app.
-    const returnUrl = String( this.route.snapshot.queryParamMap.get( 'returnUrl' ) || '' ).trim();
-    this.authService.signIn( returnUrl.startsWith( '/' ) && !returnUrl.startsWith( '//' ) ? returnUrl : '/docs' );
+    this.authService.signIn( this.returnUrl );
   }
 
   private focus (): void {

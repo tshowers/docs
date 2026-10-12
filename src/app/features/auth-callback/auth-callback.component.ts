@@ -53,10 +53,10 @@ export class AuthCallbackComponent implements OnInit {
         return;
       }
 
-      const returnUrl = pending.returnUrl || '/docs';
+      const returnUrl = pending.returnUrl || '/';
       // Heading to the default landing (not a deep link) and steps remain:
       // show the Getting Started checklist first, once per session.
-      if ( ( returnUrl === '/docs' || returnUrl === '/' ) && await this.gettingStarted.shouldShowAfterSignIn() ) {
+      if ( ( returnUrl === '/' || returnUrl === '/docs' ) && await this.gettingStarted.shouldShowAfterSignIn() ) {
         await this.router.navigate( ['/help'], { fragment: 'your-progress' } );
         return;
       }

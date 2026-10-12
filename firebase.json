@@ -2,6 +2,7 @@
   "hosting": {
     "site": "todd-docs",
     "public": "dist/docs/browser",
+    "trailingSlash": false,
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -10,7 +11,7 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "destination": "/index.csr.html"
       }
     ]
   }

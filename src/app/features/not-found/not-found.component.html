@@ -7,5 +7,5 @@
     <input name="q" [value]="query()" (input)="query.set($any($event.target).value)" placeholder="Search documents, knowledge and opportunities…" aria-label="Search" />
     <button type="submit" class="dk-btn dk-btn--primary" [disabled]="!query().trim()">Go</button>
   </form>
-  <a class="dk-btn" routerLink="/docs"><dk-icon name="home" />Home</a>
+  <a class="dk-btn" routerLink="/"><dk-icon name="home" />Home</a>
 </div>

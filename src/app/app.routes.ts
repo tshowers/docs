@@ -2,11 +2,18 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
-    // Home (1b; 2a signed out) lives at /docs; the old landing page's
-    // content is About.
+    // Home (1b; 2a signed out). The old landing page's content is About.
     path: '',
     pathMatch: 'full',
-    redirectTo: 'docs',
+    data: {
+      pageTitle: 'Docs',
+      meta: {
+        title: 'Docs — Proposals, RFPs, and your knowledge base | Taliferro Tech',
+        description: 'Docs and Knowledge keep proposals, RFPs, and your response library in one place so TODD can draft, track, and reuse them.',
+      },
+    },
+    loadComponent: () =>
+      import( './features/home/home.component' ).then( ( m ) => m.HomeComponent ),
   },
   {
     path: 'auth/callback',
@@ -20,19 +27,37 @@ export const routes: Routes = [
   },
   {
     path: 'ios',
+    data: {
+      meta: {
+        title: 'Docs for iOS | Taliferro Tech',
+        description: 'Docs for iOS is coming soon: keep proposals, RFP responses, and your knowledge base within reach wherever the work takes you.',
+      },
+    },
     loadComponent: () =>
       import( './features/app-showcase/app-showcase.component' ).then( ( m ) => m.AppShowcaseComponent ),
   },
   {
     // The signed-out header's About tab (2b).
     path: 'about',
-    data: { pageTitle: 'About' },
+    data: {
+      pageTitle: 'About',
+      meta: {
+        title: 'About Docs | Taliferro Tech',
+        description: 'What Docs and Knowledge do: store proposals and RFPs, build a reusable answer library, and let TODD draft responses from your own work.',
+      },
+    },
     loadComponent: () =>
       import( './features/about/about.component' ).then( ( m ) => m.AboutComponent ),
   },
   {
     path: 'help',
-    data: { pageTitle: 'Help' },
+    data: {
+      pageTitle: 'Help',
+      meta: {
+        title: 'Docs Help | Taliferro Tech',
+        description: 'How to add documents and RFPs, build Knowledge answers, and use TODD to draft and send proposals in Docs.',
+      },
+    },
     loadComponent: () =>
       import( './features/help/help.component' ).then( ( m ) => m.HelpComponent ),
   },
@@ -52,21 +77,24 @@ export const routes: Routes = [
     // The old Stripe plan pages now forward to the one "browse free,
     // create with the app" pricing page.
     path: 'docs/pricing',
-    redirectTo: 'pricing',
+    redirectTo: '/pricing',
   },
   {
     path: 'knowledge/pricing',
-    redirectTo: 'pricing',
+    redirectTo: '/pricing',
   },
   {
+    // Home used to live at /docs; old links and bookmarks land on /.
+    // Redirects here are absolute: with server rendering, a relative one on
+    // a two-segment path (docs/pricing -> pricing) resolves under docs/ and
+    // loops.
     path: 'docs',
-    data: { pageTitle: 'Docs' },
-    loadComponent: () =>
-      import( './features/home/home.component' ).then( ( m ) => m.HomeComponent ),
+    pathMatch: 'full',
+    redirectTo: '/',
   },
   {
     path: 'docs/landing',
-    redirectTo: 'docs',
+    redirectTo: '/',
   },
   {
     // The four tabs (design_handoff_todd_docs): Home, Opportunities,
@@ -116,7 +144,7 @@ export const routes: Routes = [
   },
   {
     path: 'docs/documents',
-    redirectTo: 'documents',
+    redirectTo: '/documents',
   },
   {
     path: 'upload',
@@ -126,7 +154,7 @@ export const routes: Routes = [
   },
   {
     path: 'docs/upload',
-    redirectTo: 'upload',
+    redirectTo: '/upload',
   },
   {
     // The header's New button (1j): TODD writes a first draft, then the
@@ -148,11 +176,11 @@ export const routes: Routes = [
   },
   {
     path: 'docs/proposal-history',
-    redirectTo: 'opportunities',
+    redirectTo: '/opportunities',
   },
   {
     path: 'docs/rfp-list',
-    redirectTo: 'opportunities',
+    redirectTo: '/opportunities',
   },
   {
     path: 'docs/rfp-upload',
@@ -215,7 +243,13 @@ export const routes: Routes = [
     // "Browse free, create with the app" (Ty, 2026-09-28) - shared wording
     // in @taliferro/ui/platform/get-the-app.model.ts.
     path: 'pricing',
-    data: { product: 'docs' },
+    data: {
+      product: 'docs',
+      meta: {
+        title: 'Docs Pricing | Taliferro Tech',
+        description: 'Browse Docs free on the web, and create with the app: plans for proposals, RFP responses, and a reusable knowledge base.',
+      },
+    },
     loadComponent: () =>
       import( './features/get-the-app/get-the-app.component' ).then( ( m ) => m.GetTheAppComponent ),
   },

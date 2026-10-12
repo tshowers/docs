@@ -9,6 +9,7 @@ import { environment } from '../environments/environment';
 import { docsTenantInterceptor } from './core/interceptors/docs-tenant.interceptor';
 import { idTokenInterceptor } from './core/interceptors/id-token.interceptor';
 import { provideCanonicalUrl } from './shared/canonical-url';
+import { providePageMeta } from './shared/page-meta';
 
 initializeApp( environment.firebaseConfig );
 
@@ -17,6 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideCanonicalUrl(),
+    providePageMeta(),
     provideHttpClient(withInterceptors([idTokenInterceptor, docsTenantInterceptor])),
     provideServiceWorker('ngsw-worker.js', {
       enabled: environment.production,

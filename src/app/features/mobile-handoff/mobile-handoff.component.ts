@@ -37,7 +37,7 @@ export class MobileHandoffComponent implements OnInit {
 
   async ngOnInit (): Promise<void> {
     const token = this.route.snapshot.queryParamMap.get( 'token' );
-    const returnUrl = this.route.snapshot.queryParamMap.get( 'returnUrl' ) || '/docs';
+    const returnUrl = this.route.snapshot.queryParamMap.get( 'returnUrl' ) || '/';
 
     if ( !token ) {
       this.errorMessage = 'This sign-in link is missing a token.';

@@ -10,11 +10,11 @@ describe( 'Docs route table', () => {
       'knowledge/response-flow/:id', 'knowledge', 'knowledge/save', 'knowledge/:id', 'get-started', 'profile', 'login',
       'pricing', '**'
     ] );
-    // The old Stripe pricing pages now land on /pricing ("browse free,
-    // create with the app"); the vault and upload moved under the
-    // Documents tab; RFP list, Proposal History and RFP upload under
-    // Opportunities.
-    expect( routes.filter( route => route.redirectTo ).map( route => route.redirectTo ) ).toEqual( ['docs', 'pricing', 'pricing', 'docs', 'documents', 'upload', 'opportunities', 'opportunities', '/upload?rfp=1'] );
+    // Home lives at / and the old /docs addresses land there; the old
+    // Stripe pricing pages now land on /pricing ("browse free, create with
+    // the app"); the vault and upload moved under the Documents tab; RFP
+    // list, Proposal History and RFP upload under Opportunities.
+    expect( routes.filter( route => route.redirectTo !== undefined ).map( route => route.redirectTo ) ).toEqual( ['/pricing', '/pricing', '/', '/', '/documents', '/upload', '/opportunities', '/opportunities', '/upload?rfp=1'] );
     expect( routes.filter( route => route.loadComponent ).length ).toBe( 29 );
   } );
 } );

@@ -10,28 +10,33 @@ The app is an Angular 19 standalone application backed by Firebase Authenticatio
 
 ## What it does
 
-The current app provides these surfaces:
+The header has four tabs: Home, Opportunities, Documents, and Knowledge. Signed out, the tabs are Home, About, and Help.
 
-- **Docs cockpit** (`/docs`) — an overview of document health, capture readiness, proposal reuse, and knowledge freshness.
-- **Documents** (`/docs/documents`) — a document vault with search, carousel, desk, and pins views, plus document editing and deletion for signed-in users.
-- **Add Document** (`/docs/upload`) — upload PDFs, images, video, audio, Word files, and other references with descriptive metadata.
-- **Document Editor** (`/docs/editor`) — create and edit document drafts, work with `.docx` files, and export content.
-- **Knowledge Base** (`/knowledge`) — browse reusable question-and-answer entries and supporting evidence.
-- **Response Flow** (`/knowledge/response-flow`) — a wizard for building a reusable answer through question, response, resource, and keyword steps.
-- **Proposal History** (`/docs/proposal-history`) — review uploaded RFPs and proposals generated from them.
-- **RFP tools** (`/docs/rfp-upload`, `/docs/rfp-list`) — upload and browse RFP records.
-- **Pricing and success pages** for Docs and Knowledge subscriptions.
-- **Landing and iOS preview pages** (`/`, `/ios`) for product introduction and future mobile positioning.
+| Route | Page |
+| --- | --- |
+| `/` | **Home.** Search box, quick actions, and a status overview. Signed out, it shows the public introduction. `/docs` and `/docs/landing` redirect here. |
+| `/about`, `/help`, `/ios`, `/pricing` | Public pages: About, Help, the iOS preview, and "browse free, create with the app" pricing. These are prerendered (see [SEO and public pages](#seo-and-public-pages)). |
+| `/opportunities` | RFPs TODD found or you added, scored against your profile. Sub-pages: `/opportunities/inbox` (connect an RFP intake inbox), `/opportunities/:id`, `/opportunities/:id/proposal` (the proposal editor), and `/opportunities/:id/send` (review and send). |
+| `/documents`, `/documents/:id` | The document vault and a single document. |
+| `/upload` | Add files: PDFs, images, video, audio, Word files. `/upload?rfp=1` adds an RFP. |
+| `/new`, `/docs/editor/:id` | TODD writes a first draft, which opens in the document editor (`.docx` import and export). |
+| `/knowledge`, `/knowledge/:id` | The Knowledge Base of reusable answers and their sources. |
+| `/knowledge/response-flow[/:id]` | Add or edit an answer. |
+| `/knowledge/save` | Save an answer to Knowledge from Find. |
+| `/get-started`, `/login`, `/auth/callback`, `/profile` | Onboarding, the sign-in hand-off, the hosted-login callback, and the profile. |
+
+Old addresses (`/docs/documents`, `/docs/upload`, `/docs/rfp-list`, `/docs/proposal-history`, `/docs/rfp-upload`, `/docs/pricing`, `/knowledge/pricing`) redirect to their new pages. [app.routes.ts](src/app/app.routes.ts) holds the full list.
 
 ## Guest mode
 
-Most product surfaces are intentionally explorable without signing in. Guests see the layout and an honest preview, but live private values and write actions remain disabled. The browse-mode banner sends users to the hosted TODD sign-in flow, and its Home action returns to `/docs`.
+Most product surfaces are intentionally explorable without signing in. Guests see the layout and an honest preview, but live private values and write actions remain disabled. The browse-mode banner sends users to the hosted TODD sign-in flow, and its Home action returns to `/`.
 
 Signed-in sessions resolve a tenant from the Firebase user record and attach tenant/user headers to API requests. The hosted login callback completes authentication with a Firebase custom token.
 
 ## Prerequisites
 
-- **Node.js 22** (developed on 22.13) and npm.
+- **Node.js 22** (developed on 22.13; `.nvmrc` pins it, so `nvm use` works) and npm.
+- **Google Chrome**, for `npm run test:ci` (Karma runs headless Chrome) and Cypress.
 - **Angular CLI 19** comes in with `npm install`; run it with `npx ng`.
 - **Firebase CLI** (`npm i -g firebase-tools`), only if you deploy. You also need access to the `taliferrotech` Firebase project; ask the project owner to add you.
 - **The `taliferro-ui` repo, checked out next to this one.** `package.json` installs `@taliferro/ui` from `file:../../taliferro-ui`, so the folders must look like this:
@@ -52,7 +57,7 @@ npm install
 npm start          # http://localhost:4200
 ```
 
-You don't need a `.env` file or any environment variables. The local dev server talks to the **production** API and Firebase project (see [Configuration](#configuration)), so anything you do while signed in changes real data.
+You don't need a `.env` file or any environment variables. The local dev server and `npm run e2e` both talk to the **production** API and Firebase project (see [Configuration](#configuration)), so anything you do while signed in changes real data.
 
 ### Signing in locally
 
@@ -62,7 +67,7 @@ You can browse most pages without signing in (see [Guest mode](#guest-mode)).
 
 ## Configuration
 
-All configuration is compiled in from two files:
+All configuration is compiled in from two files. Both are committed to git, `apiKey` included:
 
 | File | Used by |
 | --- | --- |
@@ -74,7 +79,7 @@ Both files currently hold the same values:
 | Key | Purpose |
 | --- | --- |
 | `backendURL` | Base URL for every API call (`https://api.taliferro.tech/api`). Point it at a local or staging API here. |
-| `apiKey` | Sent as `Authorization: Bearer …` to `/app-assistant` and `/document-helper`. Treat it as a secret. |
+| `apiKey` | Sent as `Authorization: Bearer …` to `/app-assistant` and `/document-helper`. It ships in the browser bundle, so it isn't really secret; don't copy it anywhere else, and rotate it on the API side if it leaks. |
 | `firebaseConfig` | Firebase web app config for the `taliferrotech` project (Auth, Firestore, Storage). |
 | `taliferroTenantId` | The uid that gets admin-only header items (`DocsHeaderComponent.isAdmin`). |
 | `production` | Standard Angular flag. |
@@ -127,11 +132,25 @@ The frontend is a client application. Firebase rules and the API must keep enfor
 | Command | What it does |
 | --- | --- |
 | `npm start` | Dev server on port 4200 |
-| `npm run build` | Production build to `dist/docs/browser`. It runs `generate-version` first, which **rewrites `version` in `package.json` and `public/assets/version.json`** (`YYYY.M.D-build.N`). |
+| `npm run build` | Production build to `dist/docs/browser`, including the prerendered public pages (see [SEO and public pages](#seo-and-public-pages)). It runs `generate-version` first, which **rewrites `version` in `package.json` and `public/assets/version.json`** (`YYYY.M.D-build.N`). Use `npx ng build` to build without bumping the version. |
 | `npm test` / `npm run test:ci` | Karma/Jasmine unit tests; `test:ci` runs once in headless Chrome |
 | `npm run e2e` | Starts the dev server and runs Cypress against `http://localhost:4200` |
 | `npm run cy:open` | Opens Cypress interactively |
 | `npm run typecheck:cypress` | Type-checks the Cypress specs |
+
+## SEO and public pages
+
+The build prerenders the public pages to static HTML (`outputMode: "static"` in `angular.json`), so crawlers and link previews (Slack, iMessage, LinkedIn) see real content without running JavaScript:
+
+| File | Role |
+| --- | --- |
+| [app.routes.server.ts](src/app/app.routes.server.ts) | Which routes prerender: `/`, `/about`, `/help`, `/ios`, and `/pricing`. Every other route renders in the browser only. |
+| [app.routes.ts](src/app/app.routes.ts) `data.meta` | Each public page's `<title>` and description, applied by [page-meta.ts](src/app/shared/page-meta.ts) to the title, description, Open Graph, and Twitter tags. |
+| [canonical-url.ts](src/app/shared/canonical-url.ts) | Keeps `<link rel="canonical">` on the current path. |
+| [public/sitemap.xml](public/sitemap.xml) | Lists the prerendered pages. Keep it in step with `app.routes.server.ts`. |
+| [public/robots.txt](public/robots.txt) | Blocks crawlers from the signed-in workspace routes. |
+
+Home prerenders its signed-out view. Code that runs on those pages must not touch `window`, `document`, or `localStorage` until it's in the browser (check `typeof window` or use `isPlatformBrowser`), or the build logs `window is not defined` while prerendering. To add a public page: add its route with `data.meta`, add it to `app.routes.server.ts` and `sitemap.xml`, and make sure it isn't blocked in `robots.txt`.
 
 ## Deployment
 
@@ -151,7 +170,7 @@ npm run deploy:hosting   # runs ./deploy.sh
 
 Commit or stash unrelated work before you run it. If any step fails, the script stops and nothing is deployed.
 
-`firebase.json` rewrites every route to `index.html`, so Angular routes still work on direct links and refresh. The app also registers an Angular service worker (`ngsw-config.json`), so users may need a reload to pick up a new deploy.
+Firebase Hosting serves the prerendered pages (`index.html`, `about/index.html`, …) as files and rewrites every other route to `index.csr.html`, the browser-only shell, so app routes still work on direct links and refresh. The app also registers an Angular service worker (`ngsw-config.json`), so users may need a reload to pick up a new deploy.
 
 ## Current limitations and intent
 

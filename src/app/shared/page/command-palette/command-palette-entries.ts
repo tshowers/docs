@@ -16,9 +16,8 @@ export interface CommandPaletteEntry {
 
 export const COMMAND_PALETTE_ENTRIES: CommandPaletteEntry[] = [
   // --- Docs (this app) -----------------------------------------------------
-  { id: 'home', label: 'Home', group: 'Docs', path: '/', keywords: ['home', 'landing', 'docs'] },
+  { id: 'home', label: 'Home', group: 'Docs', path: '/', keywords: ['home', 'landing', 'docs', 'docs home', 'dashboard'] },
   { id: 'ios-app', label: 'Docs for iOS', group: 'Docs', path: '/ios', keywords: ['ios', 'app', 'mobile', 'showcase'] },
-  { id: 'docs-home', label: 'Docs Home', group: 'Docs', path: '/docs', keywords: ['docs home', 'documents', 'dashboard'] },
   { id: 'docs-opportunities', label: 'Opportunities', group: 'Docs', path: '/opportunities', keywords: ['opportunities', 'rfps', 'rfp list', 'requests for proposal', 'proposals', 'proposal history', 'bids'] },
   { id: 'docs-rfp-inbox', label: 'RFP inbox', group: 'Docs', path: '/opportunities/inbox', keywords: ['rfp inbox', 'connect inbox', 'email alerts', 'opengov', 'bonfire'] },
   { id: 'docs-add-rfp', label: 'Add an RFP', group: 'Docs', path: '/upload', queryParams: { rfp: '1' }, keywords: ['upload rfp', 'new rfp', 'add rfp'] },

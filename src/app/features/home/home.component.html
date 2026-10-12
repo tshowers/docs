@@ -3,8 +3,7 @@
     <div class="dk-banner home__banner" role="note">
       <dk-icon name="alert-circle" [size]="18" />
       <p><strong>You're not signed in.</strong> Look around as much as you like. To use Docs with your own files, sign in. Nothing you do here is saved.</p>
-      <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/login">Sign in</a>
-      <a class="dk-btn dk-btn--bg dk-btn--sm" routerLink="/get-started">Get started</a>
+      <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/get-started">Sign in</a>
     </div>
   }
 
@@ -25,7 +24,7 @@
       <div class="dk-todd home__guest">
         <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />“{{ guestAsked() }}”</div>
         <p>Signed in, I'd search your documents and Knowledge for this, or answer it from what your team has saved. Sign in to try it on your own work.</p>
-        <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/login">Sign in</a>
+        <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/get-started">Sign in</a>
       </div>
     }
   </section>
@@ -86,5 +85,9 @@
       <a class="dk-btn" routerLink="/about">What is Docs? →</a>
       <a class="dk-btn" routerLink="/help">How to use it →</a>
     </nav>
+    <p class="tt-made-by home__made-by"><a href="https://todd.taliferro.tech" target="_blank" rel="noopener"><span class="tt-made-by__todd"><img src="assets/TODD-icon.png" alt="" /></span>Powered by <strong>TODD</strong></a><i aria-hidden="true"></i><a appAlsoFromUs></a></p>
   }
 </div>
+@if (signedIn() === false) {
+  <app-site-footer><a routerLink="/about">About</a><a routerLink="/help">Help</a><a routerLink="/pricing">Pricing</a></app-site-footer>
+}

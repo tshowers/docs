@@ -10,7 +10,9 @@ import { DocsAuthService } from '../../services/docs-auth.service';
 import { DocumentsStoreService } from '../../services/documents-store.service';
 import { KnowledgeStoreService } from '../../services/knowledge-store.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
+import { AlsoFromUsComponent } from '../../shared/also-from-us/also-from-us.component';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
+import { SiteFooterComponent } from '../../shared/site-footer/site-footer.component';
 import { routeAsk } from './home-ask';
 
 export interface NeedsYouItem {
@@ -85,7 +87,7 @@ export function needsYou ( input: {
 @Component( {
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, DkIconComponent],
+  imports: [CommonModule, RouterModule, DkIconComponent, AlsoFromUsComponent, SiteFooterComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',

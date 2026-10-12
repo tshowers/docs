@@ -11,7 +11,8 @@ import { LoggerService } from './logger.service';
 export class AssistantBoxHelperService {
 
   private routeLabelMap: Record<string, string> = {
-    '/docs': 'Knowledge',
+    '/': 'Docs',
+    '/docs': 'Docs',
     '/docs/documents': 'Documents',
     '/docs/editor': 'Editor',
     '/docs/upload': 'Upload',

@@ -31,7 +31,7 @@ export function buildDocumentPageActions ( options: DocumentPageActionOptions = 
       label: 'Documents',
       icon: 'fa-regular fa-folder',
       kind: 'route',
-      route: '/docs',
+      route: '/',
       order: 0,
       feature: 'docs',
       group: 'context',

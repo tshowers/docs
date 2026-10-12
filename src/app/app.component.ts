@@ -42,7 +42,8 @@ export class AppComponent implements OnInit {
       this.hideHeader = this.isBareRoute( ( event as NavigationEnd ).urlAfterRedirects );
     } );
     this.showUpdateNoticeAfterReload();
-    if ( !environment.production ) return;
+    // Prerendering (app.routes.server.ts) has no window: no update polling there.
+    if ( !environment.production || typeof window === 'undefined' ) return;
     window.addEventListener( 'error', this.handleWindowError, true );
     window.addEventListener( 'unhandledrejection', this.handleUnhandledRejection );
     this.updates.versionUpdates.subscribe( event => {
