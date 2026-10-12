@@ -29,45 +29,129 @@ Most product surfaces are intentionally explorable without signing in. Guests se
 
 Signed-in sessions resolve a tenant from the Firebase user record and attach tenant/user headers to API requests. The hosted login callback completes authentication with a Firebase custom token.
 
-## Data and integrations
+## Prerequisites
 
-- Firebase project: `taliferrotech`
-- API base URL: `https://api.taliferro.tech/api`
-- Document API: `/docs`
-- Response-flow API: `/response-flows`
-- Hosted authentication: `https://todd.taliferro.tech/login`
-- Firebase Hosting site: `todd-docs`
+- **Node.js 22** (developed on 22.13) and npm.
+- **Angular CLI 19** comes in with `npm install`; run it with `npx ng`.
+- **Firebase CLI** (`npm i -g firebase-tools`), only if you deploy. You also need access to the `taliferrotech` Firebase project; ask the project owner to add you.
+- **The `taliferro-ui` repo, checked out next to this one.** `package.json` installs `@taliferro/ui` from `file:../../taliferro-ui`, so the folders must look like this:
 
-The frontend is a client application; authorization and tenant isolation must continue to be enforced by Firebase rules and the API. A guest request must never be treated as permission to read or write private workspace data.
+  ```
+  corporate/
+  ├── taliferro-ui/          ← shared TODD UI package
+  └── web-products/
+      └── docs/              ← this repo
+  ```
 
-## Local development
+  Without it, `npm install` fails.
 
-Install dependencies and start the Angular development server:
+## Getting started
 
 ```bash
 npm install
-npm start
+npm start          # http://localhost:4200
 ```
 
-The development app is served at `http://localhost:4200`. Production configuration uses `src/environments/environment.prod.ts`.
+You don't need a `.env` file or any environment variables. The local dev server talks to the **production** API and Firebase project (see [Configuration](#configuration)), so anything you do while signed in changes real data.
 
-Build the production bundle:
+### Signing in locally
+
+Sign-in always happens on TODD's hosted login page. When the app runs on `localhost` or `127.0.0.1`, it sends you to `https://todd.taliferro.tech/login?client=docs-web-local&state=…` (see `DocsAuthService.signIn`). The hosted login must recognize the `docs-web-local` client and send you back to `http://localhost:4200/auth/callback`, so serve on port 4200. If the login page won't send you back, check the client registration on the TODD login side first.
+
+You can browse most pages without signing in (see [Guest mode](#guest-mode)).
+
+## Configuration
+
+All configuration is compiled in from two files:
+
+| File | Used by |
+| --- | --- |
+| `src/environments/environment.ts` | `npm start`, `ng build --configuration development` |
+| `src/environments/environment.prod.ts` | `npm run build` (production) |
+
+Both files currently hold the same values:
+
+| Key | Purpose |
+| --- | --- |
+| `backendURL` | Base URL for every API call (`https://api.taliferro.tech/api`). Point it at a local or staging API here. |
+| `apiKey` | Sent as `Authorization: Bearer …` to `/app-assistant` and `/document-helper`. Treat it as a secret. |
+| `firebaseConfig` | Firebase web app config for the `taliferrotech` project (Auth, Firestore, Storage). |
+| `taliferroTenantId` | The uid that gets admin-only header items (`DocsHeaderComponent.isAdmin`). |
+| `production` | Standard Angular flag. |
+| `PLATFORM_URL`, `COMPANY_NAME`, `linkPreview` | Not referenced by the app today. |
+
+## Backend and services
+
+### Taliferro API (`backendURL`)
+
+Signed-in requests go through `docsTenantInterceptor`, which adds:
+
+```
+X-Tenant-Id:  <tenant resolved from users/{uid}>
+X-User-Id:    <Firebase uid>
+X-User-Email: <Firebase email>
+```
+
+| Endpoint | Used for | Service |
+| --- | --- | --- |
+| `GET/POST /docs`, `GET/PUT/DELETE /docs/:id` | Document vault CRUD | `DocService` |
+| `POST /docs/compose` | Compose a document from a brief and knowledge entries | `DocService` |
+| `GET /docs/limits` | Plan usage limits | `DocService` |
+| `POST /docs/knowledge/suggest` | Knowledge suggestions while answering | `AnswerFormComponent` |
+| `/docs/opportunities…` | RFP opportunities: list, detail, update, rescore, proposal plan, sections, send, submitted | `OpportunitiesService` |
+| `/docs/inboxes…` | RFP intake inboxes: list, create, update, test, check, Google OAuth start | `OpportunitiesService` |
+| `GET/POST /response-flows`, `GET/PUT/DELETE /response-flows/:id` | Knowledge Base / Response Flow entries | `ResponseFlowService` |
+| `POST /response-flows/from-find` | Save to Knowledge from Find (`/knowledge/save`) | `FindSaveComponent` |
+| `POST /app-assistant` | General AI assistant (bearer `apiKey`) | `OpenAiService` |
+| `POST /document-helper` | Document and proposal AI helpers (bearer `apiKey`) | `DocsOpenAiService` |
+| `GET /account/summary`, `POST /account/subscriptions/cancel` | Subscription and billing state | `AccountBillingService` |
+| `GET/PATCH /profile`, `DELETE /account` | Profile and account deletion | `ProfileApiService` |
+| `POST /onboarding/profile`, `POST /mobile/docs/knowledge-base` | Sign-up draft hand-off | `DocsSignupDraftService` |
+| `GET /getting-started/docs` | Getting-started checklist | `GettingStartedService` |
+
+### Firebase (`taliferrotech`)
+
+- **Authentication.** The hosted login returns a custom token, and `/auth/callback` signs in with it.
+- **Firestore.** The app reads `users/{uid}` to find the tenant, reads `tenants/{tenantId}/contacts`, and reads and writes the dropdown lists under `tenants/{tenantId}/…` (`DocsDropdownService`).
+- **Storage.** Files are uploaded to `documents/{uid}/…` from the document editor and the answer form.
+
+### Other hosts
+
+- `https://todd.taliferro.tech` for hosted login, profile and Outreach social hand-off.
+- The other `*.taliferro.tech` product URLs appear only as links in the universal platform menu.
+
+The frontend is a client application. Firebase rules and the API must keep enforcing authorization and tenant isolation, and a guest request must never count as permission to read or write private workspace data.
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm start` | Dev server on port 4200 |
+| `npm run build` | Production build to `dist/docs/browser`. It runs `generate-version` first, which **rewrites `version` in `package.json` and `public/assets/version.json`** (`YYYY.M.D-build.N`). |
+| `npm test` / `npm run test:ci` | Karma/Jasmine unit tests; `test:ci` runs once in headless Chrome |
+| `npm run e2e` | Starts the dev server and runs Cypress against `http://localhost:4200` |
+| `npm run cy:open` | Opens Cypress interactively |
+| `npm run typecheck:cypress` | Type-checks the Cypress specs |
+
+## Deployment
+
+The supported path is:
 
 ```bash
-npm run build
+npm run deploy:hosting   # runs ./deploy.sh
 ```
 
-The output is written to `dist/docs/browser`.
+`deploy.sh` does the following, in order:
 
-## Firebase deployment
+1. Selects the `taliferrotech` Firebase project.
+2. Runs `npm run build`.
+3. Runs `npm run test:ci` and `npm run e2e`.
+4. **Commits everything in the working tree** (`git add -A`) as `Deploy Docs <timestamp>` on whatever branch you're on.
+5. Runs `firebase deploy --project taliferrotech --only hosting:todd-docs`.
 
-After a successful production build, deploy the configured Hosting site with the Firebase CLI:
+Commit or stash unrelated work before you run it. If any step fails, the script stops and nothing is deployed.
 
-```bash
-firebase deploy --only hosting:todd-docs
-```
-
-`firebase.json` rewrites all routes to `index.html` so Angular client-side routes work on direct navigation and refresh.
+`firebase.json` rewrites every route to `index.html`, so Angular routes still work on direct links and refresh. The app also registers an Angular service worker (`ngsw-config.json`), so users may need a reload to pick up a new deploy.
 
 ## Current limitations and intent
 
