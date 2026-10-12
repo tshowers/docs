@@ -128,6 +128,8 @@ export class HelpComponent implements OnInit {
         'Search Knowledge the same way you search Documents.',
         'Open an answer to confirm it, edit it or turn it into a post.',
         'You can still add an answer yourself from Knowledge.',
+        'Answers you save from Find with Save to Knowledge land here marked “via Find”. Saving from Find is free; editing or deleting them needs Docs.',
+        'Without Docs you can save up to 100 answers from Find. Saving the same result again doesn’t make a copy.',
       ],
       route: '/knowledge',
       action: 'Open Knowledge',
