@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { DocsAuthService } from '../../services/docs-auth.service';
 import { DocsSignupDraft, DocsSignupDraftService, STARTER_QUESTIONS, StarterQuestion } from '../../services/docs-signup-draft.service';
@@ -19,7 +20,7 @@ interface Step { key: StepKey; section: number; }
  * (company name, role and what it does - design 3f, saved to Profile),
  * then sign in. The draft is saved after sign-in by
  * DocsSignupDraftService.submitIfPending() in AuthCallbackComponent.
- * Returning users skip to /login.
+ * Returning users skip to /login; already signed-in users never see it.
  */
 @Component( {
   selector: 'app-get-started',
@@ -30,6 +31,7 @@ interface Step { key: StepKey; section: number; }
 } )
 export class GetStartedComponent implements OnInit {
   private readonly route = inject( ActivatedRoute );
+  private readonly router = inject( Router );
   @ViewChild( 'answerInput' ) answerInput?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
 
   readonly sections = ['Start', 'Your answer', 'About you', 'Sign up'];
@@ -54,9 +56,11 @@ export class GetStartedComponent implements OnInit {
     readonly drafts: DocsSignupDraftService,
   ) { }
 
-  ngOnInit (): void {
+  async ngOnInit (): Promise<void> {
     this.title.setTitle( 'Get started — Docs | Taliferro Tech' );
     this.draft = this.drafts.load();
+    // Signed in already: the wizard is only a way to sign up, so skip it.
+    if ( await firstValueFrom( this.authService.getUser() ) ) await this.router.navigateByUrl( this.returnUrl );
   }
 
   get step (): Step {
@@ -115,10 +119,11 @@ export class GetStartedComponent implements OnInit {
     this.drafts.save( this.draft );
   }
 
-  /** Back to the page you were on when you chose Sign in (?returnUrl=), else the app. */
+  /** Back to the page you were on when you chose Sign in (?returnUrl=), else the app - never the sign-in pages themselves, which would loop back here. */
   get returnUrl (): string {
     const returnUrl = String( this.route.snapshot.queryParamMap.get( 'returnUrl' ) || '' ).trim();
-    return returnUrl.startsWith( '/' ) && !returnUrl.startsWith( '//' ) ? returnUrl : '/';
+    if ( !returnUrl.startsWith( '/' ) || returnUrl.startsWith( '//' ) ) return '/';
+    return /^\/(get-started|login)(?=[/?#]|$)/.test( returnUrl ) ? '/' : returnUrl;
   }
 
   signIn (): void {

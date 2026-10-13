@@ -15,7 +15,7 @@ The header has four tabs: Home, Opportunities, Documents, and Knowledge. Signed 
 | Route | Page |
 | --- | --- |
 | `/` | **Home.** Search box, quick actions, and a status overview. Signed out, it shows the public introduction. `/docs` and `/docs/landing` redirect here. |
-| `/about`, `/help`, `/ios`, `/pricing` | Public pages: About, Help, the iOS preview, and "browse free, create with the app" pricing. These are prerendered (see [SEO and public pages](#seo-and-public-pages)). |
+| `/about`, `/help`, `/ios`, `/pricing` | Public pages: About, Help, the iOS preview, and pricing (subscribe on the web through Stripe, or in the app). These are prerendered (see [SEO and public pages](#seo-and-public-pages)). |
 | `/opportunities` | RFPs TODD found or you added, scored against your profile. Sub-pages: `/opportunities/inbox` (connect an RFP intake inbox), `/opportunities/:id`, `/opportunities/:id/proposal` (the proposal editor), and `/opportunities/:id/send` (review and send). |
 | `/documents`, `/documents/:id` | The document vault and a single document. |
 | `/upload` | Add files: PDFs, images, video, audio, Word files. `/upload?rfp=1` adds an RFP. |
@@ -24,6 +24,7 @@ The header has four tabs: Home, Opportunities, Documents, and Knowledge. Signed 
 | `/knowledge/response-flow[/:id]` | Add or edit an answer. |
 | `/knowledge/save` | Save an answer to Knowledge from Find. |
 | `/get-started`, `/login`, `/auth/callback`, `/profile` | Onboarding, the sign-in hand-off, the hosted-login callback, and the profile. |
+| `/docs/success`, `/knowledge/success` | Return pages after a Stripe checkout. |
 
 Old addresses (`/docs/documents`, `/docs/upload`, `/docs/rfp-list`, `/docs/proposal-history`, `/docs/rfp-upload`, `/docs/pricing`, `/knowledge/pricing`) redirect to their new pages. [app.routes.ts](src/app/app.routes.ts) holds the full list.
 
@@ -110,6 +111,8 @@ X-User-Email: <Firebase email>
 | `POST /app-assistant` | General AI assistant (bearer `apiKey`) | `OpenAiService` |
 | `POST /document-helper` | Document and proposal AI helpers (bearer `apiKey`) | `DocsOpenAiService` |
 | `GET /account/summary`, `POST /account/subscriptions/cancel` | Subscription and billing state | `AccountBillingService` |
+| `POST /billing/checkout`, `GET /billing/status`, `POST /billing/portal` | Web subscribe (Stripe Checkout), plan status, and Stripe's manage-billing portal. Access is granted by the Stripe webhook on the API side, not by the page. | `WebCheckoutService` |
+| `POST /docs/checkout[/confirm]`, `POST /knowledge/checkout[/confirm]` | Confirms a checkout on `/docs/success` and `/knowledge/success` | `DocsPurchaseFlowService` |
 | `GET/PATCH /profile`, `DELETE /account` | Profile and account deletion | `ProfileApiService` |
 | `POST /onboarding/profile`, `POST /mobile/docs/knowledge-base` | Sign-up draft hand-off | `DocsSignupDraftService` |
 | `GET /getting-started/docs` | Getting-started checklist | `GettingStartedService` |
@@ -134,7 +137,7 @@ The frontend is a client application. Firebase rules and the API must keep enfor
 | `npm start` | Dev server on port 4200 |
 | `npm run build` | Production build to `dist/docs/browser`, including the prerendered public pages (see [SEO and public pages](#seo-and-public-pages)). It runs `generate-version` first, which **rewrites `version` in `package.json` and `public/assets/version.json`** (`YYYY.M.D-build.N`). Use `npx ng build` to build without bumping the version. |
 | `npm test` / `npm run test:ci` | Karma/Jasmine unit tests; `test:ci` runs once in headless Chrome |
-| `npm run e2e` | Starts the dev server and runs Cypress against `http://localhost:4200` |
+| `npm run e2e` | Starts the dev server and runs Cypress against `http://localhost:4200`. Port 4200 must be free. If you run it from VS Code's terminal and Cypress fails to launch, run `unset ELECTRON_RUN_AS_NODE` first. |
 | `npm run cy:open` | Opens Cypress interactively |
 | `npm run typecheck:cypress` | Type-checks the Cypress specs |
 
@@ -167,6 +170,7 @@ npm run deploy:hosting   # runs ./deploy.sh
 3. Runs `npm run test:ci` and `npm run e2e`.
 4. **Commits everything in the working tree** (`git add -A`) as `Deploy Docs <timestamp>` on whatever branch you're on.
 5. Runs `firebase deploy --project taliferrotech --only hosting:todd-docs`.
+6. Pushes the branch to `origin`. A failed push only prints a warning; the deploy has already happened.
 
 Commit or stash unrelated work before you run it. If any step fails, the script stops and nothing is deployed.
 

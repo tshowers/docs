@@ -67,4 +67,15 @@ describe( 'Docs get started wizard', () => {
     cy.visit( '/get-started' );
     cy.get( '[data-cy="get-started-existing"]' ).should( 'have.attr', 'href' ).and( 'include', '/login' );
   } );
+
+  it( 'skips the wizard when already signed in, never returning to itself', () => {
+    cy.visit( '/get-started?returnUrl=%2Fget-started', {
+      onBeforeLoad: ( win ) => win.localStorage.setItem( '__docsCypressAuth', 'true' ),
+    } );
+    cy.location( 'pathname' ).should( 'not.include', '/get-started' );
+    cy.visit( '/get-started?returnUrl=%2Fknowledge', {
+      onBeforeLoad: ( win ) => win.localStorage.setItem( '__docsCypressAuth', 'true' ),
+    } );
+    cy.location( 'pathname' ).should( 'eq', '/knowledge' );
+  } );
 } );

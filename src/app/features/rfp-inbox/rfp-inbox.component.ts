@@ -103,9 +103,15 @@ export class RfpInboxComponent implements OnInit {
       },
       error: ( error ) => {
         this.busy.set( '' );
-        this.testResult.set( { ok: false, message: error?.error?.message || 'TODD couldn\'t sign in. Check the address and app password.' } );
+        this.testResult.set( { ok: false, message: error?.error?.message || this.unreachable( error ) || 'TODD couldn\'t sign in. Check the address and app password.' } );
       },
     } );
+  }
+
+  /** A failure TODD's server caused (offline, missing route, crash) - not the user's address or password, so don't send them to recheck those. */
+  private unreachable ( error: any ): string {
+    const status = Number( error?.status ) || 0;
+    return status === 0 || status === 404 || status >= 500 ? 'TODD\'s inbox service isn\'t answering right now, so your details weren\'t checked. Please try again later.' : '';
   }
 
   connect (): void {
@@ -121,7 +127,7 @@ export class RfpInboxComponent implements OnInit {
       },
       error: ( error ) => {
         this.busy.set( '' );
-        this.notifications.show( 'Couldn\'t connect it', error?.error?.message || 'Please check the details and try again.', 'warning' );
+        this.notifications.show( 'Couldn\'t connect it', error?.error?.message || this.unreachable( error ) || 'Please check the details and try again.', 'warning' );
       },
     } );
   }

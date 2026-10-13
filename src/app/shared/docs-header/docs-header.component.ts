@@ -224,7 +224,10 @@ export class DocsHeaderComponent {
 
   /** Through the pre-sign-in wizard (ONBOARDING-PROFILE-BILLING-PLAYBOOK §1); it signs in from its last step, or straight away via "Already have an account?". */
   signIn (): void {
-    void this.router.navigate( ['/get-started'], { queryParams: { returnUrl: this.router.url || '/' } } );
+    const here = this.router.url || '/';
+    // Already on a sign-in page: don't make it the place to come back to.
+    const returnUrl = /^\/(get-started|login)(?=[/?#]|$)/.test( here ) ? '/' : here;
+    void this.router.navigate( ['/get-started'], { queryParams: { returnUrl } } );
   }
 
   async onSignOut (): Promise<void> {
