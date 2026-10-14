@@ -20,7 +20,7 @@ export class DocsOpenAiService {
   constructor ( private http: HttpClient ) { }
 
   private authHeaders (): HttpHeaders {
-    return new HttpHeaders().set( 'Authorization', `Bearer ${environment.apiKey}` );
+    return new HttpHeaders();
   }
 
   proposalAssistant ( document: string, rfp: any, proposals: any[], user: string ): Observable<any> {
