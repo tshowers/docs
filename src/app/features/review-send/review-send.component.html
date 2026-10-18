@@ -14,6 +14,42 @@
           <main>
             <p class="dk-kicker">Review &amp; send{{ o.agency ? ' · ' + o.agency : '' }}</p>
             <h1 class="rs__title">{{ headline() }}</h1>
+            @if (approvalActive() && approvalSub()) { <p class="rs__lede dk-muted">{{ approvalSub() }}</p> }
+
+            @if (approval(); as a) {
+              @if (approvalActive() || a.status === 'bypassed') {
+                @if (approvalOutdated()) {
+                  <section class="rs__banner dk-tinted" data-tint="yellow">
+                    <div>
+                      <strong>This isn't the version they {{ a.status === 'approved' ? 'approved' : 'were asked about' }}.</strong>
+                      <p>{{ a.proposalChanged ? 'The proposal changed' : 'The email or attachments changed' }} since you asked. Ask again. Anyone who already approved sees only what changed.</p>
+                    </div>
+                    <button type="button" class="dk-btn dk-btn--primary" (click)="askAgain()" [disabled]="!!busy()" appWriteAction="ask for approval again"><dk-icon name="send" [size]="16" />{{ busy() === 'approval' ? 'Asking…' : 'Ask for approval again' }}</button>
+                  </section>
+                }
+                <ul class="rs__approvers" aria-label="Approvers">
+                  @for (p of a.approvers; track p.id) {
+                    <li class="rs__approver">
+                      <span class="rs__av dk-tinted" [attr.data-tint]="tint(p)">{{ initials(p.name, p.email) }}</span>
+                      <div class="rs__who">
+                        <strong>{{ p.name || p.email }}</strong>
+                        <small class="dk-muted">{{ approverSub(p) }}</small>
+                        @if (p.message && (p.state === 'approved' || p.state === 'changes')) { <q class="rs__quote">{{ p.message }}</q> }
+                      </div>
+                      <span class="dk-tag dk-tinted" [attr.data-tint]="APPROVER_STATE[p.state].tint">{{ APPROVER_STATE[p.state].label }}</span>
+                      @if (approvalActive() && p.state !== 'approved') {
+                        <details class="rs__nudge">
+                          <summary class="dk-btn dk-btn--sm">{{ p.sharedAt ? 'Nudge' : 'Send link' }}</summary>
+                          <div class="rs__nudge-menu">
+                            <app-approver-share [approver]="p" [ownerName]="ownerName" [buyer]="o.agency" [dueAt]="a.dueAt" [note]="a.note" [compact]="true" (shared)="onShared({ approverId: p.id, via: $event })" />
+                          </div>
+                        </details>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            }
 
             @if (o.submissionRecord; as sent) {
               <section class="rs__sent">
@@ -40,7 +76,7 @@
                       @else if (o.submission.email && to().trim().toLowerCase() === o.submission.email) { <small class="dk-muted">From the RFP</small> }
                     </div>
                   </label>
-                  <label class="rs__row"><span>Subject</span><input [(ngModel)]="subject" name="subject" aria-label="Subject" /></label>
+                  <label class="rs__row"><span>Subject</span><input [ngModel]="subject()" (ngModelChange)="subject.set($event)" name="subject" aria-label="Subject" /></label>
                   <label class="rs__row">
                     <span>From</span>
                     @if (inboxes().length) {
@@ -51,7 +87,7 @@
                       <a class="rs__connect" routerLink="/opportunities/inbox">Connect your email to send from it</a>
                     }
                   </label>
-                  <textarea class="rs__body" [(ngModel)]="body" name="body" rows="9" aria-label="Message"></textarea>
+                  <textarea class="rs__body" [ngModel]="body()" (ngModelChange)="body.set($event)" name="body" rows="9" aria-label="Message"></textarea>
                 }
                 <div class="rs__files">
                   @for (a of attachments(); track a.key) {
@@ -68,10 +104,22 @@
                 @if (portalOnly()) {
                   <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" (click)="downloadPackage()" [disabled]="!!busy()"><dk-icon name="download" />{{ busy() === 'package' ? 'Packaging…' : 'Download package' }}</button>
                   @if (o.portalUrl) { <a class="dk-btn dk-btn--lg" [href]="o.portalUrl" target="_blank" rel="noopener"><dk-icon name="external" />Open the portal</a> }
-                  <button type="button" class="dk-btn dk-btn--lg" (click)="markSubmitted()" [disabled]="!!busy()" appWriteAction="mark this submitted">I've submitted it</button>
+                  <button type="button" class="dk-btn dk-btn--lg" (click)="markSubmitted()" [disabled]="!!busy() || sendLocked()" appWriteAction="mark this submitted">@if (sendLocked()) { <dk-icon name="lock" /> }I've submitted it</button>
                 } @else {
-                  <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" (click)="send()" [disabled]="!canSend() || !!busy() || !inboxes().length" appWriteAction="send this proposal"><dk-icon name="send" />{{ busy() === 'send' ? 'Sending…' : 'Send proposal' }}</button>
+                  <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" [class.rs__locked]="sendLocked()" (click)="send()" [disabled]="!canSend() || !!busy() || !inboxes().length" appWriteAction="send this proposal">
+                    <dk-icon [name]="sendLocked() ? 'lock' : 'send'" />{{ busy() === 'send' ? 'Sending…' : sendLocked() ? 'Send after approval' : 'Send proposal' }}
+                  </button>
+                }
+                @if (approvalActive()) {
+                  <button type="button" class="dk-btn dk-btn--lg" (click)="openApproval('change')" [disabled]="!!busy()" appWriteAction="change approvers"><dk-icon name="pen" />Change approvers</button>
+                } @else if (!approval() || approval()!.status !== 'bypassed') {
+                  <button type="button" class="dk-btn dk-btn--lg" (click)="openApproval('ask')" [disabled]="!!busy()" appWriteAction="ask for approval"><dk-icon name="check" />Get approval</button>
+                }
+                @if (!portalOnly()) {
                   <button type="button" class="dk-btn dk-btn--lg" (click)="downloadPackage()" [disabled]="!!busy()"><dk-icon name="download" />{{ busy() === 'package' ? 'Packaging…' : 'Download package' }}</button>
+                }
+                @if (sendLocked()) {
+                  <button type="button" class="rs__bypass" (click)="dialogError.set(''); dialog.set('bypass')">Send without approval…</button>
                 }
               </div>
               @if (!ready()) { <p class="dk-muted rs__gate">Send unlocks when the checklist is complete. <a [routerLink]="['/opportunities', o.id, 'proposal']">Finish the proposal</a></p> }
@@ -79,6 +127,79 @@
           </main>
 
           <aside class="rs__side">
+            @if (approval(); as a) {
+              @if (approvalMet()) {
+                <section class="rs__card dk-tinted" data-tint="green">
+                  <h2>Approved version {{ a.version }}</h2>
+                  <p>This is the exact version that goes out. If anything changes before you send, approvals restart.</p>
+                  @if (a.onApproved === 'autoSend') { <p>You chose to have TODD send it automatically. If it hasn't gone, check Activity and send it yourself.</p> }
+                  <p class="rs__fine">Links close when you send. Approvers can still open a read-only copy of what was sent until {{ longWhen(a.linkExpiresAt) }}.</p>
+                </section>
+              }
+              @for (p of changesBy(); track p.id) {
+                <section class="rs__card dk-tinted" data-tint="pink">
+                  <h2>{{ p.name || p.email }} requested changes</h2>
+                  <small>{{ p.email && p.name ? p.email + ' · ' : '' }}{{ ago(p.decidedAt) }}</small>
+                  @if (p.message) { <p class="rs__said">{{ p.message }}</p> }
+                </section>
+              }
+              @if (a.comments.length) {
+                <section class="rs__card">
+                  <h2>Comments and edits</h2>
+                  <ul class="rs__comments">
+                    @for (c of a.comments; track c.id) {
+                      <li class="rs__comment" [class.is-done]="c.status !== 'open'">
+                        <div class="rs__comment-head">
+                          <span class="rs__av rs__av--xs dk-tinted" [attr.data-tint]="tint({ name: c.authorName || '', email: '' })">{{ initials(c.authorName || '') }}</span>
+                          <strong>{{ c.authorName }}{{ c.replacement !== null ? ' · suggested edit' : '' }}</strong>
+                          @if (c.status !== 'open') { <span class="dk-tag dk-tinted" [attr.data-tint]="c.status === 'accepted' ? 'green' : 'grey'">{{ c.status === 'accepted' ? 'Accepted' : 'Rejected' }}</span> }
+                        </div>
+                        @if (c.sectionTitle) { <small class="dk-muted">{{ c.sectionTitle }}</small> }
+                        @if (c.replacement !== null) {
+                          <p class="rs__diff"><del>{{ c.quote }}</del> <ins>{{ c.replacement }}</ins></p>
+                        } @else if (c.quote) {
+                          <p class="rs__quoted">“{{ c.quote }}”</p>
+                        }
+                        @if (c.text) { <p>{{ c.text }}</p> }
+                        @for (r of c.replies; track r.at) { <p class="rs__reply"><strong>{{ r.by }}:</strong> {{ r.text }}</p> }
+                        @if (approvalActive()) {
+                          <div class="rs__comment-actions">
+                            @if (c.replacement !== null && c.status === 'open') {
+                              <button type="button" class="dk-btn dk-btn--primary dk-btn--sm" (click)="resolve(c, 'accept')" [disabled]="!!busyComment()" appWriteAction="accept this edit"><dk-icon name="check" [size]="14" />Accept edit</button>
+                              <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="resolve(c, 'reject')" [disabled]="!!busyComment()">Reject</button>
+                            }
+                            <input class="rs__reply-input" [(ngModel)]="replies[c.id]" [name]="'reply-' + c.id" placeholder="Reply…" (keydown.enter)="resolve(c, 'reply')" [attr.aria-label]="'Reply to ' + c.authorName" />
+                          </div>
+                        }
+                      </li>
+                    }
+                  </ul>
+                </section>
+              }
+              @if (activity().length) {
+                <section class="rs__card">
+                  <h2>Activity</h2>
+                  <ul class="rs__activity">
+                    @for (e of activity(); track $index) {
+                      <li>
+                        <span class="rs__act-ic dk-tinted" [attr.data-tint]="e.tint"><dk-icon [name]="e.icon" [size]="14" /></span>
+                        <div><p>{{ e.text }}</p><small class="dk-muted">{{ e.at | date:'MMM d, h:mm a' }}</small></div>
+                      </li>
+                    }
+                  </ul>
+                </section>
+              }
+              @if (approvalActive() && !approvalMet()) {
+                <section class="rs__card dk-tinted" data-tint="blue">
+                  <div class="dk-todd__head rs__todd"><img src="assets/avatar-todd-sm.png" alt="" />If you edit now</div>
+                  <p>{{ editNote() }}</p>
+                </section>
+                <section class="rs__card">
+                  <h2 class="dk-kicker">Send without approval</h2>
+                  <p>Only you, as the person who asked, can. TODD asks for a reason and keeps it in Activity.</p>
+                </section>
+              }
+            }
             @if (checklist().length) {
               @if (ready()) {
                 <section class="rs__card dk-tinted" data-tint="green">
@@ -93,18 +214,51 @@
                 </section>
               }
             }
-            @if (!portalOnly() && !o.submissionRecord) {
+            @if (!portalOnly() && !o.submissionRecord && !approvalActive()) {
               <section class="rs__card">
                 <div class="dk-todd__head rs__todd"><img src="assets/avatar-todd-sm.png" alt="" />Why this address</div>
                 <p>{{ why() }}</p>
               </section>
             }
-            <section class="rs__card">
-              <h2 class="dk-kicker">{{ portalOnly() ? 'Portal-only RFP' : 'When it’s portal-only' }}</h2>
-              <p>{{ portalOnly() ? 'This RFP takes submissions through its portal. Download the package and upload it there. When the portal\u2019s confirmation email reaches your RFP inbox, TODD marks it submitted, or you can mark it yourself.' : 'Some RFPs only take uploads through a portal like Bonfire. For those, Download package bundles the proposal and attachments to upload yourself, and TODD marks it submitted when the portal\u2019s confirmation email arrives.' }}</p>
-            </section>
+            @if (!approvalActive()) {
+              <section class="rs__card">
+                <h2 class="dk-kicker">{{ portalOnly() ? 'Portal-only RFP' : 'When it’s portal-only' }}</h2>
+                <p>{{ portalOnly() ? 'This RFP takes submissions through its portal. Download the package and upload it there. When the portal’s confirmation email reaches your RFP inbox, TODD marks it submitted, or you can mark it yourself.' : 'Some RFPs only take uploads through a portal like Bonfire. For those, Download package bundles the proposal and attachments to upload yourself, and TODD marks it submitted when the portal’s confirmation email arrives.' }}</p>
+              </section>
+            }
           </aside>
         </div>
+
+        @if (dialog() === 'ask' || dialog() === 'change' || dialog() === 'share') {
+          <app-get-approval-dialog
+            [buyer]="o.agency"
+            [submissionAddress]="to().trim()"
+            [portalOnly]="portalOnly()"
+            [rfpDue]="rfpDue()"
+            [ownerName]="ownerName"
+            [initial]="dialog() === 'change' ? approval() : null"
+            [saved]="dialog() === 'share' ? approval() : null"
+            [busy]="dialogBusy()"
+            [error]="dialogError()"
+            (closed)="closeDialog()"
+            (submitted)="submitApproval($event)"
+            (shared)="onShared($event)" />
+        }
+        @if (dialog() === 'bypass') {
+          <div class="rs__backdrop" (click)="$event.target === $event.currentTarget && closeDialog()">
+            <div class="rs__dialog" role="dialog" aria-modal="true" aria-labelledby="rs-bypass-title">
+              <header><h2 id="rs-bypass-title">Send without approval?</h2><button type="button" class="dk-circle" (click)="closeDialog()" aria-label="Close"><dk-icon name="x" /></button></header>
+              <p class="dk-muted">Send unlocks for you now. Approvers' links show it went without their approval. Your reason stays in Activity and the proposal's record.</p>
+              <label class="rs__label" for="rs-bypass-reason">Why</label>
+              <textarea id="rs-bypass-reason" class="rs__body" [(ngModel)]="bypassReason" name="bypassReason" rows="3" placeholder="e.g. Marcus is out and the deadline is today"></textarea>
+              @if (dialogError()) { <p class="rs__bad">{{ dialogError() }}</p> }
+              <div class="rs__dialog-actions">
+                <button type="button" class="dk-btn dk-btn--lg rs__cancel" (click)="closeDialog()">Cancel</button>
+                <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" (click)="bypass()" [disabled]="!bypassReason.trim() || dialogBusy()">{{ dialogBusy() ? 'Saving…' : 'Unlock Send' }}</button>
+              </div>
+            </div>
+          </div>
+        }
       }
     }
   }

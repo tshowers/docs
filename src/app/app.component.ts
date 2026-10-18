@@ -140,7 +140,7 @@ export class AppComponent implements OnInit {
   }
 
   private isBareRoute ( url: string ): boolean {
-    return /^\/(auth\/callback|mobile-handoff)(\/|\?|$)/.test( url || '' );
+    return /^\/(auth\/callback|mobile-handoff|approve)(\/|\?|$)/.test( url || '' );
   }
 
   private isEditingDocs (): boolean {

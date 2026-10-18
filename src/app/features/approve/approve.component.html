@@ -1,0 +1,134 @@
+<div class="ap">
+  <header class="ap__bar">
+    <span class="ap__brand"><img src="assets/todd-docs-icon.png" alt="" />TODD <b>Docs</b></span>
+    @if (data(); as d) {
+      <span class="ap__shared dk-muted">Shared with you by <strong>{{ d.ownerName }}</strong>{{ d.company ? ' · ' + d.company : '' }}</span>
+      <span class="ap__me">
+        <span class="ap__av ap__av--sm dk-tinted" [attr.data-tint]="tint(d.me.email || d.me.name)">{{ initials(d.me.name, d.me.email) }}</span>
+        <span class="ap__me-text">{{ d.me.name || d.me.email || 'Approver' }}</span>
+      </span>
+    }
+  </header>
+
+  @switch (phase()) {
+    @case ('loading') { <div class="ap__pulse" aria-busy="true"></div> }
+    @case ('error') {
+      <div class="dk-empty ap__error">
+        <span class="ap__error-ic dk-tinted" data-tint="blue"><dk-icon name="lock" [size]="28" /></span>
+        <h2>This link isn't working</h2>
+        <p>{{ errorMessage() }}</p>
+      </div>
+    }
+    @case ('ready') {
+      @if (data(); as d) {
+        <div class="ap__title">
+          <h1>Proposal · {{ d.opportunity.title }}</h1>
+          <p class="dk-muted">{{ d.company || d.ownerName }}{{ d.opportunity.agency ? ' for ' + d.opportunity.agency : '' }} · version {{ d.version }}{{ d.dueAt ? ' · approve by ' + longWhen(d.dueAt) : '' }}</p>
+        </div>
+
+        @if (d.readOnly) {
+          <div class="ap__notice dk-tinted" [attr.data-tint]="d.status === 'sent' ? 'green' : 'yellow'">
+            <dk-icon [name]="d.status === 'sent' ? 'check' : 'info'" [size]="18" />
+            <p>{{ d.status === 'sent' ? 'This was sent to ' + (d.email.to || d.opportunity.agency) + '. ' : firstName({ name: d.ownerName }) + ' chose to send it without waiting for approval. ' }}This is a read-only copy you can open until {{ longWhen(d.linkExpiresAt) }}.</p>
+          </div>
+        } @else if (d.previousVersion) {
+          <div class="ap__notice dk-tinted" data-tint="yellow">
+            <dk-icon name="info" [size]="18" />
+            <p>You approved version {{ d.previousVersion }}. {{ firstName({ name: d.ownerName }) }} changed it since, so it needs your OK again. What changed is highlighted; the rest you already reviewed.</p>
+            <button type="button" class="dk-btn dk-btn--sm dk-btn--bg" (click)="showDiffOnly.set(!showDiffOnly())">{{ showDiffOnly() ? 'Show everything' : 'Only what changed' }}</button>
+          </div>
+        }
+
+        <div class="ap__grid">
+          <nav class="ap__sections" aria-label="Sections">
+            @for (s of sections(); track $index) {
+              <button type="button" [class.is-on]="activeSection() === s.title" (click)="goTo($index, s.title)">
+                <span>{{ s.title }}</span>
+                @if (s.count) { <span class="ap__count dk-tinted" data-tint="yellow">{{ s.count }}</span> }
+              </button>
+            }
+          </nav>
+
+          <main class="ap__paper">
+            <article #page class="ap__page" aria-label="The proposal"></article>
+          </main>
+
+          <aside class="ap__side">
+            @if (composer(); as c) {
+              <section class="ap__card ap__composer dk-tinted" data-tint="yellow">
+                <h2>{{ c.mode === 'suggest' ? 'Suggest an edit' : 'Comment' }}{{ c.sectionTitle ? ' · ' + c.sectionTitle : '' }}</h2>
+                @if (c.quote && c.mode === 'comment') { <p class="ap__quote">“{{ c.quote }}”</p> }
+                @if (c.mode === 'suggest') {
+                  <label class="ap__label" for="ap-replacement">Change it to</label>
+                  <textarea id="ap-replacement" class="ap__input" [(ngModel)]="c.replacement" name="replacement" rows="3"></textarea>
+                  <label class="ap__label" for="ap-why">Why (optional)</label>
+                }
+                <textarea id="ap-why" class="ap__input" [(ngModel)]="c.text" name="commentText" rows="3" [placeholder]="c.mode === 'suggest' ? 'e.g. Attachment B caps liability at 12 months of fees' : 'Your comment'"></textarea>
+                @if (problem()) { <p class="ap__bad">{{ problem() }}</p> }
+                <div class="ap__row">
+                  <button type="button" class="dk-btn dk-btn--primary" (click)="saveComment()" [disabled]="busy() === 'comment'">{{ busy() === 'comment' ? 'Saving…' : 'Save' }}</button>
+                  <button type="button" class="dk-btn dk-btn--bg" (click)="composer.set(null); problem.set('')">Cancel</button>
+                </div>
+              </section>
+            }
+
+            @if (d.note) {
+              <section class="ap__card">
+                <div class="ap__asked"><span class="ap__av ap__av--sm dk-tinted" data-tint="blue">{{ initials(d.ownerName) }}</span><strong>{{ firstName({ name: d.ownerName }) }} asked</strong></div>
+                <p>{{ d.note }}</p>
+              </section>
+            }
+
+            <section class="ap__card">
+              <h2>What {{ d.opportunity.agency || 'the buyer' }} gets</h2>
+              @if (d.opportunity.portalOnly) {
+                <p class="dk-muted">Uploaded to the RFP's portal{{ d.attachments.length ? ' with ' + d.attachments.length + ' more ' + (d.attachments.length === 1 ? 'file' : 'files') : '' }}.</p>
+              } @else {
+                <p class="dk-muted">Emailed to {{ d.email.to || 'the address in the RFP' }} with the proposal{{ d.attachments.length ? ' and ' + d.attachments.length + ' more ' + (d.attachments.length === 1 ? 'file' : 'files') : '' }}.</p>
+              }
+              @if (d.attachments.length) {
+                <ul class="ap__files">@for (a of d.attachments; track $index) { <li><dk-icon name="file" [size]="14" />{{ a.name }}</li> }</ul>
+              }
+              @if (d.email.subject) {
+                <details class="ap__email"><summary>Read the email</summary><p><strong>{{ d.email.subject }}</strong></p><pre>{{ d.email.body }}</pre></details>
+              }
+              @if (d.checklist.total) {
+                <p class="ap__check" [class.is-ok]="d.checklist.ok === d.checklist.total"><dk-icon [name]="d.checklist.ok === d.checklist.total ? 'check' : 'alert-circle'" [size]="14" />RFP checklist {{ d.checklist.ok }} of {{ d.checklist.total }}</p>
+              }
+            </section>
+
+            @if (!d.readOnly) {
+              <section class="ap__card ap__decision dk-tinted" data-tint="blue" id="ap-decision">
+                <h2>Your decision</h2>
+                @if (decided()) {
+                  <p class="ap__done"><dk-icon [name]="d.me.state === 'approved' ? 'check' : 'alert-circle'" [size]="16" />{{ d.me.state === 'approved' ? 'You approved version ' + d.version + '.' : 'You asked for changes.' }} You can change your mind until it's sent.</p>
+                }
+                <textarea id="ap-message" class="ap__input ap__message" [(ngModel)]="message" name="message" rows="3" [placeholder]="'A note for ' + firstName({ name: d.ownerName }) + ' (optional)'"></textarea>
+                @if (problem() && !composer()) { <p class="ap__bad">{{ problem() }}</p> }
+                <div class="ap__row ap__decide">
+                  <button type="button" class="dk-btn dk-btn--primary ap__btn" (click)="decide('approve')" [disabled]="!!busy()"><dk-icon name="check" [size]="16" />{{ busy() === 'approve' ? 'Saving…' : 'Approve' }}</button>
+                  <button type="button" class="dk-btn dk-btn--bg ap__btn" (click)="decide('changes')" [disabled]="!!busy()">{{ busy() === 'changes' ? 'Saving…' : 'Request changes' }}</button>
+                </div>
+                <p class="ap__foot">{{ myCommentCount() ? 'Your comments go to ' + firstName({ name: d.ownerName }) + ' either way. ' : 'Select text in the proposal to comment' + (d.allowSuggestions ? ' or suggest an edit' : '') + '. ' }}{{ othersLine() }}</p>
+              </section>
+            }
+          </aside>
+        </div>
+
+        @if (selection(); as s) {
+          <div class="ap__pop" [style.top.px]="s.top" [style.left.px]="s.left" (mousedown)="$event.preventDefault()">
+            <button type="button" (click)="startComposer('comment')"><dk-icon name="message" [size]="14" />Comment</button>
+            @if (d.allowSuggestions) { <button type="button" (click)="startComposer('suggest')"><dk-icon name="pen" [size]="14" />Suggest edit</button> }
+          </div>
+        }
+
+        @if (!d.readOnly) {
+          <div class="ap__sticky">
+            <button type="button" class="dk-btn dk-btn--lg ap__sticky-changes" (click)="decide('changes')" [disabled]="!!busy()">Request changes</button>
+            <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" (click)="decide('approve')" [disabled]="!!busy()"><dk-icon name="check" [size]="16" />Approve</button>
+          </div>
+        }
+      }
+    }
+  }
+</div>

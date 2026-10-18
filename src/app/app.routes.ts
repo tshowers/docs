@@ -97,6 +97,13 @@ export const routes: Routes = [
     redirectTo: '/',
   },
   {
+    // An approver's private link (round 4): no account or sign-in, no app header.
+    path: 'approve/:token',
+    data: { pageTitle: 'Approve' },
+    loadComponent: () =>
+      import( './features/approve/approve.component' ).then( ( m ) => m.ApproveComponent ),
+  },
+  {
     // The four tabs (design_handoff_todd_docs): Home, Opportunities,
     // Documents, Knowledge. Each tab's old pages redirect into it.
     path: 'opportunities',

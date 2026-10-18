@@ -1,0 +1,114 @@
+<div class="ga__backdrop" (click)="onBackdrop($event)" (keydown.escape)="!busy() && closed.emit()">
+  <div class="ga" role="dialog" aria-modal="true" aria-labelledby="ga-title">
+    @if (saved(); as request) {
+      <header class="ga__head">
+        <h2 id="ga-title">Send each person their link</h2>
+        <button type="button" class="dk-circle" (click)="closed.emit()" aria-label="Close"><dk-icon name="x" /></button>
+      </header>
+      <p class="ga__sub">Each link is private to one person and opens only this proposal. Send it however you like. Email and Message open your own apps with a note already written.</p>
+      <ul class="ga__links">
+        @for (a of request.approvers; track a.id) {
+          <li>
+            <div class="ga__who">
+              <span class="ga__av dk-tinted" [attr.data-tint]="tint(a)">{{ initials(a.name, a.email) }}</span>
+              <div>
+                <strong>{{ a.name || a.email }}</strong>
+                <small class="dk-muted">{{ a.name && a.email ? a.email + ' · ' : '' }}{{ a.sharedAt ? 'Link sent' : 'Not sent yet' }}</small>
+              </div>
+            </div>
+            <app-approver-share [approver]="a" [ownerName]="ownerName()" [buyer]="buyer()" [dueAt]="request.dueAt" [note]="request.note" (shared)="shared.emit({ approverId: a.id, via: $event })" />
+          </li>
+        }
+      </ul>
+      <p class="ga__fine"><dk-icon name="lock" [size]="14" />Links stop working when the RFP closes, or when you remove someone. Send stays locked until {{ request.rule === 'any' ? 'one of them approves' : 'everyone approves' }}.</p>
+      <div class="ga__actions">
+        <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" (click)="closed.emit()">Done</button>
+      </div>
+    } @else {
+      <header class="ga__head">
+        <h2 id="ga-title">{{ initial() ? 'Change approvers' : 'Get approval before sending' }}</h2>
+        <button type="button" class="dk-circle" (click)="closed.emit()" [disabled]="busy()" aria-label="Close"><dk-icon name="x" /></button>
+      </header>
+      <p class="ga__sub">They see the proposal, the email and the attachments exactly as {{ buyer() || 'the buyer' }} will. Send stays locked until they approve.</p>
+
+      <section class="ga__field">
+        <label class="ga__label" for="ga-entry">Who approves</label>
+        <div class="ga__tokens" (click)="$any($event.currentTarget).querySelector('input')?.focus()">
+          @for (p of people(); track $index) {
+            <span class="ga__token">
+              <span class="ga__av ga__av--sm dk-tinted" [attr.data-tint]="tint(p)">{{ initials(p.name, p.email) }}</span>
+              <strong>{{ p.name || p.email }}</strong>
+              @if (p.name && p.email) { <small class="dk-muted">{{ p.email }}</small> }
+              <button type="button" (click)="remove(p); $event.stopPropagation()" [attr.aria-label]="'Remove ' + (p.name || p.email)"><dk-icon name="x" [size]="13" /></button>
+            </span>
+          }
+          <input id="ga-entry" class="ga__entry" [ngModel]="entry()" (ngModelChange)="entry.set($event); entryProblem.set('')" (keydown)="onKey($event)" (blur)="addEntry()" name="entry"
+                 [placeholder]="people().length ? 'Add someone else…' : 'Add a name or any email…'" autocomplete="off" />
+        </div>
+        @if (entryProblem()) { <small class="ga__bad">{{ entryProblem() }}</small> }
+        @if (people().length) {
+          <p class="ga__hint"><dk-icon name="link" [size]="15" /><span>{{ people().length === 1 ? (first(people()[0]) + ' gets') : 'Each person gets' }} a private link you send them. No TODD account or sign-in needed.</span></p>
+        }
+      </section>
+
+      <div class="ga__cols">
+        <section class="ga__field">
+          <span class="ga__label">Needs</span>
+          <div class="ga__seg" role="radiogroup" aria-label="Needs">
+            <button type="button" role="radio" [attr.aria-checked]="rule() === 'all'" [class.is-on]="rule() === 'all'" (click)="rule.set('all')">Everyone</button>
+            <button type="button" role="radio" [attr.aria-checked]="rule() === 'any'" [class.is-on]="rule() === 'any'" (click)="rule.set('any')">Any one of them</button>
+          </div>
+        </section>
+        <section class="ga__field">
+          <span class="ga__label">Approve by</span>
+          <div class="ga__pills">
+            @for (s of suggestions(); track s.value) {
+              <button type="button" class="ga__pill" [class.is-on]="dueAt() === s.value" (click)="dueAt.set(s.value); picking.set(false)">{{ s.label }}</button>
+            }
+            <button type="button" class="ga__pill" [class.is-on]="!!pickedLabel() || picking()" (click)="picking.set(!picking())">{{ pickedLabel() || 'Pick…' }}</button>
+          </div>
+          @if (picking()) {
+            <input class="ga__picker" type="datetime-local" [value]="pickedInput()" [min]="minPick" [max]="maxPick()" (change)="pick($any($event.target).value)" aria-label="Approve by" />
+          }
+          @if (dueProblem()) { <small class="ga__bad">{{ dueProblem() }}</small> }
+        </section>
+      </div>
+
+      <section class="ga__field">
+        <label class="ga__label" for="ga-note">Note for them</label>
+        <textarea id="ga-note" class="ga__note" [(ngModel)]="note" name="note" rows="2" placeholder="What should they look at? e.g. pricing in section 5"></textarea>
+      </section>
+
+      <section class="ga__field">
+        <span class="ga__label">{{ whenLabel() }}</span>
+        <div class="ga__radios" role="radiogroup" [attr.aria-label]="whenLabel()">
+          <button type="button" role="radio" class="ga__radio" [attr.aria-checked]="onApproved() === 'notify'" [class.is-on]="onApproved() === 'notify'" (click)="onApproved.set('notify')">
+            <span class="ga__dot"></span>
+            <span><strong>Tell me, and I send it</strong><small>You see it on Review &amp; send. Send stays in your hands.</small></span>
+          </button>
+          @if (!portalOnly() && submissionAddress()) {
+            <button type="button" role="radio" class="ga__radio" [attr.aria-checked]="onApproved() === 'autoSend'" [class.is-on]="onApproved() === 'autoSend'" (click)="onApproved.set('autoSend')">
+              <span class="ga__dot"></span>
+              <span><strong>Send it to {{ submissionAddress() }}</strong><small>TODD sends it from your inbox the moment the {{ rule() === 'any' ? 'first' : 'last' }} approval lands.</small></span>
+            </button>
+          }
+        </div>
+      </section>
+
+      <label class="ga__check">
+        <input type="checkbox" [ngModel]="allowSuggestions()" (ngModelChange)="allowSuggestions.set($event)" name="allowSuggestions" />
+        <span class="ga__box"><dk-icon name="check" [size]="14" /></span>
+        Let approvers suggest edits to the text
+      </label>
+
+      @if (error()) { <p class="ga__bad ga__error">{{ error() }}</p> }
+
+      <div class="ga__actions">
+        <button type="button" class="dk-btn dk-btn--lg ga__cancel" (click)="closed.emit()" [disabled]="busy()">Cancel</button>
+        <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" (click)="submit()" [disabled]="!canSubmit()">
+          <dk-icon name="send" [size]="18" />{{ busy() ? 'Saving…' : initial() ? 'Save' : 'Ask for approval' }}
+        </button>
+      </div>
+    }
+  </div>
+</div>
