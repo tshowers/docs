@@ -38,6 +38,9 @@ describe( 'Bid / No-Bid gate', () => {
   beforeEach( () => {
     cy.intercept( 'GET', /\/api\/docs\/inboxes$/, ok( [] ) );
     cy.intercept( 'GET', /\/api\/docs\/opportunities$/, ok( [] ) );
+    // Key dates and addenda (key-dates.cy.ts) aren't what this spec is about.
+    cy.intercept( 'POST', /\/dates\/check$/, { statusCode: 503, body: { success: false } } );
+    cy.intercept( 'GET', /\/updates$/, ok( [] ) );
   } );
 
   it( 'checks the must-haves on the first visit, then asks the one it can\'t tell', () => {

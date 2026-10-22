@@ -45,6 +45,61 @@ export interface OpportunityDecision {
   detail: string;
 }
 
+export type KeyDateKind = 'questions_due' | 'prebid' | 'site_visit' | 'addendum' | 'expected_award' | 'other';
+
+/** A date from the RFP, an addendum, or one the owner added. The proposal's own due date is `dueDate`. */
+export interface KeyDate {
+  id: string;
+  kind: KeyDateKind;
+  label: string;
+  /** ISO: YYYY-MM-DD, or with a time and the RFP's offset. */
+  date: string;
+  where: string;
+  source: 'rfp' | 'addendum' | 'you';
+  /** When an addendum moved it. */
+  previousDate: string;
+}
+
+export interface KeyDates {
+  status: 'unchecked' | 'checking' | 'done' | 'failed' | 'no_rfp';
+  items: KeyDate[];
+  questionsTo: string;
+  questionsVia: 'email' | 'portal' | 'unknown';
+  checkedAt: string;
+}
+
+export interface BuyerQuestion {
+  id: string;
+  text: string;
+  /** "unclear scope", "finds the incumbent"... */
+  why: string;
+  ref: string;
+  picked: boolean;
+}
+
+export interface BuyerQuestions {
+  items: BuyerQuestion[];
+  /** to is "portal" when they were copied for the portal. */
+  sent: { at: string; to: string; from: string; count: number; messageId: string } | null;
+}
+
+/** An addendum or the buyer's answers, from the watched inbox (lifecycle 1g). */
+export interface BuyerUpdate {
+  id: string;
+  kind: 'addendum' | 'answers';
+  number: string;
+  headline: string;
+  from: string;
+  subject: string;
+  receivedAt: string;
+  changes: { kind: 'due_date' | 'date' | 'requirement' | 'form' | 'other'; title: string; detail: string; ref: string; newDate: string; checkAgain: boolean }[];
+  answers: { question: string; answer: string; useful: boolean }[];
+  savedAnswers: number;
+  detailsElsewhere: boolean;
+  link: string;
+  read: boolean;
+}
+
 /** "Not for us": one tap, and Other with a note. */
 export const NO_BID_REASONS = ['Missing must-have', 'Too big', 'Bad timing', 'Not our work', 'Other'] as const;
 export type NoBidReason = typeof NO_BID_REASONS[number];
@@ -71,6 +126,11 @@ export interface Opportunity {
   decision?: OpportunityDecision | null;
   noBid?: { reason: string; detail: string; at: string } | null;
   history?: OpportunityDecision[];
+  /** Lifecycle C: key dates, TODD's questions for the buyer, unread addenda, the due date before an addendum moved it. */
+  keyDates?: KeyDates;
+  buyerQuestions?: BuyerQuestions;
+  unreadUpdates?: number;
+  dueDateBefore?: string;
   rfpDocumentId: string;
   proposalDocumentId: string;
   /** What was sent (Review & send), or null. */
@@ -239,6 +299,8 @@ export interface ProposalCheck {
   ok: boolean;
   status: string;
   documentId?: string;
+  /** Added by an addendum. */
+  checkAgain?: boolean;
 }
 
 /** One shall/must/will from the RFP (lifecycle B, the compliance matrix). */
@@ -259,6 +321,8 @@ export interface Requirement {
   matchedAt: string;
   /** TODD's paragraph from Write this, waiting to be accepted or discarded. */
   suggestion: { sectionKey: string; text: string; at: string } | null;
+  /** An addendum changed it, so it's back to not answered until it's matched again. */
+  checkAgain?: boolean;
 }
 
 export interface Requirements {

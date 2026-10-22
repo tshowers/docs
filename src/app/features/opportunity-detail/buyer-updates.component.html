@@ -1,0 +1,34 @@
+@if (answers(); as a) {
+  <section class="bu-card">
+    <header><span class="dk-kicker">Buyer's answers · posted {{ shortDate(a.receivedAt) }}</span>@if (a.answers.length > 2) { <span class="dk-muted">{{ shownAnswers().length }} of {{ a.answers.length }} shown</span> }</header>
+    @for (qa of shownAnswers(); track $index) {
+      <div class="bu-qa"><strong>{{ qa.question }}</strong><p>{{ qa.answer }}</p></div>
+    }
+    @if (a.answers.length > 2) { <button type="button" class="bu-link" (click)="showAll.set(!showAll())">{{ showAll() ? 'Show fewer' : 'Show all ' + a.answers.length }}</button> }
+    @if (a.savedAnswers) { <p class="dk-muted bu-note">{{ a.savedAnswers === a.answers.length ? 'Saved' : a.savedAnswers + ' saved' }} to Knowledge under {{ agency() }}.</p> }
+  </section>
+} @else if (expecting()) {
+  <section class="bu-card">
+    <span class="dk-kicker">Buyer's answers</span>
+    <h3>Not posted yet</h3>
+    <p class="dk-muted">{{ expecting()!.agency }} posts answers after questions close{{ expecting()!.after ? ' (' + expecting()!.after + ')' : '' }}. When they arrive in your watched inbox, I'll show them here and save the useful ones to Knowledge.</p>
+  </section>
+}
+
+@for (u of readAddenda(); track u.id) {
+  <section class="bu-card bu-card--row">
+    <span class="bu-dot"><dk-icon name="check" [size]="13" /></span>
+    <div>
+      <strong>Addendum{{ u.number ? ' ' + u.number : '' }} · {{ shortDate(u.receivedAt) }}</strong>
+      <p class="dk-muted">{{ u.changes.length ? u.changes[0].detail : u.headline }}@if (u.changes.length > 1) { And {{ u.changes.length - 1 }} more.}</p>
+      @if (u.link) { <a class="bu-link" [href]="u.link" target="_blank" rel="noopener">Read it</a> }
+    </div>
+  </section>
+}
+
+@if (mustHaves(); as m) {
+  <section class="bu-card bu-card--row bu-card--line">
+    <span class="bu-dot" [class.is-bad]="!m.ok"><dk-icon [name]="m.ok ? 'check' : 'x'" [size]="13" /></span>
+    <strong>{{ m.text }}</strong>
+  </section>
+}

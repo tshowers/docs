@@ -1,0 +1,28 @@
+:host { display: grid; gap: 14px; }
+:host h3, :host p { margin: 0; }
+
+.bu-card { display: grid; gap: 10px; padding: 20px 24px; border-radius: 28px; background: var(--surface); }
+.bu-card header { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 700; }
+.bu-card h3 { font-size: 17px; font-weight: 700; }
+.bu-card p { font-size: 14px; line-height: 1.5; }
+.bu-card--row { grid-template-columns: 24px minmax(0, 1fr); align-items: start; gap: 12px; }
+.bu-card--row strong { font-size: 15px; }
+.bu-card--row div { display: grid; gap: 4px; }
+.bu-card--line { align-items: center; }
+.bu-qa { display: grid; gap: 4px; padding: 14px 16px; border-radius: 18px; background: var(--bg); }
+.bu-qa strong { font-size: 14px; }
+.bu-note { font-size: 13px !important; }
+.bu-dot { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--t-green); color: var(--t-green-fg); }
+.bu-dot.is-bad { background: var(--t-pink); color: var(--t-pink-fg); }
+
+.bu-link,
+button.bu-link {
+  justify-self: start;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--blue-ink) !important;
+  font: 700 13px/1.4 var(--font);
+  cursor: pointer;
+}

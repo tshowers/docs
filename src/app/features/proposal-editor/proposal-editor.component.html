@@ -166,7 +166,7 @@
                     <li>
                       <span class="pe__check" [class.is-ok]="c.ok"><dk-icon [name]="c.ok ? 'check' : 'x'" [size]="13" /></span>
                       <div>
-                        <strong>{{ c.label }}</strong>
+                        <strong>{{ c.label }}@if (c.checkAgain) { <span class="pe__again">From an addendum</span>}</strong>
                         <small class="dk-muted">{{ c.status }}</small>
                         @if (!c.ok && c.kind === 'attachment') { <a class="pe__link" routerLink="/upload">Add it</a> }
                         @if (!c.ok && c.kind === 'requirements') { <button type="button" class="pe__link" (click)="sideTab.set('requirements')">See what's missing</button> }

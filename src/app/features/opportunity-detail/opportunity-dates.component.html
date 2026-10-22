@@ -1,0 +1,124 @@
+@for (u of unread(); track u.id) {
+  <section class="kd-addendum" aria-live="polite">
+    <p class="kd-addendum__from"><span class="kd-new">New</span>From {{ u.from }} · {{ shortDate(u.receivedAt) }}@if (opportunity.solicitationNumber) { · matched to {{ opportunity.solicitationNumber }}}</p>
+    <h2>{{ u.headline }}</h2>
+    @if (u.changes.length) {
+      <ul class="kd-changes">
+        @for (c of u.changes; track $index) {
+          <li>
+            <span class="kd-changes__icon"><dk-icon [name]="changeIcon(c.kind)" [size]="16" /></span>
+            <div>
+              <strong>{{ c.title }}</strong>
+              <p>{{ c.detail }}@if (c.kind === 'due_date') { I've updated the due date here.}</p>
+            </div>
+            @if (c.checkAgain) { <span class="kd-again">Check again</span> }
+          </li>
+        }
+      </ul>
+    } @else if (u.detailsElsewhere) {
+      <p class="kd-addendum__note">The email only says it was posted. Read it, then come back: TODD checks your draft against any requirement it changes.</p>
+    }
+    <div class="kd-actions">
+      @if (checkCount(u) && opportunity.proposalDocumentId) {
+        <a class="dk-btn dk-btn--primary" [routerLink]="['/opportunities', opportunity.id, 'proposal']" [queryParams]="{ view: 'requirements' }"><dk-icon name="chevron-right" />Open the {{ checkCount(u) }} {{ checkCount(u) === 1 ? 'item' : 'items' }} to check</a>
+      }
+      @if (u.link) { <a class="dk-btn dk-btn--bg" [href]="u.link" target="_blank" rel="noopener"><dk-icon name="file" />Read the addendum</a> }
+      <button type="button" class="dk-btn kd-quiet" (click)="markRead(u)" appWriteAction="mark this read">Mark as read</button>
+    </div>
+  </section>
+}
+
+@if (next(); as d) {
+  <section class="kd-banner" [class.is-soon]="d.days <= 3">
+    <dk-icon name="clock" [size]="22" />
+    <div>
+      <strong>{{ headline(d) }}</strong>
+      <span>{{ longDate(d.item.date) }}@if (d.item.where) { · {{ d.item.where }}}@if (d.item.kind === 'questions_due' && questionsTo) { · send to {{ questionsTo }}}</span>
+    </div>
+    <button type="button" class="dk-btn dk-btn--sm kd-banner__cal" (click)="addToCalendar()"><dk-icon name="calendar" [size]="15" />Add to calendar</button>
+  </section>
+}
+
+<section class="kd-line" aria-label="Key dates">
+  @if (dates().status === 'checking') {
+    <p class="kd-line__note"><img src="assets/avatar-todd-sm.png" alt="" />Reading the RFP for its dates and the questions worth asking…</p>
+  }
+  @if (line().length) {
+    <ol class="kd-steps">
+      @for (d of line(); track d.id) {
+        <li [attr.data-state]="d.state" [class.is-addendum]="d.kind === 'addendum'">
+          <span class="kd-dot"></span>
+          <strong>{{ d.label }}</strong>
+          <small>@if (d.previousDate) { <s>{{ shortDate(d.previousDate) }}</s> }{{ shortDate(d.date) }}@if (d.where) { · {{ d.where }}}</small>
+        </li>
+      }
+    </ol>
+  }
+  @if (dates().status === 'failed') {
+    <p class="kd-line__note">I couldn't read the dates from the RFP. <button type="button" class="kd-link" (click)="check(true)">Try again</button></p>
+  } @else if (dates().status === 'no_rfp' && !line().length) {
+    <p class="kd-line__note">The alert didn't give the dates. Attach the RFP and I'll find them, or add one yourself.</p>
+  } @else if (missingQuestionsDate()) {
+    <p class="kd-line__note">I didn't find a questions deadline in the RFP.</p>
+  }
+  @if (adding()) {
+    <form class="kd-add" (ngSubmit)="addDate()">
+      <select [(ngModel)]="newKind" name="kind" aria-label="What's the date for">
+        <option value="questions_due">Questions due</option>
+        <option value="prebid">Pre-bid meeting</option>
+        <option value="site_visit">Site visit</option>
+        <option value="expected_award">Expected award</option>
+        <option value="other">Something else</option>
+      </select>
+      @if (newKind === 'other') { <input [(ngModel)]="newLabel" name="label" placeholder="What is it?" aria-label="What is it?" required /> }
+      <input type="date" [(ngModel)]="newDate" name="date" aria-label="Date" required />
+      <input type="time" [(ngModel)]="newTime" name="time" aria-label="Time (optional)" />
+      <button type="submit" class="dk-btn dk-btn--primary dk-btn--sm" [disabled]="!newDate || (newKind === 'other' && !newLabel.trim()) || busy() === 'date'">Add</button>
+      <button type="button" class="dk-btn dk-btn--sm" (click)="adding.set(false)">Cancel</button>
+    </form>
+  } @else if (dates().status !== 'checking') {
+    <button type="button" class="kd-link kd-line__add" (click)="adding.set(true)" appWriteAction="add a date">+ Add a date</button>
+  }
+</section>
+
+@if (questions().items.length) {
+  <section class="kd-questions">
+    <header>
+      <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Questions I'd ask {{ opportunity.agency || 'the buyer' }}</div>
+      @if (!questions().sent) { <span class="dk-muted">{{ picked().length }} of {{ questions().items.length }} picked</span> }
+    </header>
+    @if (questions().sent; as sent) {
+      <p class="kd-sent"><dk-icon name="check" [size]="15" />
+        @if (sent.to === 'portal') { You copied {{ sent.count }} {{ sent.count === 1 ? 'question' : 'questions' }} for the portal on {{ shortDate(sent.at) }}. }
+        @else { You sent {{ sent.count }} {{ sent.count === 1 ? 'question' : 'questions' }} to {{ sent.to }} on {{ shortDate(sent.at) }}@if (sent.from) {, from {{ sent.from }}}. }
+        The answers will show here when the buyer posts them.
+      </p>
+    } @else if (questionsClosed()) {
+      <p class="dk-muted kd-sub">The questions deadline has passed.</p>
+    } @else {
+      <p class="dk-muted kd-sub">From the parts of the RFP that are unclear. Edit any of them before sending.</p>
+      <ul class="kd-qs">
+        @for (q of questions().items; track q.id) {
+          <li [class.is-off]="!q.picked">
+            <input type="checkbox" [checked]="q.picked" (change)="togglePick(q)" [attr.aria-label]="'Ask: ' + q.text" />
+            <textarea rows="1" [ngModel]="q.text" (blur)="editQuestion(q, $any($event.target).value)" [attr.aria-label]="'Question ' + ($index + 1)"></textarea>
+            <small>{{ q.ref ? 'From ' + q.ref + (q.why ? ' · ' : '') : '' }}{{ q.why }}</small>
+          </li>
+        }
+      </ul>
+      @if (dates().questionsVia !== 'portal') {
+        <label class="kd-to"><span>Send to</span><input type="email" [(ngModel)]="questionsTo" placeholder="The address the RFP gives for questions" /></label>
+      }
+      <div class="kd-actions">
+        @if (dates().questionsVia !== 'portal') {
+          @if (sender) {
+            <button type="button" class="dk-btn dk-btn--primary" (click)="sendQuestions()" [disabled]="!picked().length || !questionsTo.trim() || busy() === 'send'" appWriteAction="send these questions"><dk-icon name="send" />{{ busy() === 'send' ? 'Sending…' : 'Send ' + picked().length + ' from ' + sender.emailAddress }}</button>
+          } @else {
+            <a class="dk-btn dk-btn--primary" routerLink="/opportunities/inbox"><dk-icon name="mail" />Connect your email to send them</a>
+          }
+        }
+        <button type="button" class="dk-btn" [class.dk-btn--primary]="dates().questionsVia === 'portal'" [class.dk-btn--bg]="dates().questionsVia !== 'portal'" (click)="copyForPortal()" [disabled]="!picked().length"><dk-icon name="copy" />Copy for the portal</button>
+      </div>
+    }
+  </section>
+}

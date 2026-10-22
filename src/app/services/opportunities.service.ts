@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { DocsInbox, FIT_THRESHOLD, NoBidReason, Opportunity, OpportunityStatus, ProposalDraft, Requirements, isOpen } from '../models/opportunity';
+import { BuyerUpdate, DocsInbox, FIT_THRESHOLD, KeyDateKind, NoBidReason, Opportunity, OpportunityStatus, ProposalDraft, Requirements, isOpen } from '../models/opportunity';
 import { DocService } from './doc.service';
 
 interface Envelope<T> { success: boolean; data: T; message?: string; }
@@ -73,6 +73,49 @@ export class OpportunitiesService {
       map( ( r ) => r.data ),
       tap( ( updated ) => this.replace( updated ) ),
     );
+  }
+
+  // ── Key dates, questions for the buyer, addenda ──────────────────
+  /** TODD reads the RFP for its dates and questions worth asking (once; returns at once after that). */
+  checkKeyDates ( id: string, force = false ): Observable<Opportunity> {
+    return this.http.post<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/dates/check`, { force } ).pipe( map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
+  }
+
+  addKeyDate ( id: string, body: { kind: KeyDateKind; label?: string; date: string; where?: string } ): Observable<Opportunity> {
+    return this.http.post<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/dates`, body ).pipe( map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
+  }
+
+  /** Edits and picks; an item without an id is a question of the owner's own. */
+  saveBuyerQuestions ( id: string, items: { id?: string; text?: string; picked?: boolean }[] ): Observable<Opportunity> {
+    return this.http.patch<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/questions`, { items } ).pipe( map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
+  }
+
+  /** Sends the picked questions from the person's own inbox. */
+  sendBuyerQuestions ( id: string, body: { mailboxId: string; to?: string; signer?: string } ): Observable<Opportunity> {
+    return this.http.post<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/questions/send`, body ).pipe( map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
+  }
+
+  questionsCopied ( id: string ): Observable<Opportunity> {
+    return this.http.post<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/questions/copied`, {} ).pipe( map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
+  }
+
+  /** Addenda and the buyer's answers, newest first. */
+  listUpdates ( id: string ): Observable<BuyerUpdate[]> {
+    return this.http.get<Envelope<BuyerUpdate[]>>( `${ this.opportunityBase( id ) }/updates` ).pipe( map( ( r ) => r.data || [] ) );
+  }
+
+  markUpdateRead ( id: string, updateId: string ): Observable<BuyerUpdate[]> {
+    return this.http.post<Envelope<BuyerUpdate[]>>( `${ this.opportunityBase( id ) }/updates/${ encodeURIComponent( updateId ) }/read`, {} ).pipe(
+      map( ( r ) => r.data || [] ),
+      tap( ( list ) => {
+        const o = this.opportunities().find( ( x ) => x.id === id );
+        if ( o ) this.replace( { ...o, unreadUpdates: list.filter( ( u ) => !u.read ).length } );
+      } ),
+    );
+  }
+
+  private opportunityBase ( id: string ): string {
+    return `${ this.base }/opportunities/${ encodeURIComponent( id ) }`;
   }
 
   /** Profile: re-score open opportunities against the saved profile. */

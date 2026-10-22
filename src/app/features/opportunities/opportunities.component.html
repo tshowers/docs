@@ -44,7 +44,9 @@
             <p class="opp-must" [attr.data-state]="m.state"><span class="opp-dot"><dk-icon [name]="m.state === 'met' ? 'check' : m.state === 'not_met' ? 'x' : m.state === 'unknown' ? 'help' : 'clock'" [size]="12" /></span>{{ m.text }}</p>
           }
           <div class="opp-chips">
-            @if (dueLabel(o)) { <span class="opp-chip">{{ dueLabel(o) }}</span> }
+            @if (o.unreadUpdates) { <span class="opp-chip opp-chip--pink"><span class="opp-unread"></span>New addendum</span> }
+            @if (dateChip(o); as d) { <span class="opp-chip" [class.opp-chip--yellow]="d.tint === 'yellow'" [class.opp-chip--pink]="d.tint === 'pink'"><dk-icon [name]="d.tint === 'plain' ? 'calendar' : 'clock'" [size]="13" />{{ d.text }}</span> }
+            @else if (dueLabel(o)) { <span class="opp-chip">{{ dueLabel(o) }}</span> }
             @if (o.estimatedValue) { <span class="opp-chip">{{ o.estimatedValue }}</span> }
           </div>
           <ul class="opp-lines">
@@ -74,7 +76,7 @@
           <a class="opp-row" [routerLink]="p.status === 'drafting' ? ['/opportunities', p.id, 'proposal'] : ['/opportunities', p.id]">
             <div>
               <strong>{{ p.agency ? p.agency + ' · ' : '' }}{{ p.title }}</strong>
-              <small class="dk-muted">{{ dueLabel(p) || 'No due date' }}</small>
+              <small class="dk-muted">@if (p.unreadUpdates) {<span class="opp-unread"></span>New addendum · }{{ dateChip(p)?.text || dueLabel(p) || 'No due date' }}</small>
             </div>
             <span class="dk-tag dk-tinted" [attr.data-tint]="stageLabel[stageOf(p)].tint">{{ stageLabel[stageOf(p)].label }}</span>
           </a>

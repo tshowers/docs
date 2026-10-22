@@ -157,6 +157,8 @@
   /* Each block gets its order: Angular's scoping attributes would make a
      catch-all child rule outrank these. */
   .od__head { order: 1; }
+  .od__dates { order: 2; }
+  .od__updates { order: 9; }
   .od__title { font-size: 30px; }
   .od__chips { order: 3; display: flex; flex-wrap: wrap; gap: 6px; }
   .od__chips span { padding: 8px 12px; border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 700; }

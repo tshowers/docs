@@ -11,6 +11,7 @@ import { DocumentsStoreService } from '../../services/documents-store.service';
 import { KnowledgeStoreService } from '../../services/knowledge-store.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { AlsoFromUsComponent } from '../../shared/also-from-us/also-from-us.component';
+import { nextDeadline } from '../../models/key-dates';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { SiteFooterComponent } from '../../shared/site-footer/site-footer.component';
 import { routeAsk } from './home-ask';
@@ -50,6 +51,14 @@ export function needsYou ( input: {
   const now = input.now || new Date();
   const items: NeedsYouItem[] = [];
   for ( const o of input.opportunities ) {
+    // An addendum changed an RFP you're on, or questions close soon (lifecycle C).
+    if ( ( o.status === 'new' || o.status === 'drafting' ) && o.unreadUpdates ) {
+      items.push( { key: `add-${ o.id }`, icon: 'alert-circle', tint: 'pink', text: `New addendum for ${ o.agency || o.title }`, action: 'Read', route: ['/opportunities', o.id], urgency: 0 } );
+    }
+    const next = o.status === 'new' || o.status === 'drafting' ? nextDeadline( o, now ) : null;
+    if ( next && next.item.kind === 'questions_due' && next.days <= 3 && !o.buyerQuestions?.sent ) {
+      items.push( { key: `qd-${ o.id }`, icon: 'clock', tint: 'yellow', text: `Questions for ${ o.agency || o.title } are due ${ next.days <= 0 ? 'today' : next.days === 1 ? 'tomorrow' : `in ${ next.days } days` }`, action: 'Ask', route: ['/opportunities', o.id], urgency: next.days } );
+    }
     if ( o.status !== 'drafting' ) continue;
     const due = dueDate( o );
     const days = due ? daysUntil( due, now ) : null;

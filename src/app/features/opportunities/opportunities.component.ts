@@ -7,6 +7,7 @@ import { DocsInbox, FIT_THRESHOLD, Opportunity, STAGE_LABEL, dueLabel, fitTint, 
 import { DocsAuthService } from '../../services/docs-auth.service';
 import { DocsNotificationService } from '../../services/docs-notification.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
+import { dateChip } from '../../models/key-dates';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
 
@@ -94,6 +95,7 @@ export class OpportunitiesComponent implements OnInit {
   readonly stageLabel = STAGE_LABEL;
   readonly stageOf = stageOf;
   readonly mustHavesLine = mustHavesLine;
+  readonly dateChip = ( o: Opportunity ) => dateChip( o );
   readonly senderNames = senderNames;
   readonly checkedAgo = checkedAgo;
 

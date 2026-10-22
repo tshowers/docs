@@ -56,7 +56,7 @@
             <li class="rm__row" [class.is-open]="expanded() === r.id" [attr.data-status]="r.status">
               <div class="rm__line" (click)="toggle(r)">
                 <span class="rm__ref">{{ r.ref || '–' }}</span>
-                <strong class="rm__text">{{ r.text }}</strong>
+                <strong class="rm__text">{{ r.text }}@if (r.checkAgain) { <span class="rm__again">Check again</span>}</strong>
                 @if (mode === 'table') { <span class="rm__type">{{ r.type }}</span> }
                 <div class="rm__foot">
                 <span class="rm__where">

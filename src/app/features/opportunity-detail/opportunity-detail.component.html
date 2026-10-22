@@ -19,6 +19,9 @@
             }
           </ol>
         </div>
+        @if (o.status !== 'dismissed') {
+          <app-opportunity-dates class="od__dates" [opportunity]="o" [updates]="updates()" [sender]="sender()" [signer]="signer()" (changed)="opportunity.set($event)" (updatesChanged)="updates.set($event)" />
+        }
         <div class="od__chips">
           @if (dueLabel(o)) { <span>{{ dueLabel(o) }}</span> }
           @if (o.estimatedValue) { <span>{{ o.estimatedValue }}</span> }
@@ -206,6 +209,7 @@
             </div>
           </section>
         }
+        <app-buyer-updates class="od__updates" [opportunity]="o" [updates]="updates()" />
       </aside>
     </div>
   } @else if (notFound()) {

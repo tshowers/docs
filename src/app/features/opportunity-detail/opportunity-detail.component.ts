@@ -6,13 +6,17 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import {
-  MustHave, NO_BID_REASONS, NoBidReason, Opportunity, PROPOSAL_STATUS_LABEL, STAGE_LABEL, STAGE_STEPS,
+  BuyerUpdate, DocsInbox, MustHave, NO_BID_REASONS, NoBidReason, Opportunity, PROPOSAL_STATUS_LABEL, STAGE_LABEL, STAGE_STEPS,
   dueLabel, dueLong, fitTint, mustHavesOf, stageOf, submitByLabel,
 } from '../../models/opportunity';
 import { DocsNotificationService } from '../../services/docs-notification.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
+import { ProfileApiService } from '../../services/profile-api.service';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
+import { defaultSender } from '../review-send/review-send.helpers';
+import { BuyerUpdatesComponent } from './buyer-updates.component';
+import { OpportunityDatesComponent } from './opportunity-dates.component';
 
 /** While another tab or device is reading the RFP, check back this often. */
 const CHECKING_POLL_MS = 5000;
@@ -43,7 +47,7 @@ export function gateIntro ( summary: { total: number; notMet: number; unknown: n
 @Component( {
   selector: 'app-opportunity-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective],
+  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective, OpportunityDatesComponent, BuyerUpdatesComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './opportunity-detail.component.html',
   styleUrl: './opportunity-detail.component.css',
@@ -54,8 +58,14 @@ export class OpportunityDetailComponent implements OnInit {
   private readonly service = inject( OpportunitiesService );
   private readonly notifications = inject( DocsNotificationService );
   private readonly destroyRef = inject( DestroyRef );
+  private readonly profileApi = inject( ProfileApiService );
 
   readonly opportunity = signal<Opportunity | null>( null );
+  /** Addenda and the buyer's answers (lifecycle 1g). */
+  readonly updates = signal<BuyerUpdate[]>( [] );
+  /** Questions for the buyer go out from this inbox, signed by the owner. */
+  readonly sender = signal<DocsInbox | null>( null );
+  readonly signer = signal( '' );
   readonly notFound = signal( false );
   readonly busy = signal( '' );
   /** This page asked TODD to read the RFP and is waiting on it. */
@@ -144,6 +154,11 @@ export class OpportunityDetailComponent implements OnInit {
 
   ngOnInit (): void {
     this.destroyRef.onDestroy( () => this.stopPolling() );
+    this.service.listInboxes().subscribe( { next: ( inboxes ) => this.sender.set( defaultSender( inboxes ) ), error: () => null } );
+    this.profileApi.load().then( ( p ) => {
+      const name = [p?.firstName, p?.lastName].filter( Boolean ).join( ' ' );
+      this.signer.set( [name, p?.companyName].filter( Boolean ).join( ', ' ) );
+    } ).catch( () => null );
     this.route.paramMap.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( ( params ) => {
       const id = String( params.get( 'id' ) || '' );
       const cached = this.service.opportunities().find( ( o ) => o.id === id );
@@ -151,6 +166,7 @@ export class OpportunityDetailComponent implements OnInit {
       this.opportunity.set( cached || null );
       this.notFound.set( false );
       this.panel.set( 'actions' );
+      this.updates.set( [] );
       this.service.get( id ).subscribe( {
         next: ( o ) => {
           this.opportunity.set( o );
@@ -158,6 +174,7 @@ export class OpportunityDetailComponent implements OnInit {
         },
         error: () => { if ( !cached ) this.notFound.set( true ); },
       } );
+      this.service.listUpdates( id ).subscribe( { next: ( list ) => this.updates.set( list ), error: () => null } );
     } );
   }
 

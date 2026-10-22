@@ -1,0 +1,103 @@
+:host { display: flex; flex-direction: column; gap: 18px; }
+:host h2, :host p { margin: 0; }
+
+/* 1g: an addendum that just arrived. */
+.kd-addendum { display: grid; gap: 16px; padding: 24px 28px; border-radius: 28px; background: var(--t-pink); }
+.kd-addendum__from { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--t-pink-fg); font-size: 14px; font-weight: 700; }
+.kd-new { padding: 3px 10px; border-radius: 999px; background: var(--bg); color: var(--t-pink-fg); font-size: 12px; }
+.kd-addendum h2 { font-size: 32px; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; }
+.kd-addendum__note { font-size: 15px; line-height: 1.5; }
+.kd-changes { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.kd-changes li { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 20px; background: var(--bg); }
+.kd-changes__icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--surface); }
+.kd-changes strong { font-size: 16px; }
+.kd-changes p { margin-top: 2px !important; color: var(--muted); font-size: 14px; line-height: 1.45; }
+.kd-again { padding: 5px 12px; border-radius: 999px; background: var(--t-blue); color: var(--blue-ink); font-size: 13px; font-weight: 700; white-space: nowrap; }
+.kd-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.kd-quiet { background: transparent !important; color: var(--muted) !important; }
+
+/* 1f: the next deadline. */
+.kd-banner { display: flex; align-items: center; gap: 14px; padding: 16px 16px 16px 22px; border-radius: 24px; background: var(--surface); }
+.kd-banner.is-soon { background: var(--t-yellow); color: var(--t-yellow-fg); }
+.kd-banner > div { display: grid; flex: 1; min-width: 0; gap: 2px; }
+.kd-banner strong { font-size: 18px; font-weight: 700; }
+.kd-banner span { font-size: 14px; overflow-wrap: anywhere; }
+.kd-banner__cal { background: var(--bg) !important; color: var(--text) !important; }
+
+/* The dates in order: past filled, the next blue with a ring, the rest grey. */
+.kd-line { display: grid; gap: 12px; padding: 22px 24px; border-radius: 24px; background: var(--surface); }
+.kd-line__note { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+.kd-line__note img { width: 22px; height: 22px; border-radius: 50%; }
+.kd-line__add { justify-self: start; }
+.kd-steps { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(120px, 1fr); margin: 0; padding: 0; overflow-x: auto; list-style: none; }
+.kd-steps li { position: relative; display: grid; gap: 3px; align-content: start; padding: 30px 12px 0 0; }
+.kd-steps li::before { content: ""; position: absolute; top: 8px; left: 0; right: 0; height: 2px; background: var(--surface2); }
+.kd-steps li[data-state="past"]::before { background: var(--text); }
+.kd-steps li:last-child::before { right: auto; width: 10px; }
+.kd-dot { position: absolute; top: 3px; left: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--surface2); }
+.kd-steps li[data-state="past"] .kd-dot { background: var(--text); }
+.kd-steps li.is-addendum[data-state="past"] .kd-dot { background: var(--t-pink-fg); }
+.kd-steps li[data-state="next"] .kd-dot { top: -1px; left: -2px; width: 20px; height: 20px; background: var(--blue); box-shadow: 0 0 0 6px var(--t-blue); }
+.kd-steps strong { font-size: 14px; }
+.kd-steps li[data-state="next"] strong { color: var(--blue-ink); }
+.kd-steps small { color: var(--muted); font-size: 13px; }
+.kd-steps s { margin-right: 4px; }
+
+.kd-add { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.kd-add select, .kd-add input, .kd-to input {
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: 600 14px var(--font);
+}
+
+.kd-link,
+button.kd-link {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--blue-ink) !important;
+  font: 700 14px/1.4 var(--font);
+  cursor: pointer;
+}
+
+/* 1f: TODD's questions for the buyer. */
+.kd-questions { display: grid; gap: 14px; padding: 24px; border-radius: 28px; background: var(--surface); }
+.kd-questions header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.kd-questions .dk-todd__head { margin: 0; color: var(--text); font-size: 17px; font-weight: 700; }
+.kd-questions header span { font-size: 13px; font-weight: 700; }
+.kd-sub { font-size: 14px; }
+.kd-sent { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.5; }
+.kd-sent dk-icon { margin-top: 3px; color: var(--t-green-fg); }
+.kd-qs { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.kd-qs li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 14px; align-items: start; padding: 14px 16px; border-radius: 20px; background: var(--bg); }
+.kd-qs li.is-off textarea { color: var(--muted); }
+.kd-qs input[type="checkbox"] { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--blue); }
+.kd-qs textarea { width: 100%; min-height: 24px; padding: 0; border: 0; background: none; color: var(--text); font: 500 15px/1.5 var(--font); resize: none; field-sizing: content; }
+.kd-qs textarea:focus { outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 6px; }
+.kd-qs small { max-width: 160px; padding-top: 3px; color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; }
+.kd-to { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; }
+.kd-to input { flex: 1; min-width: 0; }
+
+@media (max-width: 760px) {
+  .kd-addendum { padding: 20px; }
+  .kd-addendum h2 { font-size: 24px; }
+  .kd-changes li { grid-template-columns: 32px minmax(0, 1fr); }
+  .kd-changes__icon { width: 32px; height: 32px; }
+  .kd-again { grid-column: 2; justify-self: start; }
+  .kd-banner { flex-wrap: wrap; }
+  .kd-banner__cal { width: 100%; }
+  /* The dates run down the page (1g's rail). */
+  .kd-steps { grid-auto-flow: row; grid-auto-columns: auto; gap: 14px; }
+  .kd-steps li { padding: 0 0 0 26px; }
+  .kd-steps li::before { top: 12px; bottom: -14px; left: 5px; right: auto; width: 2px; height: auto; }
+  .kd-steps li:last-child::before { display: none; }
+  .kd-dot { top: 3px; }
+  .kd-steps li[data-state="next"] .kd-dot { top: -1px; left: -3px; }
+  .kd-qs li { grid-template-columns: 22px minmax(0, 1fr); }
+  .kd-qs small { grid-column: 2; max-width: none; text-align: left; }
+}

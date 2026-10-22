@@ -71,7 +71,11 @@ button.opp-link {
 .opp-must[data-state="not_met"] .opp-dot { background: var(--t-pink); color: var(--t-pink-fg); }
 .opp-must[data-state="unknown"] .opp-dot { background: var(--t-yellow); color: var(--t-yellow-fg); }
 .opp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.opp-chip { padding: 6px 10px; border-radius: 999px; background: var(--bg); font-size: 12px; font-weight: 700; }
+.opp-chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; background: var(--bg); font-size: 12px; font-weight: 700; }
+/* Dates (lifecycle 1h): yellow inside 3 days, pink for a proposal due inside 2 or a new addendum. */
+.opp-chip--yellow { background: var(--t-yellow); color: var(--t-yellow-fg); }
+.opp-chip--pink { background: var(--t-pink); color: var(--t-pink-fg); }
+.opp-unread { display: inline-block; width: 8px; height: 8px; margin-right: 2px; border-radius: 50%; background: var(--t-pink-fg); vertical-align: middle; }
 
 .opp-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 13px; line-height: 1.45; }
 .opp-lines li { display: grid; grid-template-columns: 15px 1fr; gap: 8px; align-items: start; }

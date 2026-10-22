@@ -59,6 +59,9 @@
 .rm__where, .rm__act { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .rm--table .rm__act { justify-content: flex-end; }
 
+/* An addendum changed it (lifecycle 1g). */
+.rm__again { display: inline-block; margin-left: 8px; padding: 2px 9px; border-radius: 999px; background: var(--t-blue); color: var(--blue-ink); font-size: 12px; font-weight: 700; vertical-align: 1px; }
+
 .rm__missing { display: inline-flex; align-items: center; gap: 6px; color: var(--t-pink-fg); font-size: 13px; font-weight: 700; white-space: nowrap; }
 .rm--table .rm__missing { font-size: 14px; }
 .rm__tick { color: var(--t-green-fg); }
