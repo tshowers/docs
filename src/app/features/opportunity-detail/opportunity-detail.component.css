@@ -1,7 +1,7 @@
 :host { display: block; }
 
 .od-back { margin-bottom: 24px; }
-.od__grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 40px; align-items: start; }
+.od__grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 40px; align-items: start; }
 .od__main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .od__source { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 14px; }
 .od__title { font-size: 48px; font-weight: 700; line-height: 1.04; letter-spacing: -0.04em; overflow-wrap: anywhere; }
@@ -43,35 +43,101 @@
 
 .od__side { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px; }
 
-.od__fit { padding: 20px; border-radius: 28px; }
-.od__fit header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
-.od__fit h2 { font-size: 20px; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
+/* Status line (lifecycle 1a): done steps checked in --text, the current one a blue pill. */
+.od__head { display: flex; flex-direction: column; gap: 14px; }
+.od__steps { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 13px; font-weight: 600; }
+.od__step { display: flex; align-items: center; gap: 4px; color: var(--muted); }
+.od__step[data-state="done"] { color: var(--text); font-weight: 700; }
+.od__step[data-state="current"] { padding: 5px 12px; border-radius: 999px; background: var(--blue); color: #fff; font-weight: 700; }
+.od__link { width: 18px; height: 2px; border-radius: 2px; background: var(--surface2); }
+.od__link.is-done { background: var(--text); }
+
+/* Fit strip: a judgment, beside the pass/fail must-haves. */
+.od__fit { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-radius: 24px; }
+.od__fit h2 { font-size: 16px; font-weight: 700; line-height: 1.3; }
+.od__fit p { font-size: 13px; line-height: 1.45; color: var(--muted); }
+.od__fit .od__gap { display: flex; align-items: center; gap: 6px; color: var(--t-pink-fg); }
 
 .od__score {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   flex: none;
   border-radius: 50%;
   background: var(--bg);
   color: var(--text);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
 }
 
-.od__fit ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; color: var(--text); font-size: 13px; line-height: 1.45; }
-.od__fit li { display: grid; grid-template-columns: 15px 1fr; gap: 8px; }
-.od__fit li dk-icon { margin-top: 2px; }
-.od__fit li.is-gap { color: var(--t-pink-fg); }
+.od__next { display: grid; gap: 18px; padding: 22px 24px; border-radius: 28px; background: var(--surface); }
+.od__gate { display: grid; gap: 12px; }
+.od__gate:empty { display: none; }
+.od__gate p { font-size: 15px; line-height: 1.55; }
+.od__gate p.dk-muted { font-size: 14px; line-height: 1.5; }
+.od__todd { margin-bottom: 0 !important; color: var(--text) !important; font-size: 15px; font-weight: 700; }
+.od__found { margin-left: auto; color: var(--muted); font-size: 13px; }
+.od__gate-head { display: flex; align-items: center; gap: 10px; font-size: 15px; }
 
-.od__next { display: grid; gap: 12px; padding: 20px; border-radius: 28px; background: var(--surface); }
-.od__todd { margin-bottom: 0 !important; color: var(--text) !important; }
-.od__next p { font-size: 14px; line-height: 1.55; }
+.od__bar { height: 8px; overflow: hidden; border-radius: 999px; background: var(--bg); }
+.od__bar span { display: block; width: 30%; height: 100%; border-radius: 999px; background: var(--blue); animation: od-read 1.8s ease-in-out infinite; }
+@keyframes od-read { 0% { transform: translateX(-100%); } 100% { transform: translateX(340%); } }
+
+/* State dot: met green, not met pink, not sure yellow, waiting grey. */
+.od__dot { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border-radius: 50%; }
+.od__dot[data-state="met"] { background: var(--t-green); color: var(--t-green-fg); }
+.od__dot[data-state="not_met"] { background: var(--t-pink); color: var(--t-pink-fg); }
+.od__dot[data-state="unknown"] { background: var(--t-yellow); color: var(--t-yellow-fg); }
+.od__dot[data-state="waiting"] { background: var(--surface2); color: var(--muted); }
+
+.od__musthaves { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.od__musthaves li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: start; }
+.od__musthaves li > div { display: flex; flex-direction: column; gap: 3px; padding-top: 3px; min-width: 0; }
+.od__musthaves strong { font-size: 14px; line-height: 1.35; }
+.od__musthaves small { font-size: 13px; line-height: 1.45; color: var(--muted); }
+.od__musthaves small.is-missing { color: var(--t-pink-fg); }
+
+.od__ask { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; padding: 12px 14px; border-radius: 18px; background: var(--bg); }
+.od__ask span { font-size: 14px; font-weight: 600; line-height: 1.4; }
+.od__ask div { display: flex; flex-wrap: wrap; gap: 6px; }
+.od__ask .dk-btn { height: 36px; padding: 0 16px; background: var(--surface); }
+.od__ask .od__quiet { background: transparent; color: var(--muted); }
+
+.od__actions { display: grid; gap: 8px; }
 .od__wide { width: 100%; }
 .od__pair { display: flex; gap: 8px; }
 .od__pair .dk-btn { flex: 1; }
-.od__status { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.od__actions .od__pair .dk-btn { height: 42px; }
+.od__note { font-size: 13px; line-height: 1.45; }
+.od__status { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 14px; }
+
+.od__reason { display: grid; gap: 10px; }
+.od__reason > strong { font-size: 15px; }
+.od__reason textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 var(--font);
+  resize: vertical;
+}
+.od__reasons { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.od__chip {
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: 700 13px var(--font);
+  cursor: pointer;
+}
+.od__chip:hover, .od__chip.is-on { background: var(--text); color: var(--bg); }
 
 .od__skeleton { height: 480px; border-radius: 28px; background: var(--surface); animation: od-pulse 1.4s ease-in-out infinite; }
 @keyframes od-pulse { 50% { opacity: .55; } }
@@ -83,32 +149,34 @@
 }
 
 @media (max-width: 760px) {
-  /* 1m: title, chips, TODD's fit, then the RFP's detail; the next step
-     sticks above the tab bar. The two columns flow as one. */
+  /* 1m / 1p: title, status line, chips, the must-haves, TODD's fit, then
+     the RFP's detail; the next step sticks above the tab bar. The columns
+     flow as one. */
   .od__grid { display: flex; flex-direction: column; align-items: stretch; gap: 14px; }
-  .od__main, .od__side { display: contents; }
+  .od__main, .od__side, .od__next { display: contents; }
   /* Each block gets its order: Angular's scoping attributes would make a
      catch-all child rule outrank these. */
-  .od__source { order: 1; }
-  .od__title { order: 2; font-size: 30px; }
+  .od__head { order: 1; }
+  .od__title { font-size: 30px; }
   .od__chips { order: 3; display: flex; flex-wrap: wrap; gap: 6px; }
   .od__chips span { padding: 8px 12px; border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 700; }
-  .od__fit { order: 4; }
-  .od__summary { order: 5; font-size: 16px; }
-  .od__submit { order: 6; }
-  .od__criteria-wrap, .od__nocriteria { order: 7; }
+  .od__gate { order: 4; padding: 20px; border-radius: 28px; background: var(--surface); }
+  .od__fit { order: 5; }
+  .od__summary { order: 6; font-size: 16px; }
+  .od__submit { order: 7; }
+  .od__criteria-wrap, .od__nocriteria { order: 8; }
   .od__facts { display: none; }
-  .od__next {
+  .od__actions {
     order: 20;
     position: sticky;
     bottom: calc(64px + env(safe-area-inset-bottom));
     z-index: 5;
     margin: 0 -16px;
     padding: 12px 16px;
-    border-radius: 0;
     background: var(--bg);
     box-shadow: 0 -1px 0 var(--surface2);
   }
-  .od__next .od__todd, .od__next > p { display: none; }
-  .od__next .od__pair .dk-btn { background: var(--surface); }
+  .od__actions .od__pair .dk-btn, .od__actions .od__chip, .od__reason textarea { background: var(--surface); }
+  /* The pinned bar stays short: the reason card says the same when it opens. */
+  .od__actions > .od__note { display: none; }
 }

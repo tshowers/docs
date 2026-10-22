@@ -5,6 +5,50 @@
  */
 export type OpportunityStatus = 'new' | 'drafting' | 'submitted' | 'won' | 'lost' | 'dismissed';
 
+/**
+ * The lifecycle stage (design_handoff_todd_docs_lifecycle status model). The
+ * API derives it from the stored status: new is found until TODD checks the
+ * must-haves, then qualifying; drafting is in review while approval is open;
+ * dismissed is no bid.
+ */
+export type OpportunityStage = 'found' | 'qualifying' | 'drafting' | 'in_review' | 'submitted' | 'won' | 'lost' | 'no_bid';
+
+/** One pass/fail requirement from the RFP (lifecycle A, the Bid / No-Bid gate). */
+export interface MustHave {
+  id: string;
+  ref: string;
+  text: string;
+  category: string;
+  state: 'met' | 'not_met' | 'unknown';
+  /** Where TODD found it, what's there instead, or what it looked for. */
+  proof: string;
+  /** The yes/no question for a not-sure one. */
+  question: string;
+  answer: '' | 'yes' | 'no' | 'unsure';
+  answeredAt: string;
+  knowledgeId: string;
+}
+
+export interface MustHaves {
+  /** no_rfp: only the alert; unchecked: the RFP is there but not read yet. */
+  status: 'no_rfp' | 'unchecked' | 'checking' | 'done' | 'failed';
+  items: MustHave[];
+  checkedAt: string;
+  summary: { total: number; met: number; notMet: number; unknown: number };
+}
+
+export interface OpportunityDecision {
+  type: 'draft' | 'draft_anyway' | 'no_bid' | string;
+  at: string;
+  userId: string;
+  reason: string;
+  detail: string;
+}
+
+/** "Not for us": one tap, and Other with a note. */
+export const NO_BID_REASONS = ['Missing must-have', 'Too big', 'Bad timing', 'Not our work', 'Other'] as const;
+export type NoBidReason = typeof NO_BID_REASONS[number];
+
 export interface Opportunity {
   id: string;
   title: string;
@@ -21,6 +65,12 @@ export interface Opportunity {
   fit: { score: number; headline: string; reasons: string[]; gaps: string[] };
   source: { kind: 'email' | 'upload'; label: string; from: string; subject: string; receivedAt: string; mailboxId: string; documentId?: string };
   status: OpportunityStatus;
+  /** Optional until every API that serves Docs sends them; read through stageOf / mustHavesOf. */
+  stage?: OpportunityStage;
+  mustHaves?: MustHaves;
+  decision?: OpportunityDecision | null;
+  noBid?: { reason: string; detail: string; at: string } | null;
+  history?: OpportunityDecision[];
   rfpDocumentId: string;
   proposalDocumentId: string;
   /** What was sent (Review & send), or null. */
@@ -106,6 +156,51 @@ export const PROPOSAL_STATUS_LABEL: Record<OpportunityStatus, { label: string; t
   lost: { label: 'Lost', tint: 'pink' },
   dismissed: { label: 'Not for us', tint: 'grey' },
 };
+
+export function stageOf ( opportunity: Pick<Opportunity, 'status' | 'stage'> ): OpportunityStage {
+  if ( opportunity.stage ) return opportunity.stage;
+  switch ( opportunity.status ) {
+    case 'new': return 'found';
+    case 'dismissed': return 'no_bid';
+    default: return opportunity.status;
+  }
+}
+
+export function mustHavesOf ( opportunity: Pick<Opportunity, 'mustHaves' | 'rfpDocumentId'> ): MustHaves {
+  return opportunity.mustHaves || { status: opportunity.rfpDocumentId ? 'unchecked' : 'no_rfp', items: [], checkedAt: '', summary: { total: 0, met: 0, notMet: 0, unknown: 0 } };
+}
+
+/** Card tags (1h): Qualifying blue, Drafting violet, In review cyan, Submitted green, Found neutral. */
+export const STAGE_LABEL: Record<OpportunityStage, { label: string; tint: string }> = {
+  found: { label: 'Found', tint: 'neutral' },
+  qualifying: { label: 'Qualifying', tint: 'blue' },
+  drafting: { label: 'Drafting', tint: 'violet' },
+  in_review: { label: 'In review', tint: 'cyan' },
+  submitted: { label: 'Submitted', tint: 'green' },
+  won: { label: 'Won', tint: 'green' },
+  lost: { label: 'Lost', tint: 'pink' },
+  no_bid: { label: 'No-bid', tint: 'grey' },
+};
+
+/** The status line on opportunity detail (1a): the last step is the outcome. */
+export const STAGE_STEPS: { key: string; label: string; stages: OpportunityStage[] }[] = [
+  { key: 'found', label: 'Found', stages: ['found'] },
+  { key: 'qualifying', label: 'Qualifying', stages: ['qualifying'] },
+  { key: 'drafting', label: 'Drafting', stages: ['drafting'] },
+  { key: 'in_review', label: 'In review', stages: ['in_review'] },
+  { key: 'submitted', label: 'Submitted', stages: ['submitted'] },
+  { key: 'outcome', label: 'Won / Lost / No-bid', stages: ['won', 'lost', 'no_bid'] },
+];
+
+/** The cards' must-haves line (1h), or null when there's nothing to say. */
+export function mustHavesLine ( opportunity: Opportunity ): { text: string; state: 'met' | 'not_met' | 'unknown' | 'waiting' } | null {
+  const m = mustHavesOf( opportunity );
+  if ( m.status === 'checking' ) return { text: 'Checking must-haves…', state: 'waiting' };
+  if ( m.status !== 'done' || !m.summary.total ) return null;
+  if ( m.summary.notMet ) return { text: `${ m.summary.notMet } ${ m.summary.notMet === 1 ? 'must-have' : 'must-haves' } missing`, state: 'not_met' };
+  if ( m.summary.unknown ) return { text: `${ m.summary.unknown } ${ m.summary.unknown === 1 ? 'must-have' : 'must-haves' } to confirm`, state: 'unknown' };
+  return { text: 'All must-haves met', state: 'met' };
+}
 
 /** The proposal editor's draft (todd-backend docs/proposals/proposalDraft.model.js). */
 export interface ProposalBlock {

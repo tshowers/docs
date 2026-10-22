@@ -80,6 +80,8 @@ button.dk-btn {
 .dk-btn.dk-btn--icon { width: 44px; padding: 0; }
 .dk-btn.dk-btn--icon.dk-btn--sm { width: 38px; }
 .dk-btn.dk-btn--danger { color: var(--t-pink-fg) !important; }
+/* A decisive negative action: "We can't meet this", "We lost" (lifecycle). */
+.dk-btn.dk-btn--ink { background: var(--text); color: var(--bg) !important; }
 
 /* ── Search pill ──────────────────────────────────────────────── */
 .dk-search {
@@ -157,6 +159,8 @@ button.dk-filter {
 [data-tint="yellow"] { --tint: var(--t-yellow); --tint-fg: var(--t-yellow-fg); }
 [data-tint="pink"] { --tint: var(--t-pink); --tint-fg: var(--t-pink-fg); }
 [data-tint="grey"] { --tint: var(--surface2); --tint-fg: var(--muted); }
+/* Found (lifecycle 1h): the page colour on a surface card. */
+[data-tint="neutral"] { --tint: var(--bg); --tint-fg: var(--text); }
 
 .dk-tinted { background: var(--tint); color: var(--tint-fg); }
 

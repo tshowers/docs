@@ -97,6 +97,8 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   readonly rfpMode = this.route.snapshot.queryParamMap.get( 'rfp' ) === '1';
   /** "Attach the RFP" from the proposal editor: the file is that opportunity's RFP. */
   readonly attachTo = this.route.snapshot.queryParamMap.get( 'opportunity' ) || '';
+  /** Attached from the Bid / No-Bid gate: back to the opportunity, where TODD checks the must-haves. */
+  readonly backToOpportunity = this.route.snapshot.queryParamMap.get( 'back' ) === 'opportunity';
   /** A portal link pasted on Home: TODD can't sign in to portals, so it asks for the file. */
   readonly link = this.route.snapshot.queryParamMap.get( 'link' ) || '';
 
@@ -295,7 +297,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
     if ( !row?.documentId ) return;
     try {
       await new Promise( ( resolve, reject ) => this.opportunities.update( this.attachTo, { rfpDocumentId: row.documentId } ).subscribe( { next: resolve, error: reject } ) );
-      this.patch( key, { state: 'opportunity', opportunityId: this.attachTo, folder: 'Opportunities', tint: 'violet', note: 'Attached as the RFP. TODD can redraft the proposal from it.' } );
+      this.patch( key, { state: 'opportunity', opportunityId: this.attachTo, folder: 'Opportunities', tint: 'violet', note: this.backToOpportunity ? 'Attached as the RFP. TODD will check its must-haves.' : 'Attached as the RFP. TODD can redraft the proposal from it.' } );
     } catch {
       this.patch( key, { note: `It's filed under ${ row.folder }, but TODD couldn't attach it to the proposal. Try again.` } );
     }
@@ -312,7 +314,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   }
 
   open ( row: UploadRow ): void {
-    if ( row.opportunityId && this.attachTo ) void this.router.navigate( ['/opportunities', row.opportunityId, 'proposal'] );
+    if ( row.opportunityId && this.attachTo ) void this.router.navigate( this.backToOpportunity ? ['/opportunities', row.opportunityId] : ['/opportunities', row.opportunityId, 'proposal'] );
     else if ( row.opportunityId ) void this.router.navigate( ['/opportunities', row.opportunityId] );
     else if ( row.documentId ) void this.router.navigate( ['/documents', row.documentId] );
   }

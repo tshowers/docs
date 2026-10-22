@@ -39,7 +39,10 @@
               <small class="dk-muted">{{ o.source.kind === 'upload' ? 'Added by you' : 'via ' + (o.source.label || o.source.from) }}</small>
             </div>
           </header>
-          <h2 class="opp-card__title"><a [routerLink]="['/opportunities', o.id]">{{ o.title }}</a></h2>
+          <h2 class="opp-card__title"><span class="dk-tag dk-tinted opp-stage" [attr.data-tint]="stageLabel[stageOf(o)].tint">{{ stageLabel[stageOf(o)].label }}</span><a [routerLink]="['/opportunities', o.id]">{{ o.title }}</a></h2>
+          @if (mustHavesLine(o); as m) {
+            <p class="opp-must" [attr.data-state]="m.state"><span class="opp-dot"><dk-icon [name]="m.state === 'met' ? 'check' : m.state === 'not_met' ? 'x' : m.state === 'unknown' ? 'help' : 'clock'" [size]="12" /></span>{{ m.text }}</p>
+          }
           <div class="opp-chips">
             @if (dueLabel(o)) { <span class="opp-chip">{{ dueLabel(o) }}</span> }
             @if (o.estimatedValue) { <span class="opp-chip">{{ o.estimatedValue }}</span> }
@@ -73,7 +76,7 @@
               <strong>{{ p.agency ? p.agency + ' · ' : '' }}{{ p.title }}</strong>
               <small class="dk-muted">{{ dueLabel(p) || 'No due date' }}</small>
             </div>
-            <span class="dk-tag dk-tinted" [attr.data-tint]="statusLabel[p.status].tint">{{ statusLabel[p.status].label }}</span>
+            <span class="dk-tag dk-tinted" [attr.data-tint]="stageLabel[stageOf(p)].tint">{{ stageLabel[stageOf(p)].label }}</span>
           </a>
         }
       </div>

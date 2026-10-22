@@ -61,6 +61,15 @@ button.opp-link {
 
 .opp-card__title { font-size: 20px; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; }
 .opp-card__title a:hover { text-decoration: underline !important; }
+.opp-stage { margin: 0 8px 4px 0; vertical-align: middle; }
+
+/* Must-haves line (lifecycle 1h): a 22px state dot and the count. */
+.opp-must { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.opp-must[data-state="not_met"] { color: var(--t-pink-fg); font-weight: 700; }
+.opp-dot { display: grid; place-items: center; width: 22px; height: 22px; flex: none; border-radius: 50%; background: var(--surface2); color: var(--muted); }
+.opp-must[data-state="met"] .opp-dot { background: var(--t-green); color: var(--t-green-fg); }
+.opp-must[data-state="not_met"] .opp-dot { background: var(--t-pink); color: var(--t-pink-fg); }
+.opp-must[data-state="unknown"] .opp-dot { background: var(--t-yellow); color: var(--t-yellow-fg); }
 .opp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .opp-chip { padding: 6px 10px; border-radius: 999px; background: var(--bg); font-size: 12px; font-weight: 700; }
 

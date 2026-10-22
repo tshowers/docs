@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { DocsInbox, FIT_THRESHOLD, Opportunity, OpportunityStatus, ProposalDraft, isOpen } from '../models/opportunity';
+import { DocsInbox, FIT_THRESHOLD, NoBidReason, Opportunity, OpportunityStatus, ProposalDraft, isOpen } from '../models/opportunity';
 import { DocService } from './doc.service';
 
 interface Envelope<T> { success: boolean; data: T; message?: string; }
@@ -46,6 +46,30 @@ export class OpportunitiesService {
 
   update ( id: string, changes: { status?: OpportunityStatus; rfpDocumentId?: string; proposalDocumentId?: string } ): Observable<Opportunity> {
     return this.http.patch<Envelope<Opportunity>>( `${ this.base }/opportunities/${ encodeURIComponent( id ) }`, changes ).pipe(
+      map( ( r ) => r.data ),
+      tap( ( updated ) => this.replace( updated ) ),
+    );
+  }
+
+  // ── Bid / No-Bid gate ──────────────────────────────────────────
+  /** TODD reads the RFP for its must-haves (about a minute); returns at once when already checked. */
+  checkMustHaves ( id: string, force = false ): Observable<Opportunity> {
+    return this.http.post<Envelope<Opportunity>>( `${ this.base }/opportunities/${ encodeURIComponent( id ) }/musthaves/check`, { force } ).pipe(
+      map( ( r ) => r.data ),
+      tap( ( updated ) => this.replace( updated ) ),
+    );
+  }
+
+  answerMustHave ( id: string, itemId: string, answer: 'yes' | 'no' | 'unsure' ): Observable<{ opportunity: Opportunity; knowledge: { saved: boolean; id?: string; reason?: string } }> {
+    return this.http.post<Envelope<{ opportunity: Opportunity; knowledge: { saved: boolean; id?: string; reason?: string } }>>( `${ this.base }/opportunities/${ encodeURIComponent( id ) }/musthaves/${ encodeURIComponent( itemId ) }/answer`, { answer } ).pipe(
+      map( ( r ) => r.data ),
+      tap( ( result ) => this.replace( result.opportunity ) ),
+    );
+  }
+
+  /** Draft anyway (with why), or No bid (with one of NO_BID_REASONS). Both stay in the history. */
+  decide ( id: string, body: { action: 'draft' | 'draft_anyway'; reason?: string } | { action: 'no_bid'; reason: NoBidReason; detail?: string } ): Observable<Opportunity> {
+    return this.http.post<Envelope<Opportunity>>( `${ this.base }/opportunities/${ encodeURIComponent( id ) }/decision`, body ).pipe(
       map( ( r ) => r.data ),
       tap( ( updated ) => this.replace( updated ) ),
     );

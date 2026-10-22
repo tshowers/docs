@@ -4,11 +4,21 @@
   @if (opportunity(); as o) {
     <div class="od__grid">
       <article class="od__main">
-        <p class="od__source">
-          @if (o.solicitationNumber) { <span class="dk-tag dk-tinted" data-tint="violet">{{ o.solicitationNumber }}</span> }
-          <span class="dk-muted">{{ sourceLine() }}</span>
-        </p>
-        <h1 class="od__title">{{ o.title }}</h1>
+        <div class="od__head">
+          <p class="od__source">
+            @if (o.solicitationNumber) { <span class="dk-tag dk-tinted" data-tint="violet">{{ o.solicitationNumber }}</span> }
+            <span class="dk-muted">{{ sourceLine() }}</span>
+          </p>
+          <h1 class="od__title">{{ o.title }}</h1>
+          <ol class="od__steps" aria-label="Where this opportunity is">
+            @for (s of steps(); track $index) {
+              @if ($index) { <li class="od__link" [class.is-done]="s.state !== 'next'" aria-hidden="true"></li> }
+              <li class="od__step" [attr.data-state]="s.state" [attr.aria-current]="s.state === 'current' ? 'step' : null">
+                @if (s.state === 'done') { <dk-icon name="check" [size]="13" /> }{{ s.label }}
+              </li>
+            }
+          </ol>
+        </div>
         <div class="od__chips">
           @if (dueLabel(o)) { <span>{{ dueLabel(o) }}</span> }
           @if (o.estimatedValue) { <span>{{ o.estimatedValue }}</span> }
@@ -21,6 +31,15 @@
             <div class="od__fact"><span class="dk-kicker">{{ f.label }}</span><strong>{{ f.value }}</strong></div>
           }
         </div>
+
+        <section class="od__fit dk-tinted" [attr.data-tint]="tint()">
+          <span class="od__score">{{ o.fit.score }}</span>
+          <div>
+            <h2>{{ fitHeading() }}</h2>
+            @if (fitLine()) { <p>{{ fitLine() }}</p> }
+            @for (g of o.fit.gaps.slice(0, 2); track $index) { <p class="od__gap"><dk-icon name="alert-circle" [size]="13" />{{ g }}</p> }
+          </div>
+        </section>
 
         @if (o.submission.email) {
           <p class="od__submit dk-muted">Proposals go to <strong>{{ o.submission.email }}</strong>.</p>
@@ -43,48 +62,150 @@
       </article>
 
       <aside class="od__side">
-        <section class="od__fit dk-tinted" [attr.data-tint]="tint()">
-          <header>
-            <span class="od__score">{{ o.fit.score }}</span>
-            <h2>{{ fitHeading() }}</h2>
-          </header>
-          <ul>
-            @for (r of o.fit.reasons; track $index) { <li><dk-icon name="check" [size]="15" />{{ r }}</li> }
-            @for (g of o.fit.gaps; track $index) { <li class="is-gap"><dk-icon name="alert-circle" [size]="15" />{{ g }}</li> }
-          </ul>
-        </section>
+        @if (o.status === 'new') {
+          <section class="od__next">
+            <div class="od__gate">
+              @switch (gate()) {
+                @case ('checking') {
+                  <div class="dk-todd__head od__todd"><img src="assets/avatar-todd-sm.png" alt="" />Reading the RFP</div>
+                  <p class="dk-muted">Looking for must-haves: the requirements that would disqualify you whatever the score. This takes about a minute.</p>
+                  <div class="od__bar" role="progressbar" aria-label="Reading the RFP"><span></span></div>
+                }
+                @case ('no_rfp') {
+                  <div class="od__gate-head"><span class="od__dot" data-state="waiting"><dk-icon name="clock" [size]="14" /></span><strong>I only have the alert email</strong></div>
+                  <p class="dk-muted">Attach the RFP and I'll check the must-haves before you write anything.</p>
+                }
+                @case ('failed') {
+                  <div class="od__gate-head"><span class="od__dot" data-state="unknown"><dk-icon name="alert-circle" [size]="14" /></span><strong>I couldn't finish reading the RFP</strong></div>
+                  <p class="dk-muted">So I can't say yet what would disqualify you.</p>
+                }
+                @case ('none') {
+                  <div class="od__gate-head"><span class="od__dot" data-state="met"><dk-icon name="check" [size]="14" /></span><strong>No must-haves in this RFP</strong></div>
+                  <p class="dk-muted">I didn't find any pass/fail requirements, so nothing here would disqualify you.</p>
+                }
+                @case ('list') {
+                  <div class="dk-todd__head od__todd"><img src="assets/avatar-todd-sm.png" alt="" />Before I draft: must-haves<span class="od__found">{{ mustHaves()!.items.length }} found</span></div>
+                  <p>{{ intro() }}</p>
+                  <ul class="od__musthaves">
+                    @for (m of mustHaves()!.items; track m.id) {
+                      <li>
+                        <span class="od__dot" [attr.data-state]="m.state">
+                          <dk-icon [name]="m.state === 'met' ? 'check' : m.state === 'not_met' ? 'x' : 'help'" [size]="14" />
+                        </span>
+                        <div>
+                          <strong>{{ m.text }}</strong>
+                          @if (m.proof) { <small [class.is-missing]="m.state === 'not_met'">{{ m.proof }}@if (m.ref) { · RFP {{ m.ref }}}</small> }
+                          @else if (m.ref) { <small>RFP {{ m.ref }}</small> }
+                          @if (m.state === 'unknown' && m.question && !m.answeredAt) {
+                            <div class="od__ask">
+                              <span>{{ m.question }}</span>
+                              <div>
+                                <button type="button" class="dk-btn dk-btn--sm" (click)="answer(m, 'yes')" [disabled]="!!answering()" appWriteAction="answer TODD">Yes</button>
+                                <button type="button" class="dk-btn dk-btn--sm" (click)="answer(m, 'no')" [disabled]="!!answering()" appWriteAction="answer TODD">No</button>
+                                <button type="button" class="dk-btn dk-btn--sm od__quiet" (click)="answer(m, 'unsure')" [disabled]="!!answering()" appWriteAction="answer TODD">Not sure</button>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                }
+              }
+            </div>
 
-        <section class="od__next">
-          @if (o.status === 'new' || o.status === 'dismissed') {
-            <div class="dk-todd__head od__todd"><img src="assets/avatar-todd-sm.png" alt="" />Before I draft</div>
-            <p>I'll write what I can from your profile, Knowledge and past proposals, and ask you for anything I don't know as I go.</p>
-            <button type="button" class="dk-btn dk-btn--primary dk-btn--lg od__wide" (click)="draft()" [disabled]="!!busy()" appWriteAction="draft a proposal"><dk-icon name="pen" />{{ busy() === 'draft' ? 'Starting…' : 'Draft proposal' }}</button>
-            <div class="od__pair">
-              <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
-              @if (o.status === 'dismissed') {
+            <div class="od__actions">
+              @switch (panel()) {
+                @case ('draft_anyway') {
+                  <div class="od__reason">
+                    <label class="dk-todd__head od__todd" for="od-why"><img src="assets/avatar-todd-sm.png" alt="" />Why draft anyway?</label>
+                    @if (missingLine()) { <p class="dk-muted">Missing: {{ missingLine() }}.</p> }
+                    <textarea id="od-why" rows="3" [(ngModel)]="draftReason" placeholder="e.g. We're teaming with a prime who has the references"></textarea>
+                    <p class="dk-muted od__note">I'll keep this with the opportunity and show it in the history.</p>
+                    <div class="od__pair">
+                      <button type="button" class="dk-btn dk-btn--primary" (click)="draftAnyway()" [disabled]="!draftReason.trim() || !!busy()" appWriteAction="draft a proposal"><dk-icon name="pen" />{{ busy() === 'draft' ? 'Starting…' : 'Start drafting' }}</button>
+                      <button type="button" class="dk-btn dk-btn--bg" (click)="openPanel('actions')">Cancel</button>
+                    </div>
+                  </div>
+                }
+                @case ('not_for_us') {
+                  <div class="od__reason">
+                    <strong>Why not this one?</strong>
+                    <div class="od__reasons">
+                      @for (r of noBidReasons; track r) {
+                        <button type="button" class="od__chip" [class.is-on]="r === 'Other' && otherPicked()" (click)="noBid(r)" [disabled]="!!busy()" appWriteAction="set this RFP aside">{{ r }}</button>
+                      }
+                    </div>
+                    @if (otherPicked()) {
+                      <textarea rows="2" [(ngModel)]="otherDetail" aria-label="What was it?" placeholder="What was it?"></textarea>
+                      <button type="button" class="dk-btn dk-btn--ink" (click)="noBid('Other')" [disabled]="!otherDetail.trim() || !!busy()">{{ busy() === 'no_bid' ? 'Setting aside…' : 'Set it aside' }}</button>
+                    }
+                    <p class="dk-muted od__note">One tap. I keep the reason with this opportunity.</p>
+                    <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="openPanel('actions')">Cancel</button>
+                  </div>
+                }
+                @default {
+                  @if (gate() === 'no_rfp') {
+                    <button type="button" class="dk-btn dk-btn--primary dk-btn--lg od__wide" (click)="attachRfp()" appWriteAction="attach the RFP"><dk-icon name="file" />Attach the RFP</button>
+                    <div class="od__pair">
+                      <button type="button" class="dk-btn dk-btn--bg" (click)="draft()" [disabled]="!!busy()" appWriteAction="draft a proposal">{{ busy() === 'draft' ? 'Starting…' : 'Draft from the alert' }}</button>
+                      <button type="button" class="dk-btn dk-btn--bg" (click)="openPanel('not_for_us')" appWriteAction="set this RFP aside">Not for us</button>
+                    </div>
+                  } @else if (blocked()) {
+                    <button type="button" class="dk-btn dk-btn--ink dk-btn--lg od__wide" (click)="noBid('Missing must-have')" [disabled]="!!busy()" appWriteAction="set this RFP aside">{{ busy() === 'no_bid' ? 'Setting aside…' : 'We can\'t meet this' }}</button>
+                    <div class="od__pair">
+                      <button type="button" class="dk-btn dk-btn--bg" (click)="openPanel('draft_anyway')" appWriteAction="draft a proposal">Draft anyway</button>
+                      <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
+                    </div>
+                    <p class="dk-muted od__note">Draft anyway asks why, and I keep the reason with this opportunity.</p>
+                  } @else {
+                    @if (gate() === 'failed') {
+                      <button type="button" class="dk-btn dk-btn--primary dk-btn--lg od__wide" (click)="checkMustHaves(true)" [disabled]="checking()" appWriteAction="check the must-haves">Try again</button>
+                    }
+                    <button type="button" class="dk-btn dk-btn--lg od__wide" [class.dk-btn--primary]="gate() !== 'failed'" [class.dk-btn--bg]="gate() === 'failed'" (click)="draft()" [disabled]="!!busy() || gate() === 'checking'" appWriteAction="draft a proposal"><dk-icon name="pen" />{{ busy() === 'draft' ? 'Starting…' : 'Draft proposal' }}</button>
+                    <div class="od__pair">
+                      <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
+                      <button type="button" class="dk-btn dk-btn--bg" (click)="openPanel('not_for_us')" appWriteAction="set this RFP aside">Not for us</button>
+                    </div>
+                  }
+                }
+              }
+            </div>
+          </section>
+        } @else if (o.status === 'dismissed') {
+          <section class="od__next">
+            <div class="od__actions">
+              <div class="od__status"><span class="dk-tag dk-tinted" data-tint="grey">No-bid</span>@if (o.noBid?.reason) { <span class="dk-muted">{{ o.noBid!.reason }}@if (o.noBid!.detail) {: {{ o.noBid!.detail }}}</span> }</div>
+              <div class="od__pair">
+                <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
                 <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('new')" [disabled]="!!busy()" appWriteAction="restore this RFP">Bring it back</button>
-              } @else {
-                <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('dismissed')" [disabled]="!!busy()" appWriteAction="set this RFP aside">Not for us</button>
+              </div>
+            </div>
+          </section>
+        } @else {
+          <section class="od__next">
+            <div class="od__actions">
+              <div class="od__status">
+                <span class="dk-tag dk-tinted" [attr.data-tint]="statusLabel[o.status].tint">{{ statusLabel[o.status].label }}</span>
+                <span class="dk-muted">{{ dueLabel(o) }}</span>
+              </div>
+              @if (o.decision?.type === 'draft_anyway') {
+                <p class="dk-muted od__note">You drafted anyway: “{{ o.decision!.reason }}”</p>
               }
-            </div>
-          } @else {
-            <div class="od__status">
-              <span class="dk-tag dk-tinted" [attr.data-tint]="statusLabel[o.status].tint">{{ statusLabel[o.status].label }}</span>
-              <span class="dk-muted">{{ dueLabel(o) }}</span>
-            </div>
-            @if (o.proposalDocumentId) {
-              <a class="dk-btn dk-btn--primary dk-btn--lg od__wide" [routerLink]="['/opportunities', o.id, 'proposal']"><dk-icon name="pen" />Open the proposal</a>
-              @if (o.status === 'drafting') { <a class="dk-btn dk-btn--bg od__wide" [routerLink]="['/opportunities', o.id, 'send']"><dk-icon name="send" />Review &amp; send</a> }
-            }
-            <div class="od__pair">
-              <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
-              @if (o.status === 'submitted') {
-                <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('won')" [disabled]="!!busy()" appWriteAction="mark this won">We won</button>
-                <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('lost')" [disabled]="!!busy()" appWriteAction="mark this lost">We lost</button>
+              @if (o.proposalDocumentId) {
+                <a class="dk-btn dk-btn--primary dk-btn--lg od__wide" [routerLink]="['/opportunities', o.id, 'proposal']"><dk-icon name="pen" />Open the proposal</a>
+                @if (o.status === 'drafting') { <a class="dk-btn dk-btn--bg od__wide" [routerLink]="['/opportunities', o.id, 'send']"><dk-icon name="send" />Review &amp; send</a> }
               }
+              <div class="od__pair">
+                <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
+                @if (o.status === 'submitted') {
+                  <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('won')" [disabled]="!!busy()" appWriteAction="mark this won">We won</button>
+                  <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('lost')" [disabled]="!!busy()" appWriteAction="mark this lost">We lost</button>
+                }
+              </div>
             </div>
-          }
-        </section>
+          </section>
+        }
       </aside>
     </div>
   } @else if (notFound()) {

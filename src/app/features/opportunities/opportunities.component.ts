@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
-import { DocsInbox, FIT_THRESHOLD, Opportunity, PROPOSAL_STATUS_LABEL, dueLabel, fitTint, isOpen } from '../../models/opportunity';
+import { DocsInbox, FIT_THRESHOLD, Opportunity, STAGE_LABEL, dueLabel, fitTint, isOpen, mustHavesLine, stageOf } from '../../models/opportunity';
 import { DocsAuthService } from '../../services/docs-auth.service';
 import { DocsNotificationService } from '../../services/docs-notification.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
@@ -91,7 +91,9 @@ export class OpportunitiesComponent implements OnInit {
 
   readonly fitTint = fitTint;
   readonly dueLabel = dueLabel;
-  readonly statusLabel = PROPOSAL_STATUS_LABEL;
+  readonly stageLabel = STAGE_LABEL;
+  readonly stageOf = stageOf;
+  readonly mustHavesLine = mustHavesLine;
   readonly senderNames = senderNames;
   readonly checkedAgo = checkedAgo;
 
