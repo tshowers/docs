@@ -36,6 +36,7 @@ export class ApproveComponent implements OnInit, AfterViewChecked {
 
   @ViewChild( 'page' ) pageRef?: ElementRef<HTMLElement>;
 
+  readonly shortDay = ( iso: string ) => iso ? new Date( iso ).toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } ) : '';
   readonly phase = signal<'loading' | 'ready' | 'error'>( 'loading' );
   readonly errorMessage = signal( '' );
   readonly data = signal<GuestApproval | null>( null );

@@ -88,6 +88,8 @@ describe( 'Approval before sending, through the app', () => {
     // Owner's data for Review & send.
     cy.intercept( 'GET', /\/api\/docs\/opportunities\/opp-king-county$/, ( req ) => req.reply( ok( fake.sent ? { ...opportunity, status: 'submitted', submissionRecord: { method: 'email', to: 'bids@kingcounty.gov', from: 'dana@taliferro.tech', submittedAt: new Date().toISOString(), attachments: [{ filename: 'a', bytes: 1 }, { filename: 'b', bytes: 1 }] } } : opportunity ) ) );
     cy.intercept( 'GET', /\/api\/docs\/opportunities\/opp-king-county\/proposal$/, ok( draft ) );
+    // The score-check (score-check.cy.ts) has run already, so Review & send doesn't run one.
+    cy.intercept( 'GET', /\/proposal\/scorecheck$/, ok( { status: 'done', total: 80, max: 100, criteria: [], opening: null, ranAt: new Date().toISOString(), stale: false } ) );
     cy.intercept( 'GET', /\/api\/docs\/inboxes$/, ok( [{ id: 'dana-gmail', emailAddress: 'dana@taliferro.tech', displayName: 'Dana Reyes', provider: 'gmail', providerLabel: 'Gmail', status: 'connected', purposes: ['outreach', 'rfp'], rfpSenders: [], rfpLastSyncAt: '', rfpLastSyncStatus: '', rfpFoundCount: 0 }] ) );
     cy.intercept( 'GET', /\/api\/profile$/, { profile: { firstName: 'Dana', lastName: 'Reyes', companyName: 'Taliferro Tech' } } );
     cy.intercept( 'GET', /\/api\/docs$/, { documents: [attachmentB] } );

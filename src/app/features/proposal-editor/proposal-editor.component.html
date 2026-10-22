@@ -46,6 +46,7 @@
             @for (s of d.sections; track s.key) {
               <button type="button" class="pe__section" [class.is-active]="currentKey() === s.key" (click)="goTo(s.key)">
                 <span class="pe__dot" [ngClass]="dotFor(s)"></span>{{ s.title }}
+                @if (sectionPoints().get(s.key); as pts) { <small class="pe__pts">{{ pts.points }}/{{ pts.max }}</small> }
               </button>
             }
             @if (!d.hasRfpFile) {
@@ -76,6 +77,9 @@
                     }
                   } @else {
                     @for (b of s.blocks; track $index) {
+                      @if (revisionAt(s.key, $index); as r) {
+                        <ng-container *ngTemplateOutlet="revisionTpl; context: { $implicit: r }" />
+                      } @else {
                       @switch (b.type) {
                         @case ('heading') { <h3 [id]="'blk-' + s.key + '-' + $index">{{ b.text }}</h3> }
                         @case ('knowledge') {
@@ -92,6 +96,10 @@
                         }
                         @default { <p class="pe__p" [id]="'blk-' + s.key + '-' + $index" [class.is-flash]="flash() === s.key + '-' + $index">{{ b.text }}</p> }
                       }
+                      }
+                    }
+                    @for (r of additionsFor(s.key); track r.fixId) {
+                      <ng-container *ngTemplateOutlet="revisionTpl; context: { $implicit: r }" />
                     }
                     @if (s.needsRedraft) { <p class="dk-muted pe__redraft">{{ draftingKey() === s.key ? 'Adding your answer…' : 'Your answer goes in next.' }}</p> }
                     @for (r of openBySection().get(s.key) || []; track r.id) {
@@ -125,14 +133,18 @@
 
           <aside class="pe__side">
             <div class="pe__tabs" role="tablist" aria-label="Beside the draft">
-              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'todd'" [class.is-on]="sideTab() === 'todd'" (click)="sideTab.set('todd')">TODD</button>
-              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'requirements'" [class.is-on]="sideTab() === 'requirements'" (click)="sideTab.set('requirements')">Requirements</button>
-              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'checklist'" [class.is-on]="sideTab() === 'checklist'" (click)="sideTab.set('checklist')">Checklist</button>
+              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'todd'" [class.is-on]="sideTab() === 'todd'" (click)="showTab('todd')">TODD</button>
+              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'requirements'" [class.is-on]="sideTab() === 'requirements'" (click)="showTab('requirements')">Requirements</button>
+              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'checklist'" [class.is-on]="sideTab() === 'checklist'" (click)="showTab('checklist')">Checklist</button>
+              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'score'" [class.is-on]="sideTab() === 'score'" (click)="showTab('score')">Score</button>
             </div>
             @if (sideTab() === 'requirements') {
               <app-requirements-matrix [requirements]="requirements()" [busyId]="requirementBusy()" [sectionTitle]="sectionTitle"
                 (write)="writeRequirement($event)" (jump)="jumpTo($event)" (accept)="resolveRequirement($event.requirement, 'accept', $event.text)"
                 (discard)="resolveRequirement($event, 'discard')" (mark)="markRequirement($event.requirement, $event.answered)" (exportAs)="exportMatrix($event)" (retry)="checkRequirements(true)" />
+            }
+            @if (sideTab() === 'score') {
+              <app-score-check mode="editor" [check]="scoreCheck()" [running]="scoring()" [activeFix]="activeFix()" (run)="runScore()" (fix)="openFix($event)" />
             }
             @if (sideTab() === 'todd') {
             @if (question(); as q) {
@@ -183,3 +195,23 @@
     }
   }
 </div>
+
+<!-- A score-check revision (lifecycle 1j): the old paragraph struck, the new one to accept. -->
+<ng-template #revisionTpl let-r>
+  <div class="pe__revise" [id]="'fix-' + r.fixId">
+    @if (r.revision.oldText) { <p class="pe__old">{{ r.revision.oldText }}</p> }
+    <div class="pe__suggest">
+      <span class="dk-kicker"><img src="assets/avatar-todd-sm.png" alt="" />Suggested revision{{ r.revision.gain ? ' · +' + r.revision.gain + ' points' : '' }}</span>
+      @if (editingFix === r.fixId) {
+        <textarea rows="5" [(ngModel)]="fixText" aria-label="Suggested revision"></textarea>
+      } @else {
+        <p>{{ r.revision.text }}</p>
+      }
+      <div class="pe__suggest-actions">
+        <button type="button" class="dk-btn dk-btn--primary dk-btn--sm" (click)="resolveFix(r.fixId, 'accept')" [disabled]="fixBusy()" appWriteAction="accept this revision"><dk-icon name="check" [size]="14" />Accept</button>
+        @if (editingFix !== r.fixId) { <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="editFix(r.fixId, r.revision.text)">Edit</button> }
+        <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="resolveFix(r.fixId, 'discard')" [disabled]="fixBusy()">Discard</button>
+      </div>
+    </div>
+  </div>
+</ng-template>

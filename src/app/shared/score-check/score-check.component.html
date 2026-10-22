@@ -1,0 +1,66 @@
+<section class="sc" [class.sc--editor]="mode === 'editor'">
+  @if (!check || check.status === 'none') {
+    <div class="dk-todd__head sc__head"><img src="assets/avatar-todd-sm.png" alt="" />Score-check</div>
+    <p class="dk-muted sc__p">I'll score this draft the way the evaluators would, against the RFP's own points, and say what would earn more. It's an estimate, not a promise.</p>
+    <button type="button" class="dk-btn dk-btn--primary" (click)="run.emit()" [disabled]="running" appWriteAction="score this draft">{{ running ? 'Scoring…' : 'Score this draft' }}</button>
+  } @else if (check.status === 'no_criteria') {
+    <div class="dk-todd__head sc__head"><img src="assets/avatar-todd-sm.png" alt="" />Score-check</div>
+    <p class="dk-muted sc__p">The RFP doesn't give scoring points, so there's nothing to score against. Attach the full RFP if the alert left them out.</p>
+    <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="run.emit()" [disabled]="running">Try again</button>
+  } @else {
+    @if (mode === 'review') {
+      <header class="sc__top">
+        <div class="dk-todd__head sc__head"><img src="assets/avatar-todd-sm.png" alt="" />Score-check</div>
+        <button type="button" class="dk-btn dk-btn--sm sc__again" (click)="run.emit()" [disabled]="running" appWriteAction="score this draft"><dk-icon name="refresh" [size]="15" />{{ running ? 'Scoring…' : 'Run again' }}</button>
+      </header>
+      <p class="sc__total"><strong>About {{ check.total }}</strong> of {{ check.max }}</p>
+      <p class="dk-muted sc__p">My estimate of how evaluators would score this draft against the RFP's own points. Not a promise. Last run {{ ago(check.ranAt) }}.@if (check.stale) { <strong class="sc__stale">The draft changed since.</strong>}</p>
+      <ul class="sc__rows">
+        @for (c of check.criteria; track c.id) {
+          <li>
+            <div class="sc__name"><strong>{{ c.name }}</strong><span class="sc__bar" [attr.data-tint]="tint(c.points, c.max)"><span [style.width.%]="percent(c.points, c.max)"></span></span><b>{{ c.points }} / {{ c.max }}</b></div>
+            @if (c.why) { <p class="dk-muted">{{ c.why }}</p> }
+            @if (c.fix && !c.fixed) {
+              <div class="sc__fix"><strong>{{ c.fix }}</strong><button type="button" class="dk-btn dk-btn--primary dk-btn--sm" (click)="fix.emit(c.id)" [disabled]="!!activeFix" appWriteAction="fix this"><dk-icon name="sparkles" [size]="14" />{{ activeFix === c.id ? 'Writing…' : 'Fix this' }}</button></div>
+            } @else if (c.fixed) {
+              <p class="sc__done"><dk-icon name="check" [size]="13" />Fixed. Run again to see the new score.</p>
+            }
+          </li>
+        }
+        @if (opening(); as o) {
+          <li>
+            <div class="sc__name"><strong>Opening</strong></div>
+            <p class="dk-muted">{{ o.note }}</p>
+            <div class="sc__fix"><strong>{{ o.fix }}</strong><button type="button" class="dk-btn dk-btn--primary dk-btn--sm" (click)="fix.emit('opening')" [disabled]="!!activeFix" appWriteAction="fix this"><dk-icon name="sparkles" [size]="14" />{{ activeFix === 'opening' ? 'Writing…' : 'Fix this' }}</button></div>
+          </li>
+        }
+      </ul>
+      <p class="dk-muted sc__fine">Approvers see this score-check on their link. It never blocks sending.</p>
+    } @else {
+      <header class="sc__ring-row">
+        <span class="sc__ring" [attr.data-tint]="tint(check.total, check.max)">{{ check.total }}</span>
+        <div>
+          <strong>About {{ check.total }} of {{ check.max }}</strong>
+          <small class="dk-muted">Estimate · {{ check.stale ? 'the draft changed since' : 'run ' + ago(check.ranAt) }}</small>
+        </div>
+        <button type="button" class="dk-btn dk-btn--sm sc__again" (click)="run.emit()" [disabled]="running" [attr.aria-label]="'Run the score-check again'" appWriteAction="score this draft"><dk-icon name="refresh" [size]="15" />{{ running ? '…' : '' }}</button>
+      </header>
+      @if (fixes().length) {
+        <h3 class="sc__kicker">Biggest gains first</h3>
+        <ul class="sc__gains">
+          @for (f of fixes(); track f.id) {
+            <li>
+              <button type="button" [class.is-on]="activeFix === f.id" (click)="fix.emit(f.id)" appWriteAction="fix this">
+                <span class="sc__gain">{{ f.gain ? '+' + f.gain : '–' }}</span>
+                <span><strong>{{ f.title }}</strong><small class="dk-muted">{{ f.revision ? 'Revision ready · in the draft' : 'Fix this' }}</small></span>
+              </button>
+            </li>
+          }
+        </ul>
+        @if (projected() > check.total) { <p class="dk-muted sc__fine">{{ fixes().length === 1 ? 'Doing it' : fixes().length === 2 ? 'Doing both' : 'Doing all ' + countWord(fixes().length) }} brings it to about {{ projected() }}.</p> }
+      } @else {
+        <p class="dk-muted sc__p">Nothing obvious left to gain. Run it again after big edits.</p>
+      }
+    }
+  }
+</section>

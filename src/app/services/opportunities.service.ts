@@ -5,6 +5,7 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 import { BuyerUpdate, DocsInbox, FIT_THRESHOLD, KeyDateKind, NoBidReason, Opportunity, OpportunityStatus, ProposalDraft, Requirements, isOpen } from '../models/opportunity';
+import { ScoreCheck } from '../models/score-check';
 import { DocService } from './doc.service';
 
 interface Envelope<T> { success: boolean; data: T; message?: string; }
@@ -204,6 +205,25 @@ export class OpportunitiesService {
 
   markRequirement ( opportunityId: string, requirementId: string, answered: boolean ): Observable<Requirements> {
     return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/mark`, { answered } ).pipe( map( ( r ) => r.data ) );
+  }
+
+  // ── Score-check ────────────────────────────────────────────────
+  getScoreCheck ( opportunityId: string ): Observable<ScoreCheck> {
+    return this.http.get<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck` ).pipe( map( ( r ) => r.data ) );
+  }
+
+  /** TODD scores the draft against the RFP's points (one model call). */
+  runScoreCheck ( opportunityId: string ): Observable<ScoreCheck> {
+    return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck`, {} ).pipe( map( ( r ) => r.data ) );
+  }
+
+  /** Fix this: TODD writes the revision for one criterion, or "opening". */
+  writeScoreFix ( opportunityId: string, fixId: string ): Observable<ScoreCheck> {
+    return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck/${ encodeURIComponent( fixId ) }/fix`, {} ).pipe( map( ( r ) => r.data ) );
+  }
+
+  resolveScoreFix ( opportunityId: string, fixId: string, action: 'accept' | 'discard', text = '' ): Observable<{ scoreCheck: ScoreCheck; draft: ProposalDraft | null; copyToEditor: boolean }> {
+    return this.http.post<Envelope<{ scoreCheck: ScoreCheck; draft: ProposalDraft | null; copyToEditor: boolean }>>( `${ this.proposalBase( opportunityId ) }/scorecheck/${ encodeURIComponent( fixId ) }/revision`, { action, text: text || undefined } ).pipe( map( ( r ) => r.data ) );
   }
 
   private proposalBase ( opportunityId: string ): string {

@@ -10,6 +10,8 @@ import { DocsNotificationService } from '../../services/docs-notification.servic
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
+import { ScoreCheck, ScoreRevision, pointsBySection } from '../../models/score-check';
+import { ScoreCheckComponent } from '../../shared/score-check/score-check.component';
 import { RequirementsMatrixComponent } from './requirements-matrix.component';
 
 /** After the draft changes, wait this long before checking it against the requirements again. */
@@ -57,7 +59,7 @@ export function openBySection ( requirements: Requirements | null ): Map<string,
 @Component( {
   selector: 'app-proposal-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective, RequirementsMatrixComponent],
+  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective, RequirementsMatrixComponent, ScoreCheckComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './proposal-editor.component.html',
   styleUrl: './proposal-editor.component.css',
@@ -87,7 +89,7 @@ export class ProposalEditorComponent implements OnInit {
   readonly requirements = signal<Requirements | null>( null );
   /** The requirement TODD is writing for, or whose suggestion is being saved. */
   readonly requirementBusy = signal( '' );
-  readonly sideTab = signal<'todd' | 'requirements' | 'checklist'>( 'todd' );
+  readonly sideTab = signal<'todd' | 'requirements' | 'checklist' | 'score'>( 'todd' );
   /** Draft, or the full Requirements table (1e); ?view=requirements opens it. */
   readonly view = signal<'draft' | 'requirements'>( 'draft' );
   /** The paragraph just jumped to: "{sectionKey}-{blockIndex}", highlighted for 2s. */
@@ -95,10 +97,30 @@ export class ProposalEditorComponent implements OnInit {
   readonly editingSuggestion = signal( '' );
   suggestionText = '';
   private recheckTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingFix = '';
   private checkingRequirements = false;
   private recheckAgain = false;
 
   readonly openBySection = computed( () => openBySection( this.requirements() ) );
+
+  /** The score-check (lifecycle 1j): loaded when the Score tab opens, or ?fix= arrives from Review & send. */
+  readonly scoreCheck = signal<ScoreCheck | null>( null );
+  readonly scoring = signal( false );
+  /** The fix TODD is writing or whose revision is open; set while saving it too. */
+  readonly activeFix = signal( '' );
+  readonly fixBusy = signal( false );
+  editingFix = '';
+  fixText = '';
+  private scoreLoaded = false;
+  readonly sectionPoints = computed( () => pointsBySection( this.scoreCheck() ) );
+  /** Open revisions by section: rewrites at their paragraph, additions at the end. */
+  readonly revisions = computed( () => {
+    const check = this.scoreCheck();
+    const list: { fixId: string; title: string; revision: ScoreRevision }[] = [];
+    for ( const c of check?.criteria || [] ) if ( c.revision ) list.push( { fixId: c.id, title: c.fix, revision: c.revision } );
+    if ( check?.opening?.revision ) list.push( { fixId: 'opening', title: check.opening.fix, revision: check.opening.revision } );
+    return list;
+  } );
   readonly sectionTitle = ( key: string ): string => this.draft()?.sections.find( ( s ) => s.key === key )?.title || '';
 
   readonly question = computed( () => nextQuestion( this.draft() ) );
@@ -122,6 +144,10 @@ export class ProposalEditorComponent implements OnInit {
     this.destroyRef.onDestroy( () => { if ( this.recheckTimer ) clearTimeout( this.recheckTimer ); } );
     this.route.queryParamMap.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( ( params ) => {
       this.view.set( params.get( 'view' ) === 'requirements' ? 'requirements' : 'draft' );
+      // Fix this on Review & send: open the Score tab with that fix's revision.
+      const fix = params.get( 'fix' );
+      if ( fix && this.phase() === 'ready' ) void this.openFix( fix );
+      else if ( fix ) this.pendingFix = fix;
     } );
     this.route.paramMap.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( ( params ) => {
       this.opportunityId.set( String( params.get( 'id' ) || '' ) );
@@ -143,6 +169,7 @@ export class ProposalEditorComponent implements OnInit {
       this.currentKey.set( draft.sections[0]?.key || '' );
       this.sideTab.set( draft.questions.some( ( q ) => q.status === 'open' ) ? 'todd' : 'requirements' );
       this.phase.set( 'ready' );
+      if ( this.pendingFix ) void this.openFix( this.pendingFix );
       void this.loadRequirements();
       void this.draftRemaining();
     } catch ( error: any ) {
@@ -222,6 +249,104 @@ export class ProposalEditorComponent implements OnInit {
     } finally {
       this.answering.set( false );
     }
+  }
+
+  // ── Score-check ────────────────────────────────────────────────
+  showTab ( tab: 'todd' | 'requirements' | 'checklist' | 'score' ): void {
+    this.sideTab.set( tab );
+    if ( tab === 'score' ) void this.loadScore();
+  }
+
+  private async loadScore (): Promise<void> {
+    if ( this.scoreLoaded ) return;
+    this.scoreLoaded = true;
+    try {
+      this.scoreCheck.set( await firstValueFrom( this.service.getScoreCheck( this.opportunityId() ) ) );
+    } catch {
+      this.scoreLoaded = false;
+    }
+  }
+
+  async runScore (): Promise<void> {
+    if ( this.scoring() ) return;
+    this.scoring.set( true );
+    try {
+      this.scoreCheck.set( await firstValueFrom( this.service.runScoreCheck( this.opportunityId() ) ) );
+      this.scoreLoaded = true;
+    } catch ( error: any ) {
+      this.notifications.show( 'TODD couldn\'t score the draft', error?.error?.message || 'Please try again.', 'warning' );
+    } finally {
+      this.scoring.set( false );
+    }
+  }
+
+  /** Fix this: writes the revision once, then shows it in the draft. */
+  async openFix ( fixId: string ): Promise<void> {
+    this.pendingFix = '';
+    this.sideTab.set( 'score' );
+    await this.loadScore();
+    this.setView( 'draft' );
+    const existing = this.revisions().find( ( r ) => r.fixId === fixId );
+    if ( existing ) {
+      this.activeFix.set( fixId );
+      setTimeout( () => this.scrollToFix( fixId ), 50 );
+      return;
+    }
+    if ( this.fixBusy() ) return;
+    this.fixBusy.set( true );
+    this.activeFix.set( fixId );
+    try {
+      this.scoreCheck.set( await firstValueFrom( this.service.writeScoreFix( this.opportunityId(), fixId ) ) );
+      setTimeout( () => this.scrollToFix( fixId ), 50 );
+    } catch ( error: any ) {
+      this.activeFix.set( '' );
+      this.notifications.show( 'TODD couldn\'t write that', error?.error?.message || 'Please try again.', 'warning' );
+    } finally {
+      this.fixBusy.set( false );
+    }
+  }
+
+  private scrollToFix ( fixId: string ): void {
+    document.getElementById( `fix-${ fixId }` )?.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+  }
+
+  /** Accepting rewrites the draft and scores it again, so the number moves. */
+  async resolveFix ( fixId: string, action: 'accept' | 'discard' ): Promise<void> {
+    if ( this.fixBusy() ) return;
+    this.fixBusy.set( true );
+    try {
+      const text = this.editingFix === fixId ? this.fixText.trim() : '';
+      const result = await firstValueFrom( this.service.resolveScoreFix( this.opportunityId(), fixId, action, text ) );
+      this.scoreCheck.set( result.scoreCheck );
+      this.editingFix = '';
+      this.activeFix.set( '' );
+      if ( result.draft ) {
+        this.draft.set( result.draft );
+        this.savedAt.set( new Date() );
+        this.scheduleRecheck();
+      }
+      if ( result.copyToEditor ) this.notifications.show( 'Copy it into the editor', 'You\'ve edited this proposal in the editor, so TODD changed its own draft only.', 'warning' );
+      if ( action === 'accept' ) void this.runScore();
+    } catch ( error: any ) {
+      this.notifications.show( 'Couldn\'t update the proposal', error?.error?.message || 'Please try again.', 'warning' );
+    } finally {
+      this.fixBusy.set( false );
+    }
+  }
+
+  editFix ( fixId: string, text: string ): void {
+    this.editingFix = fixId;
+    this.fixText = text;
+  }
+
+  /** A revision that rewrites this paragraph. */
+  revisionAt ( sectionKey: string, blockIndex: number ) {
+    return this.revisions().find( ( r ) => r.revision.sectionKey === sectionKey && r.revision.blockIndex === blockIndex ) || null;
+  }
+
+  /** Revisions that add a paragraph to this section. */
+  additionsFor ( sectionKey: string ) {
+    return this.revisions().filter( ( r ) => r.revision.sectionKey === sectionKey && r.revision.blockIndex < 0 );
   }
 
   // ── Requirements ───────────────────────────────────────────────

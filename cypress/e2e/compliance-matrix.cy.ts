@@ -148,6 +148,8 @@ describe( 'Compliance matrix', () => {
     cy.intercept( 'GET', /\/api\/docs\/opportunities\/opp-king-county\/proposal$/, ok( { ...draft( sections, 0 ), checklist: [{ id: 'requirements', kind: 'requirements', label: 'Requirements answered', detail: '', ok: true, status: 'All 2 answered' }] } ) );
     cy.intercept( 'GET', /\/proposal\/requirements$/, ok( answeredAll ) );
     cy.intercept( 'GET', /\/approval$/, ok( null ) );
+    // The score-check (score-check.cy.ts) has run already, so Review & send doesn't run one.
+    cy.intercept( 'GET', /\/proposal\/scorecheck$/, ok( { status: 'done', total: 80, max: 100, criteria: [], opening: null, ranAt: new Date().toISOString(), stale: false } ) );
     cy.intercept( 'GET', /\/api\/profile$/, { profile: { firstName: 'Dana', lastName: 'Reyes', companyName: 'Taliferro Tech' } } );
     cy.intercept( 'GET', /\/api\/docs$/, { documents: [] } );
     cy.intercept( 'GET', /\/api\/docs\/proposal-doc$/, { document: { id: 'proposal-doc', title: 'Proposal · Permit Portal Modernization', type: 'proposal', htmlContent: '<h2>2. Team</h2><p>Dana.</p>' } } );

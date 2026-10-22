@@ -112,6 +112,15 @@
                 <p class="ap__foot">{{ myCommentCount() ? 'Your comments go to ' + firstName({ name: d.ownerName }) + ' either way. ' : 'Select text in the proposal to comment' + (d.allowSuggestions ? ' or suggest an edit' : '') + '. ' }}{{ othersLine() }}</p>
               </section>
             }
+            @if (d.scoreCheck; as sc) {
+              <section class="ap__card ap__score">
+                <h2><img src="assets/avatar-todd-sm.png" alt="" />TODD's score-check<span>About {{ sc.total }} / {{ sc.max }}</span></h2>
+                <p class="dk-muted">An estimate against {{ d.opportunity.agency || 'the buyer' }}'s scoring criteria. Run {{ shortDay(sc.ranAt) }}.</p>
+                <ul>
+                  @for (c of sc.criteria; track c.name) { <li><span>{{ c.name }}</span><strong>{{ c.points }} / {{ c.max }}</strong></li> }
+                </ul>
+              </section>
+            }
           </aside>
         </div>
 

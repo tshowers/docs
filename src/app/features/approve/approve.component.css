@@ -58,6 +58,12 @@
 .ap__side { position: sticky; top: 16px; display: grid; gap: 14px; }
 .ap__card { display: grid; gap: 10px; padding: 20px; border-radius: 28px; background: var(--surface); font-size: 14px; line-height: 1.55; }
 .ap__card h2 { font-size: 16px; font-weight: 700; }
+/* TODD's score-check, read-only for approvers (lifecycle 1n). */
+.ap__score h2 { display: flex; align-items: center; gap: 8px; }
+.ap__score h2 img { width: 24px; height: 24px; border-radius: 50%; }
+.ap__score h2 span { margin-left: auto; }
+.ap__score ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.ap__score li { display: flex; justify-content: space-between; gap: 10px; }
 .ap__asked { display: flex; align-items: center; gap: 10px; }
 .ap__files { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
 .ap__files li { display: flex; align-items: center; gap: 8px; font-weight: 600; }

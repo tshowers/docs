@@ -127,6 +127,9 @@
           </main>
 
           <aside class="rs__side">
+            @if (!o.submissionRecord && (scoreCheck() || scoring())) {
+              <app-score-check [check]="scoreCheck()" [running]="scoring()" (run)="runScore()" (fix)="openFix($event)" />
+            }
             @if (approval(); as a) {
               @if (approvalMet()) {
                 <section class="rs__card dk-tinted" data-tint="green">

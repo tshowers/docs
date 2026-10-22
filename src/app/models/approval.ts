@@ -94,6 +94,8 @@ export interface GuestApproval {
   email: { to: string; subject: string; body: string };
   attachments: { name: string; detail: string }[];
   checklist: { ok: number; total: number };
+  /** TODD's latest score-check (lifecycle 1n): totals only. Null before one ran. */
+  scoreCheck?: { total: number; max: number; ranAt: string; criteria: { name: string; points: number; max: number }[] } | null;
   html: string;
   previousHtml: string;
   previousVersion: number;

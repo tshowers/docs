@@ -79,8 +79,8 @@ button.pe__link {
 .pe__side { position: sticky; top: 16px; display: grid; gap: 14px; max-height: calc(100vh - 32px); overflow-y: auto; }
 
 /* TODD · Requirements · Checklist (lifecycle 1d). */
-.pe__tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface); }
-.pe__tabs button { height: 36px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 700 13px var(--font); cursor: pointer; }
+.pe__tabs { display: grid; grid-template-columns: repeat(4, auto); gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface); }
+.pe__tabs button { height: 36px; padding: 0 8px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 700 13px var(--font); cursor: pointer; }
 .pe__tabs button.is-on { background: var(--bg); color: var(--text); }
 .pe__nochecks { padding: 0 8px; font-size: 14px; }
 
@@ -164,3 +164,11 @@ button.pe__link {
   .pe__views { order: 5; width: 100%; }
   .pe__views button { flex: 1; }
 }
+
+/* Score-check (lifecycle 1j): points by section, and a revision in place. */
+.pe__pts { margin-left: auto; color: var(--muted); font-size: 12px; font-weight: 700; }
+.pe__revise { display: grid; gap: 10px; margin: 0 0 16px; scroll-margin: 120px; }
+.pe__old { margin: 0 !important; color: var(--muted); font-size: 16px; line-height: 1.7; text-decoration: line-through; text-decoration-color: var(--t-pink-fg); }
+.pe__revise .pe__suggest { margin: 0; }
+.pe__revise .dk-kicker { display: flex; align-items: center; gap: 8px; }
+.pe__revise .dk-kicker img { width: 20px; height: 20px; border-radius: 50%; }

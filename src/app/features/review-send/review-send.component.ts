@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { getBlob, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { firstValueFrom } from 'rxjs';
 
@@ -21,6 +21,8 @@ import { ApproverShareComponent, ShareVia } from '../../shared/approver-share/ap
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { buildProposalPdf } from '../../shared/proposal-pdf';
 import { buildMatrixPdf, matrixRows } from '../../shared/requirements-matrix';
+import { ScoreCheck } from '../../models/score-check';
+import { ScoreCheckComponent } from '../../shared/score-check/score-check.component';
 import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
 import { ApprovalForm, GetApprovalDialogComponent } from './get-approval-dialog.component';
 import { defaultBody, defaultSender, defaultSubject, isEmail, isNoReply, whyThisAddress } from './review-send.helpers';
@@ -54,7 +56,7 @@ function fileSafe ( value: string ): string {
 @Component( {
   selector: 'app-review-send',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective, GetApprovalDialogComponent, ApproverShareComponent],
+  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective, GetApprovalDialogComponent, ApproverShareComponent, ScoreCheckComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './review-send.component.html',
   styleUrl: './review-send.component.css',
@@ -66,6 +68,7 @@ export class ReviewSendComponent implements OnInit {
   private readonly docsStore = inject( DocumentsStoreService );
   private readonly auth = inject( DocsAuthService );
   private readonly profileApi = inject( ProfileApiService );
+  private readonly router = inject( Router );
   private readonly notifications = inject( DocsNotificationService );
   private readonly approvals = inject( ApprovalsService );
   private readonly destroyRef = inject( DestroyRef );
@@ -106,6 +109,9 @@ export class ReviewSendComponent implements OnInit {
   private pdfBytes: Uint8Array | null = null;
   /** The compliance matrix, when the RFP asks for it with the proposal (lifecycle 1e). */
   private matrixBytes: Uint8Array | null = null;
+  /** TODD's score-check (lifecycle 1i): advice only, it never blocks Send. */
+  readonly scoreCheck = signal<ScoreCheck | null>( null );
+  readonly scoring = signal( false );
   private proposalTitle = '';
   private tenantId = '';
   private author = '';
@@ -244,6 +250,7 @@ export class ReviewSendComponent implements OnInit {
         chips.splice( 1, 0, { key: 'matrix', name: `${ fileSafe( `Compliance matrix - ${ opportunity.title }` ) }.pdf`, detail: `The RFP asks for it · ${ matrix.pages } pp`, tint: 'violet', extension: 'PDF', doc: null, removable: true } );
       }
       this.attachments.set( chips );
+      void this.loadScore( id );
 
       const name = [profile?.firstName, profile?.lastName].filter( Boolean ).join( ' ' );
       this.ownerName = name || String( this.auth.getCurrentUserEmailSync() || '' );
@@ -258,6 +265,32 @@ export class ReviewSendComponent implements OnInit {
       this.errorMessage.set( error?.error?.message || error?.message || 'TODD couldn\'t get the proposal ready to send.' );
       this.phase.set( 'error' );
     }
+  }
+
+  /** The latest score-check; the first visit runs one. */
+  private async loadScore ( id: string ): Promise<void> {
+    const check = await firstValueFrom( this.service.getScoreCheck( id ) ).catch( () => null );
+    this.scoreCheck.set( check );
+    if ( check?.status === 'none' && this.opportunity()?.status === 'drafting' ) void this.runScore();
+  }
+
+  async runScore (): Promise<void> {
+    const o = this.opportunity();
+    if ( !o || this.scoring() ) return;
+    this.scoring.set( true );
+    try {
+      this.scoreCheck.set( await firstValueFrom( this.service.runScoreCheck( o.id ) ) );
+    } catch ( error: any ) {
+      this.notifications.show( 'TODD couldn\'t score the draft', error?.error?.message || 'Please try again.', 'warning' );
+    } finally {
+      this.scoring.set( false );
+    }
+  }
+
+  /** Fix this opens the section in the editor with TODD's revision. */
+  openFix ( fixId: string ): void {
+    const o = this.opportunity();
+    if ( o ) void this.router.navigate( ['/opportunities', o.id, 'proposal'], { queryParams: { fix: fixId } } );
   }
 
   removeAttachment ( key: string ): void {
