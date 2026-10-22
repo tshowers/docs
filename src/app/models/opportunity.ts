@@ -241,6 +241,36 @@ export interface ProposalCheck {
   documentId?: string;
 }
 
+/** One shall/must/will from the RFP (lifecycle B, the compliance matrix). */
+export interface Requirement {
+  id: string;
+  ref: string;
+  text: string;
+  /** The RFP's own sentence, and its page (0 when unknown). */
+  quote: string;
+  page: number;
+  type: 'shall' | 'must' | 'will';
+  /** The proposal section that should answer it. */
+  sectionKey: string;
+  status: 'answered' | 'not_answered';
+  answeredIn: { sectionKey: string; blockIndex: number; label: string } | null;
+  /** The owner marked it themselves; TODD's matching leaves it alone. */
+  manual: boolean;
+  matchedAt: string;
+  /** TODD's paragraph from Write this, waiting to be accepted or discarded. */
+  suggestion: { sectionKey: string; text: string; at: string } | null;
+}
+
+export interface Requirements {
+  status: 'unchecked' | 'checking' | 'done' | 'failed' | 'no_rfp';
+  items: Requirement[];
+  summary: { total: number; answered: number; notAnswered: number };
+  /** The RFP asks for the matrix with the proposal. */
+  matrixRequired: boolean;
+  extractedAt: string;
+  matchedAt: string;
+}
+
 export interface ProposalDraft {
   opportunityId: string;
   proposalDocumentId: string;

@@ -62,7 +62,7 @@ export function blocksFromHtml ( html: string, title = '' ): PdfBlock[] {
   return blocks.filter( ( b ) => b.text );
 }
 
-function wrap ( text: string, font: PDFFont, size: number, width: number ): string[] {
+export function wrap ( text: string, font: PDFFont, size: number, width: number ): string[] {
   const lines: string[] = [];
   for ( const paragraph of text.split( '\n' ) ) {
     let line = '';

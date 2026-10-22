@@ -2,14 +2,20 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
-import { Opportunity, ProposalDraft, ProposalQuestion, ProposalSection, dueLong } from '../../models/opportunity';
+import { Opportunity, ProposalDraft, ProposalQuestion, ProposalSection, Requirement, Requirements, dueLong } from '../../models/opportunity';
 import { DocsNotificationService } from '../../services/docs-notification.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
+import { RequirementsMatrixComponent } from './requirements-matrix.component';
+
+/** After the draft changes, wait this long before checking it against the requirements again. */
+const RECHECK_DELAY_MS = 3000;
+/** While TODD is reading the RFP for requirements elsewhere, check back this often. */
+const REQUIREMENTS_POLL_MS = 5000;
 
 /** Sections TODD still has to write, in order: never drafted, or waiting on a fresh answer. */
 export function sectionsToDraft ( draft: ProposalDraft | null ): ProposalSection[] {
@@ -25,6 +31,16 @@ export function nextQuestion ( draft: ProposalDraft | null ): ProposalQuestion |
       .sort( ( a, b ) => ( order.get( a.sectionKey ) ?? 99 ) - ( order.get( b.sectionKey ) ?? 99 ) )[0] || null;
 }
 
+/** Unanswered requirements by the section that should answer them: the pink and green blocks in the draft. */
+export function openBySection ( requirements: Requirements | null ): Map<string, Requirement[]> {
+  const map = new Map<string, Requirement[]>();
+  for ( const r of requirements?.items || [] ) {
+    if ( r.status === 'answered' || !r.sectionKey ) continue;
+    map.set( r.sectionKey, [...( map.get( r.sectionKey ) || [] ), r] );
+  }
+  return map;
+}
+
 /**
  * The proposal editor (design_handoff_todd_docs 1e). TODD plans the
  * proposal from the RFP, then drafts it section by section; the page shows
@@ -32,17 +48,23 @@ export function nextQuestion ( draft: ProposalDraft | null ): ProposalQuestion |
  * TODD asks one question at a time (saved to Knowledge by default) and the
  * RFP checklist updates as the draft changes. Free editing and export stay
  * in the document editor, which always has the latest text.
+ *
+ * The compliance matrix (lifecycle 1d/1e): the right panel's Requirements
+ * tab and the full Requirements view list every shall/must/will with where
+ * the draft answers it. TODD checks again a few seconds after each change;
+ * unanswered ones show in their section, with Write this.
  */
 @Component( {
   selector: 'app-proposal-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective],
+  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective, RequirementsMatrixComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './proposal-editor.component.html',
   styleUrl: './proposal-editor.component.css',
 } )
 export class ProposalEditorComponent implements OnInit {
   private readonly route = inject( ActivatedRoute );
+  private readonly router = inject( Router );
   private readonly service = inject( OpportunitiesService );
   private readonly notifications = inject( DocsNotificationService );
   private readonly destroyRef = inject( DestroyRef );
@@ -62,6 +84,23 @@ export class ProposalEditorComponent implements OnInit {
   saveToKnowledge = true;
   private drafting = false;
 
+  readonly requirements = signal<Requirements | null>( null );
+  /** The requirement TODD is writing for, or whose suggestion is being saved. */
+  readonly requirementBusy = signal( '' );
+  readonly sideTab = signal<'todd' | 'requirements' | 'checklist'>( 'todd' );
+  /** Draft, or the full Requirements table (1e); ?view=requirements opens it. */
+  readonly view = signal<'draft' | 'requirements'>( 'draft' );
+  /** The paragraph just jumped to: "{sectionKey}-{blockIndex}", highlighted for 2s. */
+  readonly flash = signal( '' );
+  readonly editingSuggestion = signal( '' );
+  suggestionText = '';
+  private recheckTimer: ReturnType<typeof setTimeout> | null = null;
+  private checkingRequirements = false;
+  private recheckAgain = false;
+
+  readonly openBySection = computed( () => openBySection( this.requirements() ) );
+  readonly sectionTitle = ( key: string ): string => this.draft()?.sections.find( ( s ) => s.key === key )?.title || '';
+
   readonly question = computed( () => nextQuestion( this.draft() ) );
   readonly questionNumber = computed( () => {
     const d = this.draft();
@@ -80,6 +119,10 @@ export class ProposalEditorComponent implements OnInit {
   } );
 
   ngOnInit (): void {
+    this.destroyRef.onDestroy( () => { if ( this.recheckTimer ) clearTimeout( this.recheckTimer ); } );
+    this.route.queryParamMap.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( ( params ) => {
+      this.view.set( params.get( 'view' ) === 'requirements' ? 'requirements' : 'draft' );
+    } );
     this.route.paramMap.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( ( params ) => {
       this.opportunityId.set( String( params.get( 'id' ) || '' ) );
       void this.start();
@@ -98,7 +141,9 @@ export class ProposalEditorComponent implements OnInit {
       }
       this.draft.set( draft );
       this.currentKey.set( draft.sections[0]?.key || '' );
+      this.sideTab.set( draft.questions.some( ( q ) => q.status === 'open' ) ? 'todd' : 'requirements' );
       this.phase.set( 'ready' );
+      void this.loadRequirements();
       void this.draftRemaining();
     } catch ( error: any ) {
       this.errorMessage.set( error?.error?.message || 'TODD couldn\'t open this proposal. Try again in a moment.' );
@@ -118,6 +163,9 @@ export class ProposalEditorComponent implements OnInit {
       const draft = await firstValueFrom( this.service.planProposal( this.opportunityId(), true ) );
       this.draft.set( draft );
       this.phase.set( 'ready' );
+      // New sections: the requirements are read again for them.
+      this.requirements.set( null );
+      void this.checkRequirements( true );
       void this.draftRemaining();
     } catch ( error: any ) {
       this.errorMessage.set( error?.error?.message || 'TODD couldn\'t plan the proposal.' );
@@ -138,6 +186,7 @@ export class ProposalEditorComponent implements OnInit {
           const draft = await firstValueFrom( this.service.draftSection( this.opportunityId(), next.key ) );
           this.draft.set( draft );
           this.savedAt.set( new Date() );
+          this.scheduleRecheck();
         } catch {
           this.failedKeys.update( ( keys ) => [...keys, next.key] );
         }
@@ -175,6 +224,167 @@ export class ProposalEditorComponent implements OnInit {
     }
   }
 
+  // ── Requirements ───────────────────────────────────────────────
+  /** The matrix as it stands; read from the RFP the first time, otherwise checked against the latest draft. */
+  private async loadRequirements (): Promise<void> {
+    const id = this.opportunityId();
+    try {
+      const current = await firstValueFrom( this.service.getRequirements( id ) );
+      this.requirements.set( current );
+      if ( current.status === 'checking' ) this.pollRequirements();
+      else void this.checkRequirements();
+    } catch {
+      void this.checkRequirements();
+    }
+  }
+
+  async checkRequirements ( force = false ): Promise<void> {
+    if ( this.checkingRequirements ) {
+      this.recheckAgain = true;
+      return;
+    }
+    this.checkingRequirements = true;
+    const id = this.opportunityId();
+    const first = !this.requirements()?.items.length;
+    if ( first || force ) this.requirements.update( ( r ) => ( { ...( r || emptyRequirements() ), status: 'checking' } ) );
+    try {
+      const result = await firstValueFrom( this.service.checkRequirements( id, force ) );
+      if ( id !== this.opportunityId() ) return;
+      this.requirements.set( result );
+      // The checklist's "Requirements answered" line comes with the draft.
+      this.draft.set( await firstValueFrom( this.service.getProposal( id ) ) || this.draft() );
+      if ( result.status === 'checking' ) this.pollRequirements();
+    } catch {
+      if ( first ) this.requirements.update( ( r ) => ( { ...( r || emptyRequirements() ), status: 'failed' } ) );
+    } finally {
+      this.checkingRequirements = false;
+      if ( this.recheckAgain ) {
+        this.recheckAgain = false;
+        this.scheduleRecheck();
+      }
+    }
+  }
+
+  private scheduleRecheck (): void {
+    if ( this.recheckTimer ) clearTimeout( this.recheckTimer );
+    this.recheckTimer = setTimeout( () => {
+      this.recheckTimer = null;
+      void this.checkRequirements();
+    }, RECHECK_DELAY_MS );
+  }
+
+  private pollRequirements (): void {
+    if ( this.recheckTimer ) clearTimeout( this.recheckTimer );
+    this.recheckTimer = setTimeout( async () => {
+      this.recheckTimer = null;
+      const latest = await firstValueFrom( this.service.getRequirements( this.opportunityId() ) ).catch( () => null );
+      if ( !latest ) return;
+      this.requirements.set( latest );
+      if ( latest.status === 'checking' ) this.pollRequirements();
+      else this.draft.set( await firstValueFrom( this.service.getProposal( this.opportunityId() ) ).catch( () => null ) || this.draft() );
+    }, REQUIREMENTS_POLL_MS );
+  }
+
+  async writeRequirement ( r: Requirement ): Promise<void> {
+    if ( this.requirementBusy() ) return;
+    this.requirementBusy.set( r.id );
+    try {
+      this.requirements.set( await firstValueFrom( this.service.writeRequirement( this.opportunityId(), r.id ) ) );
+      if ( this.view() === 'draft' ) setTimeout( () => this.showSuggestion( r.id ), 50 );
+    } catch ( error: any ) {
+      this.notifications.show( 'TODD couldn\'t write that', error?.error?.message || 'Please try again.', 'warning' );
+    } finally {
+      this.requirementBusy.set( '' );
+    }
+  }
+
+  async resolveRequirement ( r: Requirement, action: 'accept' | 'discard', text = '' ): Promise<void> {
+    if ( this.requirementBusy() ) return;
+    this.requirementBusy.set( r.id );
+    try {
+      const result = await firstValueFrom( this.service.resolveRequirement( this.opportunityId(), r.id, action, text ) );
+      this.requirements.set( result.requirements );
+      if ( result.draft ) {
+        this.draft.set( result.draft );
+        this.savedAt.set( new Date() );
+      }
+      this.editingSuggestion.set( '' );
+      if ( result.copyToEditor ) this.notifications.show( 'Copy it into the editor', 'You\'ve edited this proposal in the editor, so TODD added the paragraph to its own draft only.', 'warning' );
+    } catch ( error: any ) {
+      this.notifications.show( 'Couldn\'t update the proposal', error?.error?.message || 'Please try again.', 'warning' );
+    } finally {
+      this.requirementBusy.set( '' );
+    }
+  }
+
+  async markRequirement ( r: Requirement, answered: boolean ): Promise<void> {
+    try {
+      this.requirements.set( await firstValueFrom( this.service.markRequirement( this.opportunityId(), r.id, answered ) ) );
+      this.draft.set( await firstValueFrom( this.service.getProposal( this.opportunityId() ) ) || this.draft() );
+    } catch {
+      this.notifications.show( 'Couldn\'t update the matrix', 'Please try again.', 'warning' );
+    }
+  }
+
+  editSuggestion ( r: Requirement ): void {
+    this.editingSuggestion.set( r.id );
+    this.suggestionText = r.suggestion?.text || '';
+  }
+
+  /** Scrolls the draft to the paragraph that answers it (or TODD's suggestion) and highlights it for 2s. */
+  jumpTo ( r: Requirement ): void {
+    const d = this.draft();
+    if ( d?.documentEdited && d.proposalDocumentId && r.status === 'answered' ) {
+      void this.router.navigate( ['/docs/editor', d.proposalDocumentId] );
+      return;
+    }
+    this.setView( 'draft' );
+    setTimeout( () => {
+      if ( r.status !== 'answered' ) return this.showSuggestion( r.id );
+      const where = r.answeredIn;
+      if ( !where ) return;
+      const key = `${ where.sectionKey }-${ where.blockIndex }`;
+      const el = document.getElementById( `blk-${ key }` ) || document.getElementById( `section-${ where.sectionKey }` );
+      el?.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+      this.flash.set( key );
+      setTimeout( () => { if ( this.flash() === key ) this.flash.set( '' ); }, 2000 );
+    }, 50 );
+  }
+
+  private showSuggestion ( id: string ): void {
+    document.getElementById( `req-${ id }` )?.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+  }
+
+  setView ( view: 'draft' | 'requirements' ): void {
+    if ( view === this.view() ) return;
+    void this.router.navigate( [], { relativeTo: this.route, queryParams: { view: view === 'requirements' ? 'requirements' : null }, queryParamsHandling: 'merge', replaceUrl: true } );
+  }
+
+  /** Export as appendix: the matrix as a PDF or Word table. */
+  async exportMatrix ( format: 'pdf' | 'docx' ): Promise<void> {
+    const req = this.requirements();
+    if ( !req?.items.length ) return;
+    const o = this.opportunity();
+    const title = `Compliance matrix · ${ o?.title || 'Proposal' }`;
+    try {
+      const matrix = await import( '../../shared/requirements-matrix' );
+      const rows = matrix.matrixRows( req.items, this.sectionTitle );
+      const blob = format === 'pdf' ?
+        new Blob( [( await matrix.buildMatrixPdf( rows, { title } ) ).bytes as BlobPart], { type: 'application/pdf' } ) :
+        await matrix.buildMatrixDocx( rows, { title } );
+      const url = URL.createObjectURL( blob );
+      const link = document.createElement( 'a' );
+      link.href = url;
+      link.download = `${ title.replace( ' · ', ' - ' ).replace( /[\\/:*?"<>|]+/g, '' ) }.${ format }`;
+      document.body.appendChild( link );
+      link.click();
+      link.remove();
+      setTimeout( () => URL.revokeObjectURL( url ), 1000 );
+    } catch {
+      this.notifications.show( 'Couldn\'t export the matrix', 'Please try again.', 'warning' );
+    }
+  }
+
   goTo ( key: string ): void {
     this.currentKey.set( key );
     document.getElementById( `section-${ key }` )?.scrollIntoView( { behavior: 'smooth', block: 'start' } );
@@ -186,4 +396,8 @@ export class ProposalEditorComponent implements OnInit {
     if ( section.status === 'waiting' ) return 'is-waiting';
     return 'is-pending';
   }
+}
+
+function emptyRequirements (): Requirements {
+  return { status: 'unchecked', items: [], summary: { total: 0, answered: 0, notAnswered: 0 }, matrixRequired: false, extractedAt: '', matchedAt: '' };
 }

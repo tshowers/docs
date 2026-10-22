@@ -20,6 +20,7 @@ import { ProfileApiService } from '../../services/profile-api.service';
 import { ApproverShareComponent, ShareVia } from '../../shared/approver-share/approver-share.component';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { buildProposalPdf } from '../../shared/proposal-pdf';
+import { buildMatrixPdf, matrixRows } from '../../shared/requirements-matrix';
 import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
 import { ApprovalForm, GetApprovalDialogComponent } from './get-approval-dialog.component';
 import { defaultBody, defaultSender, defaultSubject, isEmail, isNoReply, whyThisAddress } from './review-send.helpers';
@@ -103,6 +104,8 @@ export class ReviewSendComponent implements OnInit {
   readonly displayName = displayName;
 
   private pdfBytes: Uint8Array | null = null;
+  /** The compliance matrix, when the RFP asks for it with the proposal (lifecycle 1e). */
+  private matrixBytes: Uint8Array | null = null;
   private proposalTitle = '';
   private tenantId = '';
   private author = '';
@@ -199,7 +202,7 @@ export class ReviewSendComponent implements OnInit {
     const id = this.opportunityId();
     this.phase.set( 'loading' );
     try {
-      const [opportunity, draft, inboxes, profile, tenantId, documents, approval] = await Promise.all( [
+      const [opportunity, draft, inboxes, profile, tenantId, documents, approval, requirements] = await Promise.all( [
         firstValueFrom( this.service.get( id ) ),
         firstValueFrom( this.service.getProposal( id ) ).catch( () => null ),
         firstValueFrom( this.service.listInboxes() ).catch( () => [] as DocsInbox[] ),
@@ -207,6 +210,7 @@ export class ReviewSendComponent implements OnInit {
         firstValueFrom( this.auth.getTenantId() ),
         firstValueFrom( this.docsStore.load() ),
         firstValueFrom( this.approvals.get( id ) ).catch( () => null ),
+        firstValueFrom( this.service.getRequirements( id ) ).catch( () => null ),
       ] );
       this.approval.set( approval );
       this.opportunity.set( opportunity );
@@ -233,6 +237,12 @@ export class ReviewSendComponent implements OnInit {
           return { key: c.documentId!, name: String( doc?.name || doc?.title || c.label ), detail: c.label, tint: documentKindInfo( doc ).tint, extension: documentExtension( doc ), doc, removable: true };
         } ),
       ];
+      if ( requirements?.matrixRequired && requirements.items.length ) {
+        const sectionTitle = ( key: string ) => draft?.sections.find( ( s ) => s.key === key )?.title || '';
+        const matrix = await buildMatrixPdf( matrixRows( requirements.items, sectionTitle ), { title: `Compliance matrix · ${ opportunity.title }`, author: company } );
+        this.matrixBytes = matrix.bytes;
+        chips.splice( 1, 0, { key: 'matrix', name: `${ fileSafe( `Compliance matrix - ${ opportunity.title }` ) }.pdf`, detail: `The RFP asks for it · ${ matrix.pages } pp`, tint: 'violet', extension: 'PDF', doc: null, removable: true } );
+      }
       this.attachments.set( chips );
 
       const name = [profile?.firstName, profile?.lastName].filter( Boolean ).join( ' ' );
@@ -258,16 +268,31 @@ export class ReviewSendComponent implements OnInit {
   private async savePdf (): Promise<string> {
     const bytes = this.pdfBytes;
     if ( !bytes ) throw new Error( 'The proposal PDF isn\'t ready.' );
-    const chip = this.attachments()[0];
-    const path = `${ this.tenantId }/documents/${ chip.name }`;
+    return this.saveFile( bytes, this.attachments()[0].name, this.proposalTitle, 'proposal' );
+  }
+
+  /**
+   * The compliance matrix goes to Documents with the proposal, once, and its
+   * chip then carries the document like any other attachment.
+   */
+  private async saveMatrix (): Promise<void> {
+    const chip = this.attachments().find( ( c ) => c.key === 'matrix' );
+    if ( !chip || chip.doc || !this.matrixBytes ) return;
+    const id = await this.saveFile( this.matrixBytes, chip.name, chip.name.replace( /\.pdf$/, '' ), 'attachment' );
+    const doc: Document = await firstValueFrom( this.docService.getDocument( id ) );
+    this.attachments.update( ( list ) => list.map( ( c ) => c.key === 'matrix' ? { ...c, doc } : c ) );
+  }
+
+  private async saveFile ( bytes: Uint8Array, name: string, title: string, type: string ): Promise<string> {
+    const path = `${ this.tenantId }/documents/${ name }`;
     const storageRef = ref( getStorage(), path );
     await uploadBytes( storageRef, bytes, { contentType: 'application/pdf' } );
     const src = await getDownloadURL( storageRef );
     const now = new Date().toISOString();
     const created = await firstValueFrom( this.docService.createDocument( {
-      name: chip.name,
-      title: this.proposalTitle,
-      type: 'proposal',
+      name,
+      title,
+      type,
       recordKind: 'upload',
       src,
       storagePath: path,
@@ -296,6 +321,7 @@ export class ReviewSendComponent implements OnInit {
       // The approved package already has its PDF; otherwise save one now.
       const snapshotPdf = this.approvalMet() ? this.approval()?.proposalPdfId : '';
       const pdfId = snapshotPdf || await this.savePdf();
+      await this.saveMatrix();
       const others = this.attachments().filter( ( a ) => a.doc?.id ).map( ( a ) => String( a.doc!.id ) );
       const updated = await firstValueFrom( this.service.sendProposal( o.id, {
         mailboxId: this.mailboxId,
@@ -325,6 +351,10 @@ export class ReviewSendComponent implements OnInit {
       zip.file( proposal.name, this.pdfBytes );
       const missing: string[] = [];
       for ( const chip of rest ) {
+        if ( chip.key === 'matrix' && this.matrixBytes ) {
+          zip.file( chip.name, this.matrixBytes );
+          continue;
+        }
         const doc = chip.doc;
         try {
           const blob = doc?.storagePath ? await getBlob( ref( getStorage(), doc.storagePath ) ) : await ( await fetch( String( doc?.src ) ) ).blob();
@@ -383,6 +413,7 @@ export class ReviewSendComponent implements OnInit {
     this.dialogError.set( '' );
     try {
       const pdfId = form.onApproved === 'autoSend' ? await this.savePdf() : '';
+      if ( form.onApproved === 'autoSend' ) await this.saveMatrix();
       const saved = await firstValueFrom( this.approvals.save( o.id, this.payload( form, pdfId ) ) );
       this.approval.set( saved );
       this.dialog.set( 'share' );
@@ -401,6 +432,7 @@ export class ReviewSendComponent implements OnInit {
     this.busy.set( 'approval' );
     try {
       const pdfId = a.onApproved === 'autoSend' ? await this.savePdf() : '';
+      if ( a.onApproved === 'autoSend' ) await this.saveMatrix();
       const saved = await firstValueFrom( this.approvals.save( o.id, this.payload( {
         approvers: a.approvers.map( ( x ) => ( { id: x.id, name: x.name, email: x.email } ) ),
         rule: a.rule,

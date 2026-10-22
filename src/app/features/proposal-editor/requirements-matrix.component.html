@@ -1,0 +1,150 @@
+@if (requirements; as req) {
+  @switch (req.status) {
+    @case ('checking') {
+      <div class="rm rm--note" [class.rm--table]="mode === 'table'">
+        <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Reading the RFP for requirements</div>
+        <p class="dk-muted">Every shall, must and will, and where your draft answers it. This takes about a minute.</p>
+        <div class="rm__bar is-busy"><span></span></div>
+      </div>
+    }
+    @case ('no_rfp') {
+      <div class="rm rm--note" [class.rm--table]="mode === 'table'">
+        <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />I need the RFP for this</div>
+        <p class="dk-muted">Attach the RFP and I'll list every requirement and check your draft against it.</p>
+      </div>
+    }
+    @case ('failed') {
+      <div class="rm rm--note" [class.rm--table]="mode === 'table'">
+        <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />I couldn't read the requirements</div>
+        <button type="button" class="dk-btn dk-btn--sm" (click)="retry.emit()" appWriteAction="check the requirements">Try again</button>
+      </div>
+    }
+    @case ('unchecked') {
+      <div class="rm rm--note" [class.rm--table]="mode === 'table'"><div class="rm__bar is-busy"><span></span></div></div>
+    }
+    @default {
+      <section class="rm" [class.rm--table]="mode === 'table'">
+        <header class="rm__head">
+          <div class="rm__count">
+            <h2>{{ req.summary.answered }} of {{ req.summary.total }} requirements answered</h2>
+            <div class="rm__bar" role="progressbar" [attr.aria-valuenow]="percent()" aria-valuemin="0" aria-valuemax="100"><span [style.width.%]="percent()"></span></div>
+          </div>
+          <div class="rm__filters" role="group" aria-label="Show">
+            @for (f of filters(); track f.key) {
+              <button type="button" class="rm__filter" [class.is-on]="filter() === f.key" [attr.aria-pressed]="filter() === f.key" (click)="pick(f.key)">{{ f.label }} <span>{{ f.count }}</span></button>
+            }
+          </div>
+          @if (mode === 'table') {
+            <div class="rm__export">
+              <button type="button" class="dk-btn" (click)="exportOpen.set(!exportOpen())" [attr.aria-expanded]="exportOpen()"><dk-icon name="download" />Export as appendix</button>
+              @if (exportOpen()) {
+                <div class="rm__menu">
+                  <button type="button" (click)="exportAs.emit('pdf'); exportOpen.set(false)">PDF</button>
+                  <button type="button" (click)="exportAs.emit('docx'); exportOpen.set(false)">Word</button>
+                </div>
+              }
+            </div>
+          }
+        </header>
+        @if (req.matrixRequired) { <p class="rm__required dk-muted">The RFP asks for this matrix with the proposal. Review &amp; send adds it to the package.</p> }
+
+        @if (mode === 'table') {
+          <div class="rm__cols" aria-hidden="true"><span>RFP ref</span><span>Requirement</span><span>Type</span><span>Answered in</span><span></span></div>
+        }
+        <ul class="rm__rows">
+          @for (r of rows(); track r.id) {
+            <li class="rm__row" [class.is-open]="expanded() === r.id" [attr.data-status]="r.status">
+              <div class="rm__line" (click)="toggle(r)">
+                <span class="rm__ref">{{ r.ref || '–' }}</span>
+                <strong class="rm__text">{{ r.text }}</strong>
+                @if (mode === 'table') { <span class="rm__type">{{ r.type }}</span> }
+                <div class="rm__foot">
+                <span class="rm__where">
+                  @if (r.status === 'answered') {
+                    <button type="button" class="rm__link" (click)="$event.stopPropagation(); jump.emit(r)"><dk-icon name="chevron-right" [size]="13" />{{ where(r) }}</button>
+                  } @else if (r.suggestion) {
+                    <button type="button" class="rm__link" (click)="$event.stopPropagation(); jump.emit(r)"><dk-icon name="sparkles" [size]="13" />TODD wrote a draft</button>
+                  } @else {
+                    <span class="rm__missing">@if (mode === 'table') {<dk-icon name="alert-circle" [size]="13" />}Not answered yet</span>
+                  }
+                </span>
+                <span class="rm__act">
+                  @if (r.status === 'answered') {
+                    @if (mode === 'table') { <dk-icon name="check" [size]="16" class="rm__tick" /> }
+                  } @else if (!r.suggestion) {
+                    <button type="button" class="dk-btn dk-btn--primary dk-btn--sm rm__write" (click)="$event.stopPropagation(); write.emit(r)" [disabled]="!!busyId" appWriteAction="have TODD write this"><dk-icon name="sparkles" [size]="14" />{{ busyId === r.id ? 'Writing…' : 'Write this' }}</button>
+                  }
+                </span>
+                </div>
+              </div>
+
+              @if (mode === 'table' && expanded() === r.id) {
+                <div class="rm__detail">
+                  <div class="rm__quote">
+                    <span class="dk-kicker">RFP{{ r.page ? ' · page ' + r.page : '' }}{{ r.ref ? ' · ' + r.ref : '' }}</span>
+                    <p>“{{ r.quote || r.text }}”</p>
+                    @if (r.status === 'answered' && r.manual) {
+                      <button type="button" class="rm__link" (click)="mark.emit({ requirement: r, answered: false })">Let TODD check it again</button>
+                    } @else if (r.status !== 'answered') {
+                      <button type="button" class="rm__link" (click)="mark.emit({ requirement: r, answered: true })" appWriteAction="update the matrix">It's answered in the proposal</button>
+                    }
+                  </div>
+                  <div class="rm__draft">
+                    @if (r.suggestion) {
+                      <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD's draft for {{ sectionTitle(r.suggestion.sectionKey) }}</div>
+                      @if (editing() === r.id) {
+                        <textarea rows="4" [(ngModel)]="editText" aria-label="TODD's draft"></textarea>
+                      } @else {
+                        <p>{{ r.suggestion.text }}</p>
+                      }
+                      <div class="rm__pair">
+                        <button type="button" class="dk-btn dk-btn--primary dk-btn--sm" (click)="acceptSuggestion(r)" [disabled]="!!busyId" appWriteAction="add this to the proposal">Add to {{ sectionTitle(r.suggestion.sectionKey) || 'the section' }}</button>
+                        @if (editing() !== r.id) { <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="startEdit(r)">Edit</button> }
+                        <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="discard.emit(r)" [disabled]="!!busyId">Discard</button>
+                      </div>
+                    } @else if (r.status === 'answered') {
+                      <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Answered in {{ where(r) }}</div>
+                      <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="jump.emit(r)">Show me</button>
+                    } @else {
+                      <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Nothing answers this yet</div>
+                      <p class="dk-muted">I'll write a paragraph for {{ sectionTitle(r.sectionKey) || 'the right section' }} from your profile and Knowledge. You check it before it goes in.</p>
+                    }
+                  </div>
+                </div>
+              }
+            </li>
+          } @empty {
+            <li class="rm__empty dk-muted">{{ filter() === 'not_answered' ? 'Everything the RFP asks for is answered.' : 'Nothing here.' }}</li>
+          }
+        </ul>
+
+        @if (recent().length) {
+          <h3 class="rm__kicker">Recently matched</h3>
+          <ul class="rm__rows">
+            @for (r of recent(); track r.id) {
+              <li class="rm__row rm__row--recent">
+                <div class="rm__line">
+                  <span class="rm__ref">{{ r.ref || '–' }}</span>
+                  <strong class="rm__text">{{ r.text }}</strong>
+                  <div class="rm__foot"><span class="rm__where"><button type="button" class="rm__link" (click)="jump.emit(r)"><dk-icon name="chevron-right" [size]="13" />{{ where(r) }}</button></span></div>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (mode === 'panel') {
+          <div class="rm__export rm__export--panel">
+            <button type="button" class="dk-btn dk-btn--bg rm__wide" (click)="exportOpen.set(!exportOpen())" [attr.aria-expanded]="exportOpen()"><dk-icon name="download" />Export matrix (PDF / Word)</button>
+            @if (exportOpen()) {
+              <div class="rm__menu">
+                <button type="button" (click)="exportAs.emit('pdf'); exportOpen.set(false)">PDF</button>
+                <button type="button" (click)="exportAs.emit('docx'); exportOpen.set(false)">Word</button>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+}

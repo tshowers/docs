@@ -5,8 +5,14 @@
       <h1>Proposal · {{ opportunity()?.title || '…' }}</h1>
       <p class="dk-muted">{{ subtitle() }}</p>
     </div>
+    @if (phase() === 'ready' && requirements()?.items?.length) {
+      <div class="pe__views" role="group" aria-label="Show">
+        <button type="button" [class.is-on]="view() === 'draft'" [attr.aria-pressed]="view() === 'draft'" (click)="setView('draft')">Draft</button>
+        <button type="button" [class.is-on]="view() === 'requirements'" [attr.aria-pressed]="view() === 'requirements'" (click)="setView('requirements')">Requirements</button>
+      </div>
+    }
     @if (draft()?.proposalDocumentId) {
-      <a class="dk-btn" [routerLink]="['/docs/editor', draft()!.proposalDocumentId]"><dk-icon name="pen" />Edit in editor</a>
+      <a class="dk-btn pe__edit" [routerLink]="['/docs/editor', draft()!.proposalDocumentId]"><dk-icon name="pen" />Edit in editor</a>
       <a class="dk-btn dk-btn--primary" [routerLink]="['/opportunities', opportunityId(), 'send']"><dk-icon name="send" />Review &amp; send</a>
     }
   </header>
@@ -30,6 +36,11 @@
     }
     @case ('ready') {
       @if (draft(); as d) {
+        @if (view() === 'requirements') {
+          <app-requirements-matrix class="pe__table" mode="table" [requirements]="requirements()" [busyId]="requirementBusy()" [sectionTitle]="sectionTitle"
+            (write)="writeRequirement($event)" (jump)="jumpTo($event)" (accept)="resolveRequirement($event.requirement, 'accept', $event.text)"
+            (discard)="resolveRequirement($event, 'discard')" (mark)="markRequirement($event.requirement, $event.answered)" (exportAs)="exportMatrix($event)" (retry)="checkRequirements(true)" />
+        } @else {
         <div class="pe__grid">
           <nav class="pe__sections" aria-label="Sections">
             @for (s of d.sections; track s.key) {
@@ -66,9 +77,9 @@
                   } @else {
                     @for (b of s.blocks; track $index) {
                       @switch (b.type) {
-                        @case ('heading') { <h3>{{ b.text }}</h3> }
+                        @case ('heading') { <h3 [id]="'blk-' + s.key + '-' + $index">{{ b.text }}</h3> }
                         @case ('knowledge') {
-                          <div class="pe__from">
+                          <div class="pe__from" [id]="'blk-' + s.key + '-' + $index" [class.is-flash]="flash() === s.key + '-' + $index">
                             <span class="dk-kicker">From Knowledge · {{ b.knowledgeTitle }}</span>
                             <p>{{ b.text }}</p>
                           </div>
@@ -79,10 +90,33 @@
                             <p>{{ b.text }}</p>
                           </div>
                         }
-                        @default { <p class="pe__p">{{ b.text }}</p> }
+                        @default { <p class="pe__p" [id]="'blk-' + s.key + '-' + $index" [class.is-flash]="flash() === s.key + '-' + $index">{{ b.text }}</p> }
                       }
                     }
                     @if (s.needsRedraft) { <p class="dk-muted pe__redraft">{{ draftingKey() === s.key ? 'Adding your answer…' : 'Your answer goes in next.' }}</p> }
+                    @for (r of openBySection().get(s.key) || []; track r.id) {
+                      @if (r.suggestion) {
+                        <div class="pe__suggest" [id]="'req-' + r.id">
+                          <span class="dk-kicker">TODD's draft · RFP {{ r.ref || r.text }}</span>
+                          @if (editingSuggestion() === r.id) {
+                            <textarea rows="4" [(ngModel)]="suggestionText" aria-label="TODD's draft"></textarea>
+                          } @else {
+                            <p>{{ r.suggestion.text }}</p>
+                          }
+                          <div class="pe__suggest-actions">
+                            <button type="button" class="dk-btn dk-btn--primary dk-btn--sm" (click)="resolveRequirement(r, 'accept', editingSuggestion() === r.id ? suggestionText : '')" [disabled]="!!requirementBusy()" appWriteAction="add this to the proposal">Accept</button>
+                            @if (editingSuggestion() !== r.id) { <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="editSuggestion(r)">Edit</button> }
+                            <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="resolveRequirement(r, 'discard')" [disabled]="!!requirementBusy()">Discard</button>
+                          </div>
+                        </div>
+                      } @else {
+                        <div class="pe__unanswered" [id]="'req-' + r.id">
+                          <span class="dk-kicker">Not answered{{ r.ref ? ' · RFP ' + r.ref : '' }}</span>
+                          <p>The RFP says: “{{ r.text }}”. This section doesn't answer it yet.</p>
+                          <button type="button" class="pe__link" (click)="writeRequirement(r)" [disabled]="!!requirementBusy()" appWriteAction="have TODD write this">{{ requirementBusy() === r.id ? 'Writing…' : 'Write this' }}</button>
+                        </div>
+                      }
+                    }
                   }
                 </section>
               }
@@ -90,6 +124,17 @@
           </main>
 
           <aside class="pe__side">
+            <div class="pe__tabs" role="tablist" aria-label="Beside the draft">
+              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'todd'" [class.is-on]="sideTab() === 'todd'" (click)="sideTab.set('todd')">TODD</button>
+              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'requirements'" [class.is-on]="sideTab() === 'requirements'" (click)="sideTab.set('requirements')">Requirements</button>
+              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'checklist'" [class.is-on]="sideTab() === 'checklist'" (click)="sideTab.set('checklist')">Checklist</button>
+            </div>
+            @if (sideTab() === 'requirements') {
+              <app-requirements-matrix [requirements]="requirements()" [busyId]="requirementBusy()" [sectionTitle]="sectionTitle"
+                (write)="writeRequirement($event)" (jump)="jumpTo($event)" (accept)="resolveRequirement($event.requirement, 'accept', $event.text)"
+                (discard)="resolveRequirement($event, 'discard')" (mark)="markRequirement($event.requirement, $event.answered)" (exportAs)="exportMatrix($event)" (retry)="checkRequirements(true)" />
+            }
+            @if (sideTab() === 'todd') {
             @if (question(); as q) {
               <section class="pe__ask">
                 <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD · question {{ questionNumber().n }} of {{ questionNumber().of }}</div>
@@ -102,14 +147,18 @@
                   <button type="button" class="dk-btn dk-btn--bg" (click)="submitAnswer(true)" [disabled]="answering()">Skip</button>
                 </div>
               </section>
-            } @else if (d.questions.length) {
+            } @else {
               <section class="pe__ask pe__ask--done">
                 <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />That's everything</div>
-                <p>You've answered all {{ d.questions.length }} of TODD's questions.</p>
+                <p>{{ d.questions.length ? "You've answered all " + d.questions.length + " of TODD's questions." : "TODD has no questions for you on this one." }}</p>
               </section>
             }
+            }
 
-            @if (d.checklist.length) {
+            @if (sideTab() === 'checklist' && !d.checklist.length) {
+              <p class="dk-muted pe__nochecks">The RFP didn't set anything TODD can check before sending.</p>
+            }
+            @if (sideTab() === 'checklist' && d.checklist.length) {
               <section class="pe__checks">
                 <header><h2>RFP checklist</h2><span class="dk-muted">{{ checklistOk() }} of {{ d.checklist.length }}</span></header>
                 <ul>
@@ -120,6 +169,7 @@
                         <strong>{{ c.label }}</strong>
                         <small class="dk-muted">{{ c.status }}</small>
                         @if (!c.ok && c.kind === 'attachment') { <a class="pe__link" routerLink="/upload">Add it</a> }
+                        @if (!c.ok && c.kind === 'requirements') { <button type="button" class="pe__link" (click)="sideTab.set('requirements')">See what's missing</button> }
                       </div>
                     </li>
                   }
@@ -128,6 +178,7 @@
             }
           </aside>
         </div>
+        }
       }
     }
   }

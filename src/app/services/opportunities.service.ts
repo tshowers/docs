@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
-import { DocsInbox, FIT_THRESHOLD, NoBidReason, Opportunity, OpportunityStatus, ProposalDraft, isOpen } from '../models/opportunity';
+import { DocsInbox, FIT_THRESHOLD, NoBidReason, Opportunity, OpportunityStatus, ProposalDraft, Requirements, isOpen } from '../models/opportunity';
 import { DocService } from './doc.service';
 
 interface Envelope<T> { success: boolean; data: T; message?: string; }
@@ -138,6 +138,33 @@ export class OpportunitiesService {
 
   answerQuestion ( opportunityId: string, questionId: string, body: { answer?: string; saveToKnowledge?: boolean; skip?: boolean } ): Observable<{ draft: ProposalDraft; knowledge: { saved: boolean; id?: string; reason?: string } }> {
     return this.http.post<Envelope<{ draft: ProposalDraft; knowledge: { saved: boolean; id?: string; reason?: string } }>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/questions/${ encodeURIComponent( questionId ) }`, body ).pipe( map( ( r ) => r.data ) );
+  }
+
+  // ── Compliance matrix ──────────────────────────────────────────
+  getRequirements ( opportunityId: string ): Observable<Requirements> {
+    return this.http.get<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements` ).pipe( map( ( r ) => r.data ) );
+  }
+
+  /** Reads the RFP for requirements the first time (about a minute), then matches them to the draft. */
+  checkRequirements ( opportunityId: string, force = false ): Observable<Requirements> {
+    return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/check`, { force } ).pipe( map( ( r ) => r.data ) );
+  }
+
+  writeRequirement ( opportunityId: string, requirementId: string ): Observable<Requirements> {
+    return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/write`, {} ).pipe( map( ( r ) => r.data ) );
+  }
+
+  /** Accept (with the text as edited) or discard TODD's paragraph. */
+  resolveRequirement ( opportunityId: string, requirementId: string, action: 'accept' | 'discard', text = '' ): Observable<{ requirements: Requirements; draft: ProposalDraft | null; copyToEditor: boolean }> {
+    return this.http.post<Envelope<{ requirements: Requirements; draft: ProposalDraft | null; copyToEditor: boolean }>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/suggestion`, { action, text: text || undefined } ).pipe( map( ( r ) => r.data ) );
+  }
+
+  markRequirement ( opportunityId: string, requirementId: string, answered: boolean ): Observable<Requirements> {
+    return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/mark`, { answered } ).pipe( map( ( r ) => r.data ) );
+  }
+
+  private proposalBase ( opportunityId: string ): string {
+    return `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal`;
   }
 
   // ── Review & send ──────────────────────────────────────────────
