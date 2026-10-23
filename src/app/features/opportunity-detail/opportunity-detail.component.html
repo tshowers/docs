@@ -89,8 +89,17 @@
                   <p class="dk-muted">I didn't find any pass/fail requirements, so nothing here would disqualify you.</p>
                 }
                 @case ('list') {
-                  <div class="dk-todd__head od__todd"><img src="assets/avatar-todd-sm.png" alt="" />Before I draft: must-haves<span class="od__found">{{ mustHaves()!.items.length }} found</span></div>
+                  <div class="dk-todd__head od__todd"><img src="assets/avatar-todd-sm.png" alt="" />Before I draft: must-haves
+                    @if (mustHaves()!.summary.notMet) { <span class="dk-tag dk-tinted od__found" data-tint="pink">{{ mustHaves()!.summary.notMet }} missing</span> }
+                    @else { <span class="od__found">{{ mustHaves()!.items.length }} found</span> }
+                  </div>
                   <p>{{ intro() }}</p>
+                  <!-- 1p: the counts at a glance on a phone. -->
+                  <div class="od__counts">
+                    @if (mustHaves()!.summary.met) { <span class="dk-tag dk-tinted" data-tint="green">{{ mustHaves()!.summary.met }} met</span> }
+                    @if (mustHaves()!.summary.notMet) { <span class="dk-tag dk-tinted" data-tint="pink">{{ mustHaves()!.summary.notMet }} missing</span> }
+                    @if (mustHaves()!.summary.unknown) { <span class="dk-tag dk-tinted" data-tint="yellow">{{ mustHaves()!.summary.unknown }} to confirm</span> }
+                  </div>
                   <ul class="od__musthaves">
                     @for (m of mustHaves()!.items; track m.id) {
                       <li>
@@ -199,9 +208,9 @@
               }
               @if (o.proposalDocumentId) {
                 <a class="dk-btn dk-btn--primary dk-btn--lg od__wide" [routerLink]="['/opportunities', o.id, 'proposal']"><dk-icon name="pen" />Open the proposal</a>
-                @if (o.status === 'drafting') { <a class="dk-btn dk-btn--bg od__wide" [routerLink]="['/opportunities', o.id, 'send']"><dk-icon name="send" />Review &amp; send</a> }
               }
               <div class="od__pair">
+                @if (o.proposalDocumentId && o.status === 'drafting') { <a class="dk-btn dk-btn--bg" [routerLink]="['/opportunities', o.id, 'send']"><dk-icon name="send" />Review &amp; send</a> }
                 <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
               </div>
             </div>

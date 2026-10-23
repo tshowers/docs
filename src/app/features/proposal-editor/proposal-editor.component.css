@@ -159,7 +159,11 @@ button.pe__link {
 @media (max-width: 760px) {
   .pe { padding: 4px 16px 32px; }
   .pe__paper { padding: 22px 18px; }
+  /* Phones keep the way on to Review & send; free editing stays on bigger screens. */
   .pe__bar .dk-btn { display: none; }
+  .pe__bar .dk-btn.dk-btn--primary { display: inline-flex; height: 40px; padding: 0 14px; font-size: 14px; }
+  .pe__heading { flex: 1 1 calc(100% - 60px); }
+  .pe__bar .dk-btn.dk-btn--primary { order: 4; }
   .pe__bar { flex-wrap: wrap; }
   .pe__views { order: 5; width: 100%; }
   .pe__views button { flex: 1; }

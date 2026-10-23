@@ -17,6 +17,11 @@
             @if (approvalActive() && approvalSub()) { <p class="rs__lede dk-muted">{{ approvalSub() }}</p> }
 
             @if (approval(); as a) {
+              @if (approvalActive() && !o.submissionRecord && phone()) {
+                <ng-container *ngTemplateOutlet="approversTpl; context: { $implicit: a, o: o, top: true }" />
+              }
+            }
+            @if (approval(); as a) {
               @if (approvalActive() || a.status === 'bypassed') {
                 @if (approvalOutdated()) {
                   <section class="rs__banner dk-tinted" data-tint="yellow">
@@ -107,41 +112,8 @@
 
           <aside class="rs__side">
             @if (approval(); as a) {
-              @if (approvalActive() && !o.submissionRecord) {
-                <section class="rs__card rs__people" aria-label="Approvers">
-                  <h2>Approvers</h2>
-                  <p class="dk-muted">Each person gets their own private link. Send it by text, your mail app or the share sheet. They don't need an account.</p>
-                  <ul class="rs__approvers">
-                    @for (p of a.approvers; track p.id) {
-                      <li class="rs__approver">
-                        <span class="rs__av dk-tinted" [attr.data-tint]="p.state === 'approved' ? 'green' : tint(p)">{{ initials(p.name, p.email) }}</span>
-                        <div class="rs__who">
-                          <strong>{{ p.name || p.email }}@if (p.role) { <span class="dk-muted"> · {{ p.role }}</span>}</strong>
-                          <small [class.is-good]="line(p).tone === 'good'" [class.is-bad]="line(p).tone === 'bad'">{{ line(p).text }}</small>
-                          @if (p.message && (p.state === 'approved' || p.state === 'changes')) { <q class="rs__quote">{{ p.message }}</q> }
-                        </div>
-                        @if (p.state !== 'approved') {
-                          <button type="button" class="dk-btn dk-btn--sm rs__copy" (click)="copyLink(p)"><dk-icon name="link" [size]="14" />Copy link</button>
-                          <details class="rs__nudge">
-                            <summary class="dk-btn dk-btn--sm dk-btn--icon" aria-label="More ways to send it"><dk-icon name="more" [size]="16" /></summary>
-                            <div class="rs__nudge-menu">
-                              <app-approver-share [approver]="p" [ownerName]="ownerName" [buyer]="o.agency" [dueAt]="a.dueAt" [note]="a.note" [compact]="true" (shared)="onShared({ approverId: p.id, via: $event })" />
-                            </div>
-                          </details>
-                        }
-                      </li>
-                    }
-                  </ul>
-                  <form class="rs__add" (ngSubmit)="addApprover()">
-                    <input [(ngModel)]="newApprover" name="newApprover" placeholder="Add an approver by name" aria-label="Add an approver: name, and a role or email if you like" />
-                    <button type="submit" class="dk-btn dk-btn--primary dk-btn--sm" [disabled]="!newApprover.trim() || busy() === 'approvers'" appWriteAction="add an approver">Add</button>
-                  </form>
-                  <div class="rs__pair">
-                    <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="copyAll()"><dk-icon name="copy" [size]="14" />Copy all links</button>
-                    <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="shareAll()"><dk-icon name="share" [size]="14" />Share…</button>
-                  </div>
-                  <label class="rs__suggest"><input type="checkbox" [checked]="a.allowSuggestions" (change)="toggleSuggestions()" [disabled]="busy() === 'approvers'" />Let approvers suggest edits to the text</label>
-                </section>
+              @if (approvalActive() && !o.submissionRecord && !phone()) {
+                <ng-container *ngTemplateOutlet="approversTpl; context: { $implicit: a, o: o }" />
               }
             }
             @if (!o.submissionRecord && (scoreCheck() || scoring())) {
@@ -283,3 +255,41 @@
     }
   }
 </div>
+
+<!-- The Approvers card (lifecycle 1m): in the rail, and on phones right under the headline. -->
+<ng-template #approversTpl let-a let-o="o" let-top="top">
+<section class="rs__card rs__people" [class.rs__people--top]="top" aria-label="Approvers">
+                  <h2>Approvers</h2>
+                  <p class="dk-muted">Each person gets their own private link. Send it by text, your mail app or the share sheet. They don't need an account.</p>
+                  <ul class="rs__approvers">
+                    @for (p of a.approvers; track p.id) {
+                      <li class="rs__approver">
+                        <span class="rs__av dk-tinted" [attr.data-tint]="p.state === 'approved' ? 'green' : tint(p)">{{ initials(p.name, p.email) }}</span>
+                        <div class="rs__who">
+                          <strong>{{ p.name || p.email }}@if (p.role) { <span class="dk-muted"> · {{ p.role }}</span>}</strong>
+                          <small [class.is-good]="line(p).tone === 'good'" [class.is-bad]="line(p).tone === 'bad'">{{ line(p).text }}</small>
+                          @if (p.message && (p.state === 'approved' || p.state === 'changes')) { <q class="rs__quote">{{ p.message }}</q> }
+                        </div>
+                        @if (p.state !== 'approved') {
+                          <button type="button" class="dk-btn dk-btn--sm rs__copy" (click)="copyLink(p)"><dk-icon name="link" [size]="14" />Copy link</button>
+                          <details class="rs__nudge">
+                            <summary class="dk-btn dk-btn--sm dk-btn--icon" aria-label="More ways to send it"><dk-icon name="more" [size]="16" /></summary>
+                            <div class="rs__nudge-menu">
+                              <app-approver-share [approver]="p" [ownerName]="ownerName" [buyer]="o.agency" [dueAt]="a.dueAt" [note]="a.note" [compact]="true" (shared)="onShared({ approverId: p.id, via: $event })" />
+                            </div>
+                          </details>
+                        }
+                      </li>
+                    }
+                  </ul>
+                  <form class="rs__add" (ngSubmit)="addApprover()">
+                    <input [(ngModel)]="newApprover" name="newApprover" placeholder="Add an approver by name" aria-label="Add an approver: name, and a role or email if you like" />
+                    <button type="submit" class="dk-btn dk-btn--primary dk-btn--sm" [disabled]="!newApprover.trim() || busy() === 'approvers'" appWriteAction="add an approver">Add</button>
+                  </form>
+                  <div class="rs__pair">
+                    <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="copyAll()"><dk-icon name="copy" [size]="14" />Copy all links</button>
+                    <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="shareAll()"><dk-icon name="share" [size]="14" />Share…</button>
+                  </div>
+                  <label class="rs__suggest"><input type="checkbox" [checked]="a.allowSuggestions" (change)="toggleSuggestions()" [disabled]="busy() === 'approvers'" />Let approvers suggest edits to the text</label>
+                </section>
+</ng-template>

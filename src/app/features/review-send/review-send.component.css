@@ -225,3 +225,5 @@
 .rs__pair .dk-btn { flex: 1; }
 .rs__suggest { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
 .rs__suggest input { width: 18px; height: 18px; accent-color: var(--blue); }
+/* On phones the card sits under the headline (phone() in the component). */
+.rs__people--top { margin-bottom: 20px; }

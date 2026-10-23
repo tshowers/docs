@@ -78,6 +78,8 @@
 .od__gate p.dk-muted { font-size: 14px; line-height: 1.5; }
 .od__todd { margin-bottom: 0 !important; color: var(--text) !important; font-size: 15px; font-weight: 700; }
 .od__found { margin-left: auto; color: var(--muted); font-size: 13px; }
+.od__found.dk-tag { color: var(--tint-fg); }
+.od__counts { display: none; flex-wrap: wrap; gap: 6px; }
 .od__gate-head { display: flex; align-items: center; gap: 10px; font-size: 15px; }
 
 .od__bar { height: 8px; overflow: hidden; border-radius: 999px; background: var(--bg); }
@@ -157,12 +159,19 @@
   /* Each block gets its order: Angular's scoping attributes would make a
      catch-all child rule outrank these. */
   .od__head { order: 1; }
-  .od__dates { order: 2; }
+  /* 1p: a new RFP opens on its must-haves; the dates follow. */
+  .od__gate { order: 2 !important; }
+  .od__dates { order: 3; }
+  .od__counts { display: flex; }
+  /* The stage line stays one line and scrolls. */
+  .od__steps { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px; scrollbar-width: none; white-space: nowrap; }
+  .od__steps::-webkit-scrollbar { display: none; }
+  .od__step, .od__link { flex: none; }
   .od__updates { order: 9; }
   .od__title { font-size: 30px; }
   .od__chips { order: 3; display: flex; flex-wrap: wrap; gap: 6px; }
   .od__chips span { padding: 8px 12px; border-radius: 999px; background: var(--surface); font-size: 13px; font-weight: 700; }
-  .od__gate { order: 4; padding: 20px; border-radius: 28px; background: var(--surface); }
+  .od__gate { padding: 20px; border-radius: 28px; background: var(--surface); }
   .od__fit { order: 5; }
   .od__summary { order: 6; font-size: 16px; }
   .od__submit { order: 7; }
@@ -179,6 +188,11 @@
     box-shadow: 0 -1px 0 var(--surface2);
   }
   .od__actions .od__pair .dk-btn, .od__actions .od__chip, .od__reason textarea { background: var(--surface); }
+  /* Pinned bar (1p/1s): the main action and one row beside it, nothing else. The stage line says the status. */
+  .od__actions { gap: 8px; padding: 10px 16px; }
+  .od__actions > .od__status { display: none; }
+  .od__actions .dk-btn--lg { height: 48px; }
+  .od__actions .od__pair .dk-btn { height: 42px; }
   /* The pinned bar stays short: the reason card says the same when it opens. */
   .od__actions > .od__note { display: none; }
 }

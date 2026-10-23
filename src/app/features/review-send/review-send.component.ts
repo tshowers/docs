@@ -209,6 +209,8 @@ export class ReviewSendComponent implements OnInit {
   } );
 
   ngOnInit (): void {
+    this.phoneQuery?.addEventListener( 'change', this.onPhoneChange );
+    this.destroyRef.onDestroy( () => this.phoneQuery?.removeEventListener( 'change', this.onPhoneChange ) );
     this.route.paramMap.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( ( params ) => {
       this.opportunityId.set( String( params.get( 'id' ) || '' ) );
       void this.load();
@@ -496,6 +498,10 @@ export class ReviewSendComponent implements OnInit {
 
   // ── Approvers card (lifecycle 1m) ──────────────────────────────
   newApprover = '';
+  /** Phones show the Approvers card under the headline instead of in the rail. */
+  readonly phone = signal( typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia( '(max-width: 760px)' ).matches );
+  private readonly phoneQuery = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia( '(max-width: 760px)' ) : null;
+  private readonly onPhoneChange = ( event: MediaQueryListEvent ) => this.phone.set( event.matches );
 
   line ( a: Approver ) {
     return approverLine( a, this.approval()?.version || 1 );
