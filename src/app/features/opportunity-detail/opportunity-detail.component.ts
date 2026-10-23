@@ -15,7 +15,9 @@ import { ProfileApiService } from '../../services/profile-api.service';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { WriteActionDirective } from '../../shared/write-access/write-action.directive';
 import { defaultSender } from '../review-send/review-send.helpers';
+import { AfterSubmittalComponent } from './after-submittal.component';
 import { BuyerUpdatesComponent } from './buyer-updates.component';
+import { ClarificationsComponent } from './clarifications.component';
 import { OpportunityDatesComponent } from './opportunity-dates.component';
 
 /** While another tab or device is reading the RFP, check back this often. */
@@ -47,7 +49,7 @@ export function gateIntro ( summary: { total: number; notMet: number; unknown: n
 @Component( {
   selector: 'app-opportunity-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective, OpportunityDatesComponent, BuyerUpdatesComponent],
+  imports: [CommonModule, FormsModule, RouterModule, DkIconComponent, WriteActionDirective, OpportunityDatesComponent, BuyerUpdatesComponent, AfterSubmittalComponent, ClarificationsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './opportunity-detail.component.html',
   styleUrl: './opportunity-detail.component.css',
@@ -66,6 +68,7 @@ export class OpportunityDetailComponent implements OnInit {
   /** Questions for the buyer go out from this inbox, signed by the owner. */
   readonly sender = signal<DocsInbox | null>( null );
   readonly signer = signal( '' );
+  readonly company = signal( '' );
   readonly notFound = signal( false );
   readonly busy = signal( '' );
   /** This page asked TODD to read the RFP and is waiting on it. */
@@ -151,6 +154,8 @@ export class OpportunityDetailComponent implements OnInit {
   readonly dueLabel = dueLabel;
   readonly submitBy = submitByLabel;
   readonly statusLabel = PROPOSAL_STATUS_LABEL;
+  /** Sent: what happens next replaces the dates and questions (lifecycle E). */
+  readonly sent = ( o: Opportunity ) => ['submitted', 'won', 'lost'].includes( o.status );
 
   ngOnInit (): void {
     this.destroyRef.onDestroy( () => this.stopPolling() );
@@ -158,6 +163,7 @@ export class OpportunityDetailComponent implements OnInit {
     this.profileApi.load().then( ( p ) => {
       const name = [p?.firstName, p?.lastName].filter( Boolean ).join( ' ' );
       this.signer.set( [name, p?.companyName].filter( Boolean ).join( ', ' ) );
+      this.company.set( p?.companyName || '' );
     } ).catch( () => null );
     this.route.paramMap.pipe( takeUntilDestroyed( this.destroyRef ) ).subscribe( ( params ) => {
       const id = String( params.get( 'id' ) || '' );

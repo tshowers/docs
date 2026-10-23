@@ -1,0 +1,16 @@
+:host { display: grid; gap: 14px; }
+:host h3, :host p { margin: 0; }
+.cl-card { display: grid; gap: 10px; padding: 20px 24px; border-radius: 28px; background: var(--surface); }
+.cl-card.is-open { background: var(--t-blue); }
+.cl-card header { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+.cl-dot { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--t-green); color: var(--t-green-fg); }
+.cl-dot.is-open { background: var(--bg); color: var(--blue-ink); }
+.cl-box { display: grid; gap: 4px; padding: 12px 14px; border-radius: 16px; background: var(--bg); font-size: 14px; line-height: 1.45; }
+.cl-box p { white-space: pre-line; }
+.cl-answer { display: grid; gap: 6px; }
+.cl-card textarea { width: 100%; box-sizing: border-box; padding: 12px 14px; border: 0; border-radius: 16px; background: var(--bg); color: var(--text); font: 15px/1.5 var(--font); resize: vertical; }
+.cl-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cl-fine { font-size: 13px; }
+.cl-log h3 { font-size: 16px; font-weight: 700; }
+.cl-log p { font-size: 14px; line-height: 1.5; }
+.cl-wide { width: 100%; }

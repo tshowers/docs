@@ -19,7 +19,9 @@
             }
           </ol>
         </div>
-        @if (o.status !== 'dismissed') {
+        @if (sent(o)) {
+          <app-after-submittal class="od__dates" [opportunity]="o" [sender]="sender()" [signer]="signer()" [company]="company()" (changed)="opportunity.set($event)" />
+        } @else if (o.status !== 'dismissed') {
           <app-opportunity-dates class="od__dates" [opportunity]="o" [updates]="updates()" [sender]="sender()" [signer]="signer()" (changed)="opportunity.set($event)" (updatesChanged)="updates.set($event)" />
         }
         <div class="od__chips">
@@ -190,7 +192,7 @@
             <div class="od__actions">
               <div class="od__status">
                 <span class="dk-tag dk-tinted" [attr.data-tint]="statusLabel[o.status].tint">{{ statusLabel[o.status].label }}</span>
-                <span class="dk-muted">{{ dueLabel(o) }}</span>
+                <span class="dk-muted">{{ o.submissionRecord?.submittedAt ? 'Sent ' + (o.submissionRecord!.submittedAt | date:'MMM d') : dueLabel(o) }}</span>
               </div>
               @if (o.decision?.type === 'draft_anyway') {
                 <p class="dk-muted od__note">You drafted anyway: “{{ o.decision!.reason }}”</p>
@@ -201,13 +203,12 @@
               }
               <div class="od__pair">
                 <button type="button" class="dk-btn dk-btn--bg" (click)="readRfp()" [disabled]="!o.rfpDocumentId && !o.portalUrl">Read the RFP</button>
-                @if (o.status === 'submitted') {
-                  <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('won')" [disabled]="!!busy()" appWriteAction="mark this won">We won</button>
-                  <button type="button" class="dk-btn dk-btn--bg" (click)="setStatus('lost')" [disabled]="!!busy()" appWriteAction="mark this lost">We lost</button>
-                }
               </div>
             </div>
           </section>
+        }
+        @if (sent(o)) {
+          <app-clarifications class="od__updates" [opportunity]="o" [sender]="sender()" [signer]="signer()" (changed)="opportunity.set($event)" />
         }
         <app-buyer-updates class="od__updates" [opportunity]="o" [updates]="updates()" />
       </aside>

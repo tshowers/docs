@@ -10,10 +10,11 @@ export {};
 
 const OPP = 'opp-king-county';
 const ok = <T>( data: T ) => ( { success: true, data } );
+/** A local calendar day, YYYY-MM-DD: the app counts days in local time. */
 const day = ( offset: number ) => {
   const d = new Date();
   d.setDate( d.getDate() + offset );
-  return d.toISOString().slice( 0, 10 );
+  return `${ d.getFullYear() }-${ String( d.getMonth() + 1 ).padStart( 2, '0' ) }-${ String( d.getDate() ).padStart( 2, '0' ) }`;
 };
 
 const base = {

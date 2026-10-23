@@ -1,0 +1,109 @@
+<ol class="as-tiles" aria-label="After sending">
+  @for (t of tiles(); track t.key) {
+    <li [attr.data-state]="t.state" [attr.aria-current]="t.state === 'current' ? 'step' : null">
+      <strong>@if (t.state === 'done') { <dk-icon name="check" [size]="14" /> }{{ t.label }}</strong>
+      <small>{{ t.detail || '—' }}</small>
+    </li>
+  }
+</ol>
+
+@if (post().outcome) { <ng-container *ngTemplateOutlet="awardTpl" /> }
+
+@if (post().orals && !editingOrals()) {
+  <section class="as-card">
+    <header class="as-head">
+      <h2>Oral presentation · {{ longDate(post().orals!.date) }}</h2>
+      <button type="button" class="dk-btn dk-btn--sm as-plain" (click)="oralsToCalendar()"><dk-icon name="calendar" [size]="15" />Add to calendar</button>
+    </header>
+    <p class="as-meta"><dk-icon name="user" [size]="15" />{{ oralsMeta() || 'Add who is presenting and where' }}
+      <button type="button" class="as-link" (click)="editOrals()">Change</button></p>
+    @if (post().orals!.prep; as sheet) {
+      <div class="as-prep">
+        <div><h3>Likely questions</h3><ol>@for (q of sheet.questions; track $index) { <li>{{ q }}</li> }</ol><small>From the weak spots in your score-check</small></div>
+        <div><h3>Your 3 win themes</h3><ol>@for (q of sheet.themes; track $index) { <li>{{ q }}</li> }</ol><small>From your proposal</small></div>
+        <div><h3>Numbers to know</h3><ol>@for (q of sheet.numbers; track $index) { <li>{{ q }}</li> }</ol><small>From your proposal and Knowledge</small></div>
+      </div>
+      <div class="as-actions">
+        <button type="button" class="dk-btn dk-btn--primary" (click)="downloadPrep()"><dk-icon name="download" />Download prep sheet</button>
+        <button type="button" class="dk-btn dk-btn--bg" (click)="prep()" [disabled]="!!busy()" appWriteAction="make the prep sheet">{{ busy() === 'prep' ? 'Making it…' : 'Make it again' }}</button>
+      </div>
+    } @else if (oralsAhead()) {
+      <div class="dk-todd__head as-todd"><img src="assets/avatar-todd-sm.png" alt="" />I'll make your prep sheet</div>
+      <p class="dk-muted">The questions they're likely to ask, your three win themes and the numbers to know, from the proposal and the score-check.</p>
+      <div class="as-actions"><button type="button" class="dk-btn dk-btn--primary" (click)="prep()" [disabled]="!!busy()" appWriteAction="make the prep sheet">{{ busy() === 'prep' ? 'Making it…' : 'Make the prep sheet' }}</button></div>
+    }
+  </section>
+} @else if (editingOrals()) {
+  <section class="as-card">
+    <h2>Oral presentation</h2>
+    <form class="as-form" (ngSubmit)="saveOrals()">
+      <label><span>Date</span><input type="date" [(ngModel)]="oralsDate" name="date" required /></label>
+      <label><span>Time</span><input type="time" [(ngModel)]="oralsTime" name="time" /></label>
+      <label><span>Length (minutes)</span><input type="number" min="0" [(ngModel)]="oralsMinutes" name="minutes" /></label>
+      <label class="as-wide"><span>Who's presenting</span><input [(ngModel)]="oralsPeople" name="people" placeholder="Names, separated by commas" /></label>
+      <label class="as-wide"><span>Where</span><input [(ngModel)]="oralsPlace" name="place" placeholder="e.g. Everett City Hall, Room 3, or the video link" /></label>
+      <div class="as-actions as-wide">
+        <button type="submit" class="dk-btn dk-btn--primary" [disabled]="!oralsDate || busy() === 'orals'">{{ busy() === 'orals' ? 'Saving…' : 'Save' }}</button>
+        <button type="button" class="dk-btn dk-btn--bg" (click)="editingOrals.set(false)">Cancel</button>
+      </div>
+    </form>
+  </section>
+} @else if (!post().outcome) {
+  <button type="button" class="as-invite" (click)="editOrals()" appWriteAction="add the presentation"><dk-icon name="calendar" [size]="18" /><span><strong>Invited to an oral presentation?</strong> Add the date and I'll make your prep sheet.</span></button>
+}
+
+@if (!post().outcome) { <ng-container *ngTemplateOutlet="awardTpl" /> }
+
+@if (history().length) {
+  <ol class="as-history" aria-label="History">
+    @for (h of history(); track h.key) {
+      <li><span class="as-dot"><dk-icon name="check" [size]="13" /></span><div><strong>{{ h.title }}</strong> <span class="dk-muted">· {{ h.when }}</span>@if (h.detail) { <p class="dk-muted">{{ h.detail }}</p> }</div></li>
+    }
+  </ol>
+}
+
+<ng-template #awardTpl>
+  <section class="as-card as-award">
+    <span class="dk-kicker">Award{{ tiles()[3].detail && !post().outcome ? ' · ' + tiles()[3].detail.toLowerCase() : '' }}</span>
+    <h2>How did it go?</h2>
+    <div class="as-chips">
+      <button type="button" class="as-chip" [class.is-on]="post().outcome?.result === 'won'" (click)="outcome('won')" [disabled]="!!busy()" appWriteAction="record the award">@if (post().outcome?.result === 'won') {<dk-icon name="check" [size]="14" />}We won</button>
+      <button type="button" class="as-chip" [class.is-on]="post().outcome?.result === 'lost'" (click)="outcome('lost', post().outcome?.reason || '')" [disabled]="!!busy()" appWriteAction="record the award">@if (post().outcome?.result === 'lost') {<dk-icon name="check" [size]="14" />}We lost</button>
+      <button type="button" class="as-chip" [class.is-on]="post().outcome?.result === 'cancelled'" (click)="outcome('cancelled')" [disabled]="!!busy()" appWriteAction="record the award">@if (post().outcome?.result === 'cancelled') {<dk-icon name="check" [size]="14" />}Cancelled</button>
+    </div>
+    @if (post().outcome?.result === 'lost') {
+      <h3>Why do you think?</h3>
+      <div class="as-chips">
+        @for (r of lossReasons; track r) { <button type="button" class="as-chip" [class.is-on]="post().outcome?.reason === r" (click)="outcome('lost', r)" [disabled]="!!busy()" appWriteAction="record the award">{{ r }}</button> }
+      </div>
+      <p class="dk-muted as-why">Win and loss reasons go into how I score new RFPs for you.</p>
+      @if (askDebrief()) {
+        <div class="as-debrief">
+          <div class="dk-todd__head as-todd"><img src="assets/avatar-todd-sm.png" alt="" />Ask for a debrief <span class="dk-muted">Buyers usually say yes. It's the best way to learn why.</span></div>
+          <div class="as-mail">
+            <label><span>From</span>@if (sender) { <strong>{{ sender.emailAddress }}</strong> } @else { <a routerLink="/opportunities/inbox">Connect your email to send from it</a> }</label>
+            <label><span>To</span><input type="email" [(ngModel)]="debriefTo" placeholder="The procurement contact" /></label>
+            <label><span>Subject</span><input [(ngModel)]="debriefSubject" /></label>
+          </div>
+          <textarea rows="3" [(ngModel)]="debriefBody" aria-label="The request"></textarea>
+          <div class="as-actions">
+            <button type="button" class="dk-btn dk-btn--primary" (click)="sendDebrief()" [disabled]="!sender || !debriefTo.trim() || busy() === 'debrief'" appWriteAction="send the debrief request"><dk-icon name="send" />{{ busy() === 'debrief' ? 'Sending…' : 'Send from my email' }}</button>
+            <label class="as-check"><input type="checkbox" [(ngModel)]="remind" />Remind me if there's no reply in 5 business days</label>
+          </div>
+        </div>
+      } @else if (post().debrief) {
+        @let d = post().debrief!;
+        <p class="as-sent"><dk-icon name="check" [size]="15" />Debrief request sent to {{ d.to }}.@if (d.repliedAt) { They replied. } @else if (d.remindAt) { I'll remind you {{ longDate(d.remindAt.slice(0, 10)) }} if there's no reply. }
+          @if (!d.repliedAt) { <button type="button" class="as-link" (click)="replied()">They replied</button> }</p>
+      }
+    }
+    @if (post().outcome?.result === 'won' && unsaved().length) {
+      <div class="as-save">
+        <h3>Save the winning sections to Knowledge?</h3>
+        <p class="dk-muted">They become reusable answers for the next RFP that asks.</p>
+        <ul>@for (s of unsaved(); track s.key) { <li><label><input type="checkbox" [checked]="picked().includes(s.key)" (change)="togglePick(s.key)" />{{ s.title }}</label></li> }</ul>
+        <button type="button" class="dk-btn dk-btn--bg" (click)="saveSections()" [disabled]="!picked().length || busy() === 'save'" appWriteAction="save to Knowledge"><dk-icon name="book" />{{ busy() === 'save' ? 'Saving…' : 'Save ' + picked().length + ' ' + (picked().length === 1 ? 'section' : 'sections') }}</button>
+      </div>
+    }
+  </section>
+</ng-template>

@@ -11,7 +11,7 @@ export type OpportunityStatus = 'new' | 'drafting' | 'submitted' | 'won' | 'lost
  * must-haves, then qualifying; drafting is in review while approval is open;
  * dismissed is no bid.
  */
-export type OpportunityStage = 'found' | 'qualifying' | 'drafting' | 'in_review' | 'submitted' | 'won' | 'lost' | 'no_bid';
+export type OpportunityStage = 'found' | 'qualifying' | 'drafting' | 'in_review' | 'submitted' | 'won' | 'lost' | 'cancelled' | 'no_bid';
 
 /** One pass/fail requirement from the RFP (lifecycle A, the Bid / No-Bid gate). */
 export interface MustHave {
@@ -100,6 +100,29 @@ export interface BuyerUpdate {
   read: boolean;
 }
 
+export interface Clarification {
+  id: string;
+  question: string;
+  askedAt: string;
+  /** Pasted by the owner, or caught in the watched inbox. */
+  source: 'you' | 'inbox';
+  answer: string;
+  draftedAt: string;
+  sentAt: string;
+  sentTo: string;
+  sentFrom: string;
+}
+
+export interface PostSubmittal {
+  clarifications: Clarification[];
+  orals: { date: string; attendees: string[]; place: string; minutes: number; prep: { questions: string[]; themes: string[]; numbers: string[]; at: string } | null } | null;
+  outcome: { result: 'won' | 'lost' | 'cancelled'; reason: string; at: string } | null;
+  debrief: { to: string; subject: string; sentAt: string; sentFrom: string; remindAt: string; repliedAt: string } | null;
+  savedSections: string[];
+}
+
+export const LOSS_REASONS = ['Price', 'Experience', 'Technical', 'Incumbent', 'Unknown'] as const;
+
 /** "Not for us": one tap, and Other with a note. */
 export const NO_BID_REASONS = ['Missing must-have', 'Too big', 'Bad timing', 'Not our work', 'Other'] as const;
 export type NoBidReason = typeof NO_BID_REASONS[number];
@@ -131,6 +154,8 @@ export interface Opportunity {
   buyerQuestions?: BuyerQuestions;
   unreadUpdates?: number;
   dueDateBefore?: string;
+  /** Lifecycle E: clarifications, orals, the award and the debrief (models/after-submittal). */
+  post?: PostSubmittal;
   rfpDocumentId: string;
   proposalDocumentId: string;
   /** What was sent (Review & send), or null. */
@@ -239,6 +264,7 @@ export const STAGE_LABEL: Record<OpportunityStage, { label: string; tint: string
   submitted: { label: 'Submitted', tint: 'green' },
   won: { label: 'Won', tint: 'green' },
   lost: { label: 'Lost', tint: 'pink' },
+  cancelled: { label: 'Cancelled', tint: 'grey' },
   no_bid: { label: 'No-bid', tint: 'grey' },
 };
 
@@ -249,7 +275,7 @@ export const STAGE_STEPS: { key: string; label: string; stages: OpportunityStage
   { key: 'drafting', label: 'Drafting', stages: ['drafting'] },
   { key: 'in_review', label: 'In review', stages: ['in_review'] },
   { key: 'submitted', label: 'Submitted', stages: ['submitted'] },
-  { key: 'outcome', label: 'Won / Lost / No-bid', stages: ['won', 'lost', 'no_bid'] },
+  { key: 'outcome', label: 'Won / Lost / No-bid', stages: ['won', 'lost', 'cancelled', 'no_bid'] },
 ];
 
 /** The cards' must-haves line (1h), or null when there's nothing to say. */

@@ -1,0 +1,41 @@
+@for (c of items(); track c.id) {
+  <section class="cl-card" [class.is-open]="!c.sentAt">
+    <header>
+      <span class="cl-dot" [class.is-open]="!c.sentAt"><dk-icon [name]="c.sentAt ? 'check' : 'help'" [size]="13" /></span>
+      <strong>Clarification · {{ c.sentAt ? 'answered ' + shortDate(c.sentAt) : 'asked ' + shortDate(c.askedAt) }}</strong>
+    </header>
+    <div class="cl-box"><span class="dk-kicker">{{ asker() }} asked{{ c.source === 'inbox' ? ' · from your inbox' : '' }}</span><p>{{ c.question }}</p></div>
+    @if (c.sentAt) {
+      <div class="cl-box"><span class="dk-kicker">You sent{{ c.draftedAt ? ' · drafted by TODD' : '' }}</span><p>{{ c.answer }}</p></div>
+      <p class="dk-muted cl-fine">Sent from {{ c.sentFrom || 'your inbox' }}</p>
+    } @else {
+      <label class="cl-answer">
+        <span class="dk-kicker">{{ c.answer ? 'TODD\'s draft · edit before sending' : 'Your answer' }}</span>
+        <textarea rows="4" [ngModel]="answerOf(c)" (ngModelChange)="answers[c.id] = $event" [placeholder]="busy() === c.id ? 'Drafting…' : 'Write the answer, or ask TODD to draft it'"></textarea>
+      </label>
+      <div class="cl-actions">
+        @if (sender) {
+          <button type="button" class="dk-btn dk-btn--primary dk-btn--sm" (click)="send(c)" [disabled]="!answerOf(c).trim() || !!busy() || !to()" appWriteAction="send this answer"><dk-icon name="send" [size]="14" />{{ busy() === c.id ? 'Working…' : 'Send from ' + sender.emailAddress }}</button>
+        } @else {
+          <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/opportunities/inbox">Connect your email to send it</a>
+        }
+        <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="redraft(c)" [disabled]="!!busy()" appWriteAction="draft this answer">{{ c.answer ? 'Draft again' : 'Draft it' }}</button>
+      </div>
+      @if (!to()) { <p class="dk-muted cl-fine">I don't have the buyer's address. Answer them from your email directly.</p> }
+    }
+  </section>
+}
+
+<section class="cl-card cl-log">
+  <h3>{{ items().length ? 'Another question from the buyer?' : 'A question from the buyer?' }}</h3>
+  <p class="dk-muted">Paste it, or forward it to your watched inbox. I'll draft the answer from the proposal and Knowledge.</p>
+  @if (logging()) {
+    <textarea rows="4" [(ngModel)]="newQuestion" aria-label="Their question" placeholder="Paste their question"></textarea>
+    <div class="cl-actions">
+      <button type="button" class="dk-btn dk-btn--primary dk-btn--sm" (click)="log()" [disabled]="!newQuestion.trim() || !!busy()">{{ busy() === 'log' ? 'Drafting the answer…' : 'Log it' }}</button>
+      <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="logging.set(false)">Cancel</button>
+    </div>
+  } @else {
+    <button type="button" class="dk-btn dk-btn--bg cl-wide" (click)="logging.set(true)" appWriteAction="log a question">Log a question</button>
+  }
+</section>

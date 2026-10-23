@@ -115,6 +115,51 @@ export class OpportunitiesService {
     );
   }
 
+  // ── After submittal ────────────────────────────────────────────
+  logClarification ( id: string, question: string ): Observable<Opportunity> {
+    return this.post( `${ this.opportunityBase( id ) }/clarifications`, { question } );
+  }
+
+  redraftClarification ( id: string, clarificationId: string ): Observable<Opportunity> {
+    return this.post( `${ this.opportunityBase( id ) }/clarifications/${ encodeURIComponent( clarificationId ) }/draft`, {} );
+  }
+
+  /** Sends the answer to the buyer from the person's own inbox. */
+  sendClarification ( id: string, clarificationId: string, body: { mailboxId: string; to?: string; answer: string; signer?: string } ): Observable<Opportunity> {
+    return this.post( `${ this.opportunityBase( id ) }/clarifications/${ encodeURIComponent( clarificationId ) }/send`, body );
+  }
+
+  scheduleOrals ( id: string, body: { date: string; attendees: string[]; place: string; minutes: number } ): Observable<Opportunity> {
+    return this.post( `${ this.opportunityBase( id ) }/orals`, body );
+  }
+
+  prepOrals ( id: string ): Observable<Opportunity> {
+    return this.post( `${ this.opportunityBase( id ) }/orals/prep`, {} );
+  }
+
+  recordOutcome ( id: string, body: { result: 'won' | 'lost' | 'cancelled'; reason?: string } ): Observable<Opportunity> {
+    return this.post( `${ this.opportunityBase( id ) }/outcome`, body );
+  }
+
+  sendDebrief ( id: string, body: { mailboxId: string; to: string; subject: string; body: string; remind: boolean; signer?: string } ): Observable<Opportunity> {
+    return this.post( `${ this.opportunityBase( id ) }/debrief/send`, body );
+  }
+
+  debriefReplied ( id: string ): Observable<Opportunity> {
+    return this.post( `${ this.opportunityBase( id ) }/debrief/replied`, {} );
+  }
+
+  saveWinningSections ( id: string, sectionKeys: string[] ): Observable<{ opportunity: Opportunity; saved: number; reason: string }> {
+    return this.http.post<Envelope<{ opportunity: Opportunity; saved: number; reason: string }>>( `${ this.opportunityBase( id ) }/outcome/knowledge`, { sectionKeys } ).pipe(
+      map( ( r ) => r.data ),
+      tap( ( result ) => this.replace( result.opportunity ) ),
+    );
+  }
+
+  private post ( url: string, body: object ): Observable<Opportunity> {
+    return this.http.post<Envelope<Opportunity>>( url, body ).pipe( map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
+  }
+
   private opportunityBase ( id: string ): string {
     return `${ this.base }/opportunities/${ encodeURIComponent( id ) }`;
   }

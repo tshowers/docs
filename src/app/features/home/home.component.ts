@@ -11,6 +11,7 @@ import { DocumentsStoreService } from '../../services/documents-store.service';
 import { KnowledgeStoreService } from '../../services/knowledge-store.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { AlsoFromUsComponent } from '../../shared/also-from-us/also-from-us.component';
+import { postNeeds } from '../../models/after-submittal';
 import { nextDeadline } from '../../models/key-dates';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
 import { SiteFooterComponent } from '../../shared/site-footer/site-footer.component';
@@ -58,6 +59,10 @@ export function needsYou ( input: {
     const next = o.status === 'new' || o.status === 'drafting' ? nextDeadline( o, now ) : null;
     if ( next && next.item.kind === 'questions_due' && next.days <= 3 && !o.buyerQuestions?.sent ) {
       items.push( { key: `qd-${ o.id }`, icon: 'clock', tint: 'yellow', text: `Questions for ${ o.agency || o.title } are due ${ next.days <= 0 ? 'today' : next.days === 1 ? 'tomorrow' : `in ${ next.days } days` }`, action: 'Ask', route: ['/opportunities', o.id], urgency: next.days } );
+    }
+    // After sending: questions to answer, orals coming up, a debrief with no reply (lifecycle E).
+    for ( const need of postNeeds( o, now ) ) {
+      items.push( { key: need.key, icon: need.action === 'Prep' ? 'clock' : 'message', tint: need.action === 'Answer' ? 'blue' : 'yellow', text: need.text, action: need.action, route: ['/opportunities', o.id], urgency: need.urgency } );
     }
     if ( o.status !== 'drafting' ) continue;
     const due = dueDate( o );
