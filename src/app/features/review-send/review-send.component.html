@@ -27,27 +27,6 @@
                     <button type="button" class="dk-btn dk-btn--primary" (click)="askAgain()" [disabled]="!!busy()" appWriteAction="ask for approval again"><dk-icon name="send" [size]="16" />{{ busy() === 'approval' ? 'Asking…' : 'Ask for approval again' }}</button>
                   </section>
                 }
-                <ul class="rs__approvers" aria-label="Approvers">
-                  @for (p of a.approvers; track p.id) {
-                    <li class="rs__approver">
-                      <span class="rs__av dk-tinted" [attr.data-tint]="tint(p)">{{ initials(p.name, p.email) }}</span>
-                      <div class="rs__who">
-                        <strong>{{ p.name || p.email }}</strong>
-                        <small class="dk-muted">{{ approverSub(p) }}</small>
-                        @if (p.message && (p.state === 'approved' || p.state === 'changes')) { <q class="rs__quote">{{ p.message }}</q> }
-                      </div>
-                      <span class="dk-tag dk-tinted" [attr.data-tint]="APPROVER_STATE[p.state].tint">{{ APPROVER_STATE[p.state].label }}</span>
-                      @if (approvalActive() && p.state !== 'approved') {
-                        <details class="rs__nudge">
-                          <summary class="dk-btn dk-btn--sm">{{ p.sharedAt ? 'Nudge' : 'Send link' }}</summary>
-                          <div class="rs__nudge-menu">
-                            <app-approver-share [approver]="p" [ownerName]="ownerName" [buyer]="o.agency" [dueAt]="a.dueAt" [note]="a.note" [compact]="true" (shared)="onShared({ approverId: p.id, via: $event })" />
-                          </div>
-                        </details>
-                      }
-                    </li>
-                  }
-                </ul>
               }
             }
 
@@ -127,6 +106,44 @@
           </main>
 
           <aside class="rs__side">
+            @if (approval(); as a) {
+              @if (approvalActive() && !o.submissionRecord) {
+                <section class="rs__card rs__people" aria-label="Approvers">
+                  <h2>Approvers</h2>
+                  <p class="dk-muted">Each person gets their own private link. Send it by text, your mail app or the share sheet. They don't need an account.</p>
+                  <ul class="rs__approvers">
+                    @for (p of a.approvers; track p.id) {
+                      <li class="rs__approver">
+                        <span class="rs__av dk-tinted" [attr.data-tint]="p.state === 'approved' ? 'green' : tint(p)">{{ initials(p.name, p.email) }}</span>
+                        <div class="rs__who">
+                          <strong>{{ p.name || p.email }}@if (p.role) { <span class="dk-muted"> · {{ p.role }}</span>}</strong>
+                          <small [class.is-good]="line(p).tone === 'good'" [class.is-bad]="line(p).tone === 'bad'">{{ line(p).text }}</small>
+                          @if (p.message && (p.state === 'approved' || p.state === 'changes')) { <q class="rs__quote">{{ p.message }}</q> }
+                        </div>
+                        @if (p.state !== 'approved') {
+                          <button type="button" class="dk-btn dk-btn--sm rs__copy" (click)="copyLink(p)"><dk-icon name="link" [size]="14" />Copy link</button>
+                          <details class="rs__nudge">
+                            <summary class="dk-btn dk-btn--sm dk-btn--icon" aria-label="More ways to send it"><dk-icon name="more" [size]="16" /></summary>
+                            <div class="rs__nudge-menu">
+                              <app-approver-share [approver]="p" [ownerName]="ownerName" [buyer]="o.agency" [dueAt]="a.dueAt" [note]="a.note" [compact]="true" (shared)="onShared({ approverId: p.id, via: $event })" />
+                            </div>
+                          </details>
+                        }
+                      </li>
+                    }
+                  </ul>
+                  <form class="rs__add" (ngSubmit)="addApprover()">
+                    <input [(ngModel)]="newApprover" name="newApprover" placeholder="Add an approver by name" aria-label="Add an approver: name, and a role or email if you like" />
+                    <button type="submit" class="dk-btn dk-btn--primary dk-btn--sm" [disabled]="!newApprover.trim() || busy() === 'approvers'" appWriteAction="add an approver">Add</button>
+                  </form>
+                  <div class="rs__pair">
+                    <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="copyAll()"><dk-icon name="copy" [size]="14" />Copy all links</button>
+                    <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="shareAll()"><dk-icon name="share" [size]="14" />Share…</button>
+                  </div>
+                  <label class="rs__suggest"><input type="checkbox" [checked]="a.allowSuggestions" (change)="toggleSuggestions()" [disabled]="busy() === 'approvers'" />Let approvers suggest edits to the text</label>
+                </section>
+              }
+            }
             @if (!o.submissionRecord && (scoreCheck() || scoring())) {
               <app-score-check [check]="scoreCheck()" [running]="scoring()" (run)="runScore()" (fix)="openFix($event)" />
             }

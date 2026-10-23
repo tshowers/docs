@@ -58,6 +58,10 @@
 .ap__side { position: sticky; top: 16px; display: grid; gap: 14px; }
 .ap__card { display: grid; gap: 10px; padding: 20px; border-radius: 28px; background: var(--surface); font-size: 14px; line-height: 1.55; }
 .ap__card h2 { font-size: 16px; font-weight: 700; }
+/* 1n: what they're being asked, in one line, and the PDF of this version. */
+.ap__ask { font-size: 22px !important; line-height: 1.2; letter-spacing: -0.02em; }
+.ap__exact { font-size: 14px; }
+.ap__pdf { width: 100%; }
 /* TODD's score-check, read-only for approvers (lifecycle 1n). */
 .ap__score h2 { display: flex; align-items: center; gap: 8px; }
 .ap__score h2 img { width: 24px; height: 24px; border-radius: 50%; }

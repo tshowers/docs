@@ -204,3 +204,24 @@
   .rs__nudge-menu { left: 0; right: auto; }
   .rs__bypass { margin: 4px auto 0; }
 }
+
+/* Approvers card (lifecycle 1m): a private link per person, copied or shared by the owner. */
+.rs__people { gap: 12px; }
+.rs__people > p { font-size: 13px; line-height: 1.5; }
+.rs__people .rs__approvers { display: grid; gap: 8px; margin: 0; padding: 0; border-radius: 0; background: none; list-style: none; }
+.rs__people .rs__approver { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: var(--bg); }
+.rs__people .rs__who { display: grid; flex: 1; min-width: 0; gap: 1px; }
+.rs__people .rs__who strong { font-size: 14px; white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+.rs__people .rs__who small { font-size: 12px; font-weight: 700; color: var(--muted); white-space: normal; }
+.rs__people .rs__approver { flex-wrap: wrap; }
+.rs__people .rs__who { flex-basis: 140px; }
+.rs__people .rs__who small.is-good { color: var(--t-green-fg); }
+.rs__people .rs__who small.is-bad { color: var(--t-pink-fg); }
+.rs__copy { flex: none; background: var(--surface) !important; }
+.rs__add { display: flex; gap: 8px; padding: 6px 6px 6px 16px; border-radius: 999px; background: var(--bg); }
+.rs__add input { flex: 1; min-width: 0; border: 0; background: none; color: var(--text); font: 500 14px var(--font); }
+.rs__add input:focus { outline: none; }
+.rs__pair { display: flex; gap: 8px; }
+.rs__pair .dk-btn { flex: 1; }
+.rs__suggest { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; }
+.rs__suggest input { width: 18px; height: 18px; accent-color: var(--blue); }

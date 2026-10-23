@@ -30,6 +30,8 @@ export interface Approver {
   id: string;
   name: string;
   email: string;
+  /** How the owner knows them: "Partner", "Accountant". */
+  role?: string;
   token: string;
   state: ApproverState;
   approvedVersion: number;
@@ -65,7 +67,7 @@ export interface ApprovalRequest {
 }
 
 export interface ApprovalPayload {
-  approvers: { id?: string; name: string; email: string }[];
+  approvers: { id?: string; name: string; email: string; role?: string }[];
   rule: ApprovalRule;
   dueAt: string;
   note: string;
@@ -288,4 +290,34 @@ export function shareMessage ( ctx: { ownerName: string; buyer: string; dueAt: s
     ].join( '\n' ),
     sms: `Can you approve our proposal to ${ buyer } before I send it${ by }? ${ link }`,
   };
+}
+
+/** "1:50 PM" today, "Oct 21" before. */
+function clock ( iso: string, now = new Date() ): string {
+  const at = new Date( iso );
+  if ( !iso || isNaN( at.getTime() ) ) return '';
+  return at.toDateString() === now.toDateString() ? at.toLocaleTimeString( 'en-US', { hour: 'numeric', minute: '2-digit' } ) : at.toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } );
+}
+
+/** Each approver's line in the Approvers card (lifecycle 1m): "Approved v3 · 2:14 PM", "Opened 1:50 PM · not decided", "Link copied · not opened". */
+export function approverLine ( a: Approver, version: number, now = new Date() ): { text: string; tone: 'good' | 'bad' | 'plain' } {
+  switch ( a.state ) {
+    case 'approved': return { text: `Approved v${ a.approvedVersion || version } · ${ clock( a.decidedAt, now ) }`, tone: 'good' };
+    case 'recheck': return { text: `Approved v${ a.approvedVersion } · this is v${ version }`, tone: 'plain' };
+    case 'changes': return { text: `Asked for changes · ${ clock( a.decidedAt, now ) }`, tone: 'bad' };
+    case 'reviewing': return { text: `Opened ${ clock( a.openedAt, now ) } · not decided`, tone: 'plain' };
+    default: return { text: a.sharedAt ? 'Link copied · not opened' : 'Link not sent yet', tone: 'plain' };
+  }
+}
+
+/** "Dana Lee, Partner" or "Dana Lee · Partner" → the name and the role (lifecycle 1m). */
+export function splitRole ( name: string ): { name: string; role: string } {
+  const [first, ...rest] = name.split( /\s*(?:,|·)\s*/ );
+  return { name: ( first || '' ).trim(), role: rest.join( ', ' ).trim().slice( 0, 60 ) };
+}
+
+/** Copy all links: one line per approver who hasn't approved. */
+export function allLinksText ( approvers: Approver[], ownerName: string, buyer: string ): string {
+  const lines = approvers.filter( ( a ) => a.state !== 'approved' ).map( ( a ) => `${ a.name || a.email }: ${ approvalLink( a.token ) }` );
+  return [`${ ownerName || 'I' } would like your OK on our proposal${ buyer ? ` to ${ buyer }` : '' }. Each link is for one person:`, '', ...lines].join( '\n' );
 }

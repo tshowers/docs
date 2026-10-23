@@ -6,7 +6,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { getBlob, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { firstValueFrom } from 'rxjs';
 
-import { APPROVER_STATE, ApprovalComment, ApprovalPayload, ApprovalRequest, Approver, ago, describeEvent, displayName, firstName, initials, longWhen, personTint } from '../../models/approval';
+import { APPROVER_STATE, ApprovalComment, ApprovalPayload, ApprovalRequest, Approver, ago, allLinksText, approvalLink, approverLine, describeEvent, displayName, firstName, initials, longWhen, parseApprover, personTint, splitRole } from '../../models/approval';
 import { Document } from '../../models/document.model';
 import { documentExtension, documentKindInfo } from '../../models/document-kind';
 import { DocsInbox, Opportunity, ProposalDraft, dueDate, dueLong } from '../../models/opportunity';
@@ -80,7 +80,7 @@ export class ReviewSendComponent implements OnInit {
   readonly attachments = signal<AttachmentChip[]>( [] );
   readonly phase = signal<'loading' | 'ready' | 'error'>( 'loading' );
   readonly errorMessage = signal( '' );
-  readonly busy = signal<'' | 'send' | 'package' | 'portal' | 'approval'>( '' );
+  readonly busy = signal<'' | 'send' | 'package' | 'portal' | 'approval' | 'approvers'>( '' );
   readonly pdfPages = signal( 0 );
   readonly to = signal( '' );
   mailboxId = '';
@@ -177,11 +177,22 @@ export class ReviewSendComponent implements OnInit {
     if ( !a || !o ) return '';
     const rfp = dueLong( o ) ? ` The RFP is due ${ dueLong( o ) }.` : '';
     if ( this.approvalMet() ) return `Approved version ${ a.version }.${ rfp }`;
+    // 1m: what they're approving, then the rule that edits start it over.
+    const checks = this.checklist();
+    const open = checks.filter( ( c ) => !c.ok ).length;
+    const sc = this.scoreCheck();
+    const facts = [
+      `Version ${ a.version }`,
+      this.pdfPages() ? `${ this.pdfPages() } ${ this.pdfPages() === 1 ? 'page' : 'pages' }` : '',
+      checks.length ? ( open ? `${ open } checklist ${ open === 1 ? 'item' : 'items' } to finish` : 'checklist complete' ) : '',
+      sc?.status === 'done' ? `score-check about ${ sc.total } of ${ sc.max }` : '',
+    ].filter( Boolean ).join( ' · ' );
+    const editRule = `${ facts }. If you edit the proposal, approvals start over.`;
     const pending = a.approvers.filter( ( x ) => x.state !== 'approved' );
     const who = pending.length === 1 ? `${ firstName( pending[0] ) }'s approval` : 'Approval';
     const by = a.dueAt ? `${ who } is due ${ longWhen( a.dueAt ) }.` : '';
     const late = a.dueAt && new Date( a.dueAt ).getTime() < Date.now() ? ' That time has passed.' : '';
-    return `${ by }${ late }${ rfp }`.trim();
+    return `${ editRule }${ by ? ` ${ by }` : '' }${ late }`.trim();
   } );
   readonly editNote = computed( () => {
     const approved = ( this.approval()?.approvers || [] ).filter( ( a ) => a.state === 'approved' );
@@ -478,6 +489,78 @@ export class ReviewSendComponent implements OnInit {
       this.dialog.set( 'share' );
     } catch ( error: any ) {
       this.notifications.show( 'Couldn\'t ask again', error?.error?.message || error?.message || 'Please try again.', 'warning' );
+    } finally {
+      this.busy.set( '' );
+    }
+  }
+
+  // ── Approvers card (lifecycle 1m) ──────────────────────────────
+  newApprover = '';
+
+  line ( a: Approver ) {
+    return approverLine( a, this.approval()?.version || 1 );
+  }
+
+  async copyLink ( a: Approver ): Promise<void> {
+    try {
+      await navigator.clipboard.writeText( approvalLink( a.token ) );
+      this.notifications.show( 'Link copied', `Send it to ${ firstName( a ) } however you like. It's only for them.`, 'success' );
+      this.onShared( { approverId: a.id, via: 'copy' } );
+    } catch {
+      this.notifications.show( 'Couldn\'t copy', approvalLink( a.token ), 'warning' );
+    }
+  }
+
+  async copyAll (): Promise<void> {
+    const a = this.approval();
+    if ( !a ) return;
+    try {
+      await navigator.clipboard.writeText( allLinksText( a.approvers, this.ownerName, this.opportunity()?.agency || '' ) );
+      this.notifications.show( 'Links copied', 'One line per person. Each link only works for them.', 'success' );
+      a.approvers.filter( ( x ) => x.state !== 'approved' ).forEach( ( x ) => this.onShared( { approverId: x.id, via: 'copy' } ) );
+    } catch {
+      this.notifications.show( 'Couldn\'t copy', 'Copy each link instead.', 'warning' );
+    }
+  }
+
+  /** The phone's share sheet where there is one; copying otherwise. */
+  async shareAll (): Promise<void> {
+    const a = this.approval();
+    if ( !a ) return;
+    const text = allLinksText( a.approvers, this.ownerName, this.opportunity()?.agency || '' );
+    if ( !navigator.share ) return this.copyAll();
+    try {
+      await navigator.share( { title: this.proposalTitle, text } );
+      a.approvers.filter( ( x ) => x.state !== 'approved' ).forEach( ( x ) => this.onShared( { approverId: x.id, via: 'share' } ) );
+    } catch {
+      // They closed the share sheet.
+    }
+  }
+
+  /** "Marcus Reed, Accountant" or an email address; they get their own link. */
+  async addApprover (): Promise<void> {
+    const a = this.approval();
+    const parsed = parseApprover( this.newApprover );
+    if ( !a || !parsed ) return;
+    const { name, role } = splitRole( parsed.name );
+    await this.saveApprovers( [...a.approvers.map( ( x ) => ( { id: x.id, name: x.name, email: x.email, role: x.role } ) ), { name, email: parsed.email, role }], a.allowSuggestions );
+    this.newApprover = '';
+  }
+
+  toggleSuggestions (): void {
+    const a = this.approval();
+    if ( a ) void this.saveApprovers( a.approvers.map( ( x ) => ( { id: x.id, name: x.name, email: x.email, role: x.role } ) ), !a.allowSuggestions );
+  }
+
+  private async saveApprovers ( approvers: ApprovalPayload['approvers'], allowSuggestions: boolean ): Promise<void> {
+    const a = this.approval();
+    const o = this.opportunity();
+    if ( !a || !o || this.busy() ) return;
+    this.busy.set( 'approvers' );
+    try {
+      this.approval.set( await firstValueFrom( this.approvals.save( o.id, this.payload( { approvers, rule: a.rule, dueAt: a.dueAt && new Date( a.dueAt ).getTime() > Date.now() ? a.dueAt : '', note: a.note, onApproved: a.onApproved, allowSuggestions }, a.proposalPdfId ) ) ) );
+    } catch ( error: any ) {
+      this.notifications.show( 'Couldn\'t update the approvers', error?.error?.message || 'Please try again.', 'warning' );
     } finally {
       this.busy.set( '' );
     }

@@ -104,6 +104,12 @@ export const routes: Routes = [
       import( './features/approve/approve.component' ).then( ( m ) => m.ApproveComponent ),
   },
   {
+    // The short form from the lifecycle handoff (1m). Links TODD makes stay /approve/.
+    path: 'a/:token',
+    // A function, so server-side routing fills in the token too.
+    redirectTo: ( { params } ) => `/approve/${ encodeURIComponent( params['token'] || '' ) }`,
+  },
+  {
     // The four tabs (design_handoff_todd_docs): Home, Opportunities,
     // Documents, Knowledge. Each tab's old pages redirect into it.
     path: 'opportunities',

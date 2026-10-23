@@ -4,7 +4,7 @@ describe( 'Docs route table', () => {
   it( 'exposes every Docs and Knowledge route', () => {
     expect( routes.map( route => route.path ) ).toEqual( [
       '', 'auth/callback', 'mobile-handoff', 'ios', 'about', 'help', 'docs/success', 'knowledge/success',
-      'docs/pricing', 'knowledge/pricing', 'docs', 'docs/landing', 'approve/:token', 'opportunities', 'opportunities/inbox', 'opportunities/:id/send', 'opportunities/:id/proposal', 'opportunities/:id', 'documents',
+      'docs/pricing', 'knowledge/pricing', 'docs', 'docs/landing', 'approve/:token', 'a/:token', 'opportunities', 'opportunities/inbox', 'opportunities/:id/send', 'opportunities/:id/proposal', 'opportunities/:id', 'documents',
       'documents/:id', 'docs/documents', 'upload', 'docs/upload', 'new', 'docs/editor', 'docs/editor/:id',
       'docs/proposal-history', 'docs/rfp-list', 'docs/rfp-upload', 'knowledge/response-flow',
       'knowledge/response-flow/:id', 'knowledge', 'knowledge/save', 'knowledge/:id', 'get-started', 'profile', 'login',
@@ -14,7 +14,7 @@ describe( 'Docs route table', () => {
     // Stripe pricing pages now land on /pricing ("browse free, create with
     // the app"); the vault and upload moved under the Documents tab; RFP
     // list, Proposal History and RFP upload under Opportunities.
-    expect( routes.filter( route => route.redirectTo !== undefined ).map( route => route.redirectTo ) ).toEqual( ['/pricing', '/pricing', '/', '/', '/documents', '/upload', '/opportunities', '/opportunities', '/upload?rfp=1'] );
+    expect( routes.filter( route => route.redirectTo !== undefined ).map( route => route.redirectTo ) ).toEqual( ['/pricing', '/pricing', '/', '/', jasmine.any( Function ), '/documents', '/upload', '/opportunities', '/opportunities', '/upload?rfp=1'] );
     expect( routes.filter( route => route.loadComponent ).length ).toBe( 30 );
   } );
 } );

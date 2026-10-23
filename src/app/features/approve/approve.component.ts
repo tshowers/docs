@@ -40,6 +40,33 @@ export class ApproveComponent implements OnInit, AfterViewChecked {
   readonly phase = signal<'loading' | 'ready' | 'error'>( 'loading' );
   readonly errorMessage = signal( '' );
   readonly data = signal<GuestApproval | null>( null );
+  readonly pdfBusy = signal( false );
+  readonly shortDue = ( date: string ) => {
+    const at = /^\d{4}-\d{2}-\d{2}$/.test( date ) ? new Date( `${ date }T12:00:00` ) : new Date( date );
+    return isNaN( at.getTime() ) ? '' : at.toLocaleDateString( 'en-US', { month: 'short', day: 'numeric' } );
+  };
+
+  /** Download PDF (lifecycle 1n): this exact version, built the way Review & send builds it. */
+  async downloadPdf (): Promise<void> {
+    const d = this.data();
+    if ( !d || this.pdfBusy() ) return;
+    this.pdfBusy.set( true );
+    try {
+      const { buildProposalPdf } = await import( '../../shared/proposal-pdf' );
+      const title = `Proposal · ${ d.opportunity.title }`;
+      const pdf = await buildProposalPdf( d.html, { title, author: d.company } );
+      const url = URL.createObjectURL( new Blob( [pdf.bytes as BlobPart], { type: 'application/pdf' } ) );
+      const link = document.createElement( 'a' );
+      link.href = url;
+      link.download = `${ title.replace( ' · ', ' - ' ).replace( /[\\/:*?"<>|]+/g, '' ) } (version ${ d.version }).pdf`;
+      document.body.appendChild( link );
+      link.click();
+      link.remove();
+      setTimeout( () => URL.revokeObjectURL( url ), 1000 );
+    } finally {
+      this.pdfBusy.set( false );
+    }
+  }
   readonly composer = signal<Composer | null>( null );
   readonly selection = signal<{ quote: string; sectionTitle: string; top: number; left: number } | null>( null );
   readonly busy = signal<'' | 'approve' | 'changes' | 'comment'>( '' );

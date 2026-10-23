@@ -182,7 +182,9 @@ describe( 'Approval before sending, through the app', () => {
     cy.visit( `/opportunities/${ OPP }/send`, { onBeforeLoad: asOwner } );
     cy.contains( 'h1', 'Approved. Ready to send.' );
     cy.contains( 'Approved version 1' );
-    cy.get( '.rs__approver .dk-tag' ).each( ( tag ) => expect( tag.text().trim() ).to.equal( 'Approved' ) );
+    // The Approvers card (lifecycle 1m): each line says who approved which version.
+    cy.get( '.rs__people .rs__who small' ).should( 'have.length', 2 ).each( ( line ) => expect( line.text().trim() ).to.match( /^Approved v1 · / ) );
+    cy.get( '.rs__people .rs__copy' ).should( 'not.exist' );
     cy.contains( 'button', 'Send proposal' ).should( 'be.enabled' ).click();
 
     cy.wait( '@send' ).then( () => {

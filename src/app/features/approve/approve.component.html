@@ -5,7 +5,7 @@
       <span class="ap__shared dk-muted">Shared with you by <strong>{{ d.ownerName }}</strong>{{ d.company ? ' · ' + d.company : '' }}</span>
       <span class="ap__me">
         <span class="ap__av ap__av--sm dk-tinted" [attr.data-tint]="tint(d.me.email || d.me.name)">{{ initials(d.me.name, d.me.email) }}</span>
-        <span class="ap__me-text">{{ d.me.name || d.me.email || 'Approver' }}</span>
+        <span class="ap__me-text"><span class="dk-muted">Reviewing as </span>{{ d.me.name || d.me.email || 'Approver' }}</span>
       </span>
     }
   </header>
@@ -99,7 +99,9 @@
 
             @if (!d.readOnly) {
               <section class="ap__card ap__decision dk-tinted" data-tint="blue" id="ap-decision">
-                <h2>Your decision</h2>
+                <span class="dk-kicker">Proposal · version {{ d.version }}</span>
+                <h2 class="ap__ask">{{ firstName({ name: d.ownerName }) }} wants your OK to send this to {{ d.opportunity.agency || 'the buyer' }}.</h2>
+                <p class="ap__exact">This is exactly what will be sent{{ d.opportunity.dueDate ? ' before ' + shortDue(d.opportunity.dueDate) : '' }}. If it changes, you'll be asked again.</p>
                 @if (decided()) {
                   <p class="ap__done"><dk-icon [name]="d.me.state === 'approved' ? 'check' : 'alert-circle'" [size]="16" />{{ d.me.state === 'approved' ? 'You approved version ' + d.version + '.' : 'You asked for changes.' }} You can change your mind until it's sent.</p>
                 }
@@ -112,6 +114,7 @@
                 <p class="ap__foot">{{ myCommentCount() ? 'Your comments go to ' + firstName({ name: d.ownerName }) + ' either way. ' : 'Select text in the proposal to comment' + (d.allowSuggestions ? ' or suggest an edit' : '') + '. ' }}{{ othersLine() }}</p>
               </section>
             }
+            <button type="button" class="dk-btn dk-btn--bg ap__pdf" (click)="downloadPdf()" [disabled]="pdfBusy()"><dk-icon name="download" [size]="16" />{{ pdfBusy() ? 'Making the PDF…' : 'Download PDF' }}</button>
             @if (d.scoreCheck; as sc) {
               <section class="ap__card ap__score">
                 <h2><img src="assets/avatar-todd-sm.png" alt="" />TODD's score-check<span>About {{ sc.total }} / {{ sc.max }}</span></h2>
