@@ -81,6 +81,12 @@
         </article>
       }
     </div>
+    <!-- Served from public/video, which git ignores; deploy.sh builds and ships it locally. -->
+    <section class="home__video" aria-label="See Docs in a minute">
+      <video controls playsinline preload="none" poster="video/docs-visitor-poster.jpg" aria-label="TODD Docs: a one-minute tour">
+        <source src="video/docs-visitor.mp4" type="video/mp4" />
+      </video>
+    </section>
     <nav class="home__more">
       <a class="dk-btn" routerLink="/about">What is Docs? →</a>
       <a class="dk-btn" routerLink="/help">How to use it →</a>

@@ -60,3 +60,6 @@ ui-debug.log
 
 # Cypress test downloads (compliance-matrix export)
 /cypress/downloads/
+
+# Landing-page video (large; ships with the local build via deploy.sh, not git)
+/public/video/

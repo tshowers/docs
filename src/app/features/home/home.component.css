@@ -68,6 +68,8 @@
 .home__pillar-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; }
 .home__pillar h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
 .home__pillar p { font-size: 15px; line-height: 1.55; }
+.home__video { max-width: 1120px; margin: 18px auto 0; }
+.home__video video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 28px; background: var(--surface); }
 .home__more { display: flex; flex-wrap: wrap; gap: 10px; max-width: 1120px; margin: 22px auto 0; }
 /* Lines up with the links above (tt-made-by sets its margin with !important). */
 .home__made-by { max-width: 1120px; margin: 28px auto 0 !important; }
