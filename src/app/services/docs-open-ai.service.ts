@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ToddWorkService } from '../shared/working/todd-work.service';
 
 /**
  * Trimmed from services/open-ai.service.ts (a large service backing many
@@ -17,6 +18,8 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 } )
 export class DocsOpenAiService {
+  private readonly work = inject( ToddWorkService );
+
   constructor ( private http: HttpClient ) { }
 
   private authHeaders (): HttpHeaders {
@@ -42,7 +45,7 @@ export class DocsOpenAiService {
       `${environment.backendURL}/document-helper`,
       { document, prompt, rfp, proposals },
       { headers: this.authHeaders() }
-    );
+    ).pipe( this.work.track( 'Writing the proposal from your past ones', { etaSeconds: 45, confirm: 'TODD\'s draft is ready' } ) );
   }
 
   documentEditorAssistant ( instructions: string, html: string, user: string ): Observable<any> {
@@ -50,6 +53,6 @@ export class DocsOpenAiService {
       `${environment.backendURL}/document-helper`,
       { instructions, html },
       { headers: this.authHeaders() }
-    );
+    ).pipe( this.work.track( 'Revising your document', { etaSeconds: 25, confirm: 'TODD\'s revision is ready. Review it before you apply it.' } ) );
   }
 }

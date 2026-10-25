@@ -7,6 +7,7 @@ import { environment } from '../../environments/environment';
 import { BuyerUpdate, DocsInbox, FIT_THRESHOLD, KeyDateKind, NoBidReason, Opportunity, OpportunityStatus, ProposalDraft, Requirements, isOpen } from '../models/opportunity';
 import { ScoreCheck } from '../models/score-check';
 import { DocService } from './doc.service';
+import { ToddWorkService } from '../shared/working/todd-work.service';
 
 interface Envelope<T> { success: boolean; data: T; message?: string; }
 
@@ -19,6 +20,7 @@ interface Envelope<T> { success: boolean; data: T; message?: string; }
 export class OpportunitiesService {
   private readonly http = inject( HttpClient );
   private readonly docs = inject( DocService );
+  private readonly work = inject( ToddWorkService );
   private readonly base = `${ environment.backendURL }/docs`;
 
   readonly opportunities = signal<Opportunity[]>( [] );
@@ -56,6 +58,7 @@ export class OpportunitiesService {
   /** TODD reads the RFP for its must-haves (about a minute); returns at once when already checked. */
   checkMustHaves ( id: string, force = false ): Observable<Opportunity> {
     return this.http.post<Envelope<Opportunity>>( `${ this.base }/opportunities/${ encodeURIComponent( id ) }/musthaves/check`, { force } ).pipe(
+      this.work.track( 'Checking the RFP\'s must-haves', { etaSeconds: 30 } ),
       map( ( r ) => r.data ),
       tap( ( updated ) => this.replace( updated ) ),
     );
@@ -79,7 +82,7 @@ export class OpportunitiesService {
   // ── Key dates, questions for the buyer, addenda ──────────────────
   /** TODD reads the RFP for its dates and questions worth asking (once; returns at once after that). */
   checkKeyDates ( id: string, force = false ): Observable<Opportunity> {
-    return this.http.post<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/dates/check`, { force } ).pipe( map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
+    return this.http.post<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/dates/check`, { force } ).pipe( this.work.track( 'Reading the key dates', { etaSeconds: 20 } ), map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
   }
 
   addKeyDate ( id: string, body: { kind: KeyDateKind; label?: string; date: string; where?: string } ): Observable<Opportunity> {
@@ -93,7 +96,7 @@ export class OpportunitiesService {
 
   /** Sends the picked questions from the person's own inbox. */
   sendBuyerQuestions ( id: string, body: { mailboxId: string; to?: string; signer?: string } ): Observable<Opportunity> {
-    return this.http.post<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/questions/send`, body ).pipe( map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
+    return this.http.post<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/questions/send`, body ).pipe( this.work.track( 'Sending your questions to the buyer', { etaSeconds: 15 } ), map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
   }
 
   questionsCopied ( id: string ): Observable<Opportunity> {
@@ -121,12 +124,12 @@ export class OpportunitiesService {
   }
 
   redraftClarification ( id: string, clarificationId: string ): Observable<Opportunity> {
-    return this.post( `${ this.opportunityBase( id ) }/clarifications/${ encodeURIComponent( clarificationId ) }/draft`, {} );
+    return this.post( `${ this.opportunityBase( id ) }/clarifications/${ encodeURIComponent( clarificationId ) }/draft`, {} ).pipe( this.work.track( 'Redrafting that answer', { etaSeconds: 20, confirm: 'Redrafted the answer' } ) );
   }
 
   /** Sends the answer to the buyer from the person's own inbox. */
   sendClarification ( id: string, clarificationId: string, body: { mailboxId: string; to?: string; answer: string; signer?: string } ): Observable<Opportunity> {
-    return this.post( `${ this.opportunityBase( id ) }/clarifications/${ encodeURIComponent( clarificationId ) }/send`, body );
+    return this.post( `${ this.opportunityBase( id ) }/clarifications/${ encodeURIComponent( clarificationId ) }/send`, body ).pipe( this.work.track( 'Sending your clarification', { etaSeconds: 15 } ) );
   }
 
   scheduleOrals ( id: string, body: { date: string; attendees: string[]; place: string; minutes: number } ): Observable<Opportunity> {
@@ -134,7 +137,7 @@ export class OpportunitiesService {
   }
 
   prepOrals ( id: string ): Observable<Opportunity> {
-    return this.post( `${ this.opportunityBase( id ) }/orals/prep`, {} );
+    return this.post( `${ this.opportunityBase( id ) }/orals/prep`, {} ).pipe( this.work.track( 'Writing your oral presentation prep sheet', { etaSeconds: 45, confirm: 'Your prep sheet is ready' } ) );
   }
 
   recordOutcome ( id: string, body: { result: 'won' | 'lost' | 'cancelled'; reason?: string } ): Observable<Opportunity> {
@@ -142,7 +145,7 @@ export class OpportunitiesService {
   }
 
   sendDebrief ( id: string, body: { mailboxId: string; to: string; subject: string; body: string; remind: boolean; signer?: string } ): Observable<Opportunity> {
-    return this.post( `${ this.opportunityBase( id ) }/debrief/send`, body );
+    return this.post( `${ this.opportunityBase( id ) }/debrief/send`, body ).pipe( this.work.track( 'Sending the debrief request', { etaSeconds: 15 } ) );
   }
 
   debriefReplied ( id: string ): Observable<Opportunity> {
@@ -151,6 +154,7 @@ export class OpportunitiesService {
 
   saveWinningSections ( id: string, sectionKeys: string[] ): Observable<{ opportunity: Opportunity; saved: number; reason: string }> {
     return this.http.post<Envelope<{ opportunity: Opportunity; saved: number; reason: string }>>( `${ this.opportunityBase( id ) }/outcome/knowledge`, { sectionKeys } ).pipe(
+      this.work.track( 'Saving the winning sections to Knowledge', { etaSeconds: 30, confirm: 'Saved to Knowledge' } ),
       map( ( r ) => r.data ),
       tap( ( result ) => this.replace( result.opportunity ) ),
     );
@@ -167,6 +171,7 @@ export class OpportunitiesService {
   /** Profile: re-score open opportunities against the saved profile. */
   rescore (): Observable<Opportunity[]> {
     return this.http.post<Envelope<Opportunity[]>>( `${ this.base }/opportunities/rescore`, {} ).pipe(
+      this.work.track( 'Re-scoring your open opportunities', { etaSeconds: 45, confirm: 'Re-scored your opportunities' } ),
       map( ( r ) => r.data || [] ),
       tap( ( updated ) => updated.forEach( ( item ) => this.replace( item ) ) ),
     );
@@ -175,6 +180,7 @@ export class OpportunitiesService {
   /** "Add an RFP": reads an RFP document already in Docs (PDF directly, other files as text). */
   createFromDocument ( documentId: string, text = '' ): Observable<Opportunity[]> {
     return this.http.post<Envelope<Opportunity[]>>( `${ this.base }/opportunities`, { documentId, text: text || undefined } ).pipe(
+      this.work.track( 'Reading the RFP', { etaSeconds: 60, confirm: 'Added it to Opportunities' } ),
       map( ( r ) => r.data || [] ),
       tap( ( created ) => created.forEach( ( item ) => this.replace( item ) ) ),
     );
@@ -218,7 +224,7 @@ export class OpportunitiesService {
   }
 
   planProposal ( opportunityId: string, force = false ): Observable<ProposalDraft> {
-    return this.http.post<Envelope<ProposalDraft>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/plan`, { force } ).pipe( map( ( r ) => r.data ) );
+    return this.http.post<Envelope<ProposalDraft>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/plan`, { force } ).pipe( this.work.track( 'Planning the proposal', { etaSeconds: 60, confirm: 'The proposal plan is ready' } ), map( ( r ) => r.data ) );
   }
 
   draftSection ( opportunityId: string, sectionKey: string ): Observable<ProposalDraft> {
@@ -226,7 +232,7 @@ export class OpportunitiesService {
   }
 
   answerQuestion ( opportunityId: string, questionId: string, body: { answer?: string; saveToKnowledge?: boolean; skip?: boolean } ): Observable<{ draft: ProposalDraft; knowledge: { saved: boolean; id?: string; reason?: string } }> {
-    return this.http.post<Envelope<{ draft: ProposalDraft; knowledge: { saved: boolean; id?: string; reason?: string } }>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/questions/${ encodeURIComponent( questionId ) }`, body ).pipe( map( ( r ) => r.data ) );
+    return this.http.post<Envelope<{ draft: ProposalDraft; knowledge: { saved: boolean; id?: string; reason?: string } }>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/questions/${ encodeURIComponent( questionId ) }`, body ).pipe( this.work.track( 'Adding your answer to the draft', { etaSeconds: 30 } ), map( ( r ) => r.data ) );
   }
 
   // ── Compliance matrix ──────────────────────────────────────────
@@ -236,11 +242,11 @@ export class OpportunitiesService {
 
   /** Reads the RFP for requirements the first time (about a minute), then matches them to the draft. */
   checkRequirements ( opportunityId: string, force = false ): Observable<Requirements> {
-    return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/check`, { force } ).pipe( map( ( r ) => r.data ) );
+    return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/check`, { force } ).pipe( this.work.track( 'Listing every requirement in the RFP', { etaSeconds: 60, confirm: 'The requirements list is ready' } ), map( ( r ) => r.data ) );
   }
 
   writeRequirement ( opportunityId: string, requirementId: string ): Observable<Requirements> {
-    return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/write`, {} ).pipe( map( ( r ) => r.data ) );
+    return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/write`, {} ).pipe( this.work.track( 'Writing that requirement', { etaSeconds: 30, confirm: 'TODD wrote it. Review it before you accept.' } ), map( ( r ) => r.data ) );
   }
 
   /** Accept (with the text as edited) or discard TODD's paragraph. */
@@ -259,12 +265,12 @@ export class OpportunitiesService {
 
   /** TODD scores the draft against the RFP's points (one model call). */
   runScoreCheck ( opportunityId: string ): Observable<ScoreCheck> {
-    return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck`, {} ).pipe( map( ( r ) => r.data ) );
+    return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck`, {} ).pipe( this.work.track( 'Scoring it the way an evaluator would', { etaSeconds: 60, confirm: 'The score check is ready' } ), map( ( r ) => r.data ) );
   }
 
   /** Fix this: TODD writes the revision for one criterion, or "opening". */
   writeScoreFix ( opportunityId: string, fixId: string ): Observable<ScoreCheck> {
-    return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck/${ encodeURIComponent( fixId ) }/fix`, {} ).pipe( map( ( r ) => r.data ) );
+    return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck/${ encodeURIComponent( fixId ) }/fix`, {} ).pipe( this.work.track( 'Writing that fix', { etaSeconds: 30, confirm: 'TODD wrote the fix. Review it before you accept.' } ), map( ( r ) => r.data ) );
   }
 
   resolveScoreFix ( opportunityId: string, fixId: string, action: 'accept' | 'discard', text = '' ): Observable<{ scoreCheck: ScoreCheck; draft: ProposalDraft | null; copyToEditor: boolean }> {
@@ -279,6 +285,7 @@ export class OpportunitiesService {
   /** Sends from the person's own inbox; the opportunity comes back submitted. */
   sendProposal ( opportunityId: string, body: { mailboxId: string; to: string; subject: string; body: string; documentIds: string[] } ): Observable<Opportunity> {
     return this.http.post<Envelope<Opportunity>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal/send`, body ).pipe(
+      this.work.track( 'Sending the proposal', { etaSeconds: 20 } ),
       map( ( r ) => r.data ),
       tap( ( updated ) => this.replace( updated ) ),
     );
@@ -315,6 +322,7 @@ export class OpportunitiesService {
 
   checkInbox ( id: string ): Observable<{ checkedCount: number; newOpportunityCount: number }> {
     return this.http.post<Envelope<any>>( `${ this.base }/inboxes/${ encodeURIComponent( id ) }/check`, {} ).pipe(
+      this.work.track( 'Checking your inbox for RFPs', { etaSeconds: 40 } ),
       map( ( r ) => r.data ),
       tap( () => this.loaded.set( false ) ),
     );

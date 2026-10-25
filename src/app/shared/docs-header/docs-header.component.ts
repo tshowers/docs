@@ -9,6 +9,7 @@ import { DocsAuthService } from '../../services/docs-auth.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { DkIconComponent } from '../dk-icon/dk-icon.component';
 import { PlatformMenuComponent } from '../platform-menu/platform-menu.component';
+import { ToddWorkingComponent } from '../working/todd-working.component';
 
 type DocsTabId = 'home' | 'opportunities' | 'documents' | 'knowledge' | 'about' | 'help';
 
@@ -60,7 +61,7 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
 @Component( {
   selector: 'app-docs-header',
   standalone: true,
-  imports: [RouterLink, PlatformMenuComponent, DkIconComponent],
+  imports: [RouterLink, PlatformMenuComponent, DkIconComponent, ToddWorkingComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host { display: block; }
@@ -152,6 +153,7 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
       </div>
 
       <div class="ah-actions">
+        <app-todd-working />
         @if (signedIn()) {
           <a class="dh-primary dh-new-wide" routerLink="/new"><dk-icon name="plus" />New</a>
           <a class="dh-primary dh-round" routerLink="/new" aria-label="New"><dk-icon name="plus" /></a>

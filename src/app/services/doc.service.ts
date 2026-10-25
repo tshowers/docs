@@ -1,9 +1,10 @@
 import { DocSource, DraftBlock } from '../shared/studio-draft';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { ToddWorkService } from '../shared/working/todd-work.service';
 
 export interface DocumentLimits {
   isPaidUser: boolean;
@@ -19,6 +20,8 @@ export interface DocumentLimits {
 } )
 export class DocService {
   private readonly baseUrl = `${environment.backendURL}/docs`;
+
+  private readonly work = inject( ToddWorkService );
 
   constructor ( private http: HttpClient ) { }
 
@@ -53,6 +56,7 @@ export class DocService {
   /** New (1j): TODD writes a first draft from a brief and the chosen sources. */
   compose ( brief: string, knowledgeIds: string[], opportunityId = '' ): Observable<{ documentId: string; title: string; blocks?: DraftBlock[]; sources?: DocSource[] }> {
     return this.http.post<any>( `${this.baseUrl}/compose`, { brief, knowledgeIds, opportunityId: opportunityId || undefined } ).pipe(
+      this.work.track( 'Writing your first draft', { etaSeconds: 45, confirm: 'Your first draft is ready' } ),
       map( response => response?.data ?? response )
     );
   }

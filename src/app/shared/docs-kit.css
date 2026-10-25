@@ -335,3 +335,24 @@ button.dk-circle {
   /* Sticky actions sit on the page background above the tab bar. */
   .dk-sticky-actions { margin: 0 -16px; padding: 10px 16px; box-shadow: 0 -1px 0 var(--surface2); }
 }
+
+/* Pressed and working (shared/working/pending-click.service.ts): a spinner
+   on whatever button started the work, from the moment it's pressed. */
+.dk-pending { cursor: progress !important; }
+.dk-pending::after {
+  content: '';
+  display: inline-block;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-left: 8px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: -2px;
+  animation: dk-spin .8s linear infinite;
+}
+.dk-btn.dk-btn--icon.dk-pending > *, .dk-circle.dk-pending > * { display: none; }
+.dk-btn.dk-btn--icon.dk-pending::after, .dk-circle.dk-pending::after { margin: 0; }
+@keyframes dk-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .dk-pending::after { animation-duration: 2.4s; } }

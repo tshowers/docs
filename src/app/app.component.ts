@@ -11,6 +11,7 @@ import { DocsHeaderComponent } from './shared/docs-header/docs-header.component'
 import { DocsAssistantLauncherComponent } from './shared/page/assistant-box/docs-assistant-launcher.component';
 import packageJson from '../../package.json';
 import { WriteAccessPromptComponent } from './shared/write-access/write-access-prompt.component';
+import { PendingClickService } from './shared/working/pending-click.service';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ import { WriteAccessPromptComponent } from './shared/write-access/write-access-p
 export class AppComponent implements OnInit {
   private readonly router = inject( Router );
   private readonly updates = inject( SwUpdate );
+  private readonly pendingClicks = inject( PendingClickService );
   private isReloadingForUpdate = false;
   private isRecoveringFromChunkError = false;
   private pendingUpdateVersion = '';
@@ -37,6 +39,8 @@ export class AppComponent implements OnInit {
 
   ngOnInit (): void {
     initTheme();
+    // Every button that starts work shows a spinner until it's done (shared/working).
+    if ( typeof window !== 'undefined' ) this.pendingClicks.start();
     this.hideHeader = this.isBareRoute( this.router.url );
     this.router.events.pipe( filter( event => event instanceof NavigationEnd ) ).subscribe( ( event ) => {
       this.hideHeader = this.isBareRoute( ( event as NavigationEnd ).urlAfterRedirects );

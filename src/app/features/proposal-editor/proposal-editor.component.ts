@@ -13,6 +13,7 @@ import { WriteActionDirective } from '../../shared/write-access/write-action.dir
 import { ScoreCheck, ScoreRevision, pointsBySection } from '../../models/score-check';
 import { ScoreCheckComponent } from '../../shared/score-check/score-check.component';
 import { RequirementsMatrixComponent } from './requirements-matrix.component';
+import { ToddWorkService } from '../../shared/working/todd-work.service';
 
 /** After the draft changes, wait this long before checking it against the requirements again. */
 const RECHECK_DELAY_MS = 3000;
@@ -70,6 +71,7 @@ export class ProposalEditorComponent implements OnInit {
   private readonly service = inject( OpportunitiesService );
   private readonly notifications = inject( DocsNotificationService );
   private readonly destroyRef = inject( DestroyRef );
+  private readonly work = inject( ToddWorkService );
 
   readonly opportunityId = signal( '' );
   readonly opportunity = signal<Opportunity | null>( null );
@@ -204,11 +206,18 @@ export class ProposalEditorComponent implements OnInit {
   async draftRemaining (): Promise<void> {
     if ( this.drafting ) return;
     this.drafting = true;
+    // One "TODD is working" entry for the whole run: "Drafting Pricing · 3 of 7 · about a minute".
+    const total = sectionsToDraft( this.draft() ).filter( ( s ) => !this.failedKeys().includes( s.key ) ).length;
+    const work = total ? this.work.start( 'Drafting the proposal', { total, done: 0, etaSeconds: total * 25 } ) : null;
+    const startedAt = Date.now();
+    let done = 0;
     try {
       for ( ;; ) {
         const next = sectionsToDraft( this.draft() ).find( ( s ) => !this.failedKeys().includes( s.key ) );
         if ( !next ) break;
         this.draftingKey.set( next.key );
+        // The time left is what's left of the run, so the pill counts down across sections.
+        work?.update( { label: `Drafting ${ next.title || 'the next section' }`, done, etaSeconds: Math.round( ( Date.now() - startedAt ) / 1000 ) + ( total - done ) * 25 } );
         try {
           const draft = await firstValueFrom( this.service.draftSection( this.opportunityId(), next.key ) );
           this.draft.set( draft );
@@ -217,10 +226,13 @@ export class ProposalEditorComponent implements OnInit {
         } catch {
           this.failedKeys.update( ( keys ) => [...keys, next.key] );
         }
+        done++;
       }
     } finally {
       this.draftingKey.set( '' );
       this.drafting = false;
+      const failed = this.failedKeys().length;
+      work?.finish( failed ? `Drafted the proposal, except ${ failed } ${ failed === 1 ? 'section' : 'sections' } TODD couldn't write` : 'Drafted the proposal' );
     }
   }
 

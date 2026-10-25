@@ -8,6 +8,7 @@ import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 import { docsTenantInterceptor } from './core/interceptors/docs-tenant.interceptor';
 import { idTokenInterceptor } from './core/interceptors/id-token.interceptor';
+import { pendingClickInterceptor } from './shared/working/pending-click.service';
 import { provideCanonicalUrl } from './shared/canonical-url';
 import { providePageMeta } from './shared/page-meta';
 
@@ -19,7 +20,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideCanonicalUrl(),
     providePageMeta(),
-    provideHttpClient(withInterceptors([idTokenInterceptor, docsTenantInterceptor])),
+    provideHttpClient(withInterceptors([idTokenInterceptor, docsTenantInterceptor, pendingClickInterceptor])),
     provideServiceWorker('ngsw-worker.js', {
       enabled: environment.production,
       registrationStrategy: 'registerWhenStable:30000',
