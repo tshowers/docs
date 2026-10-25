@@ -1,0 +1,2040 @@
+
+❯ The Proposals need an approval process, Claude Design has provided one here >
+  corporate/design-stuff/design_handoff_todd_docs --- what to note is that the
+  approver need not be a TODD User or logged in
+
+⏺ I'll start by reading the design handoff and the current codebase.
+
+⏺ Bash(cd
+      /Users/tyshowers/Dropbox/corporate/design-stuff/design_handoff_todd_docs
+      && ls -la && find . -type f | head -100)
+  ⎿  (No output)
+
+⏺ Bash(ls -la && cat CLAUDE.md 2>/dev/null | head -100 && git log --oneline -15
+      && cat /Users/tyshowers/.claude/projects/-Users-tyshowers-Dropbox-corporat
+      e-web-product…)
+  ⎿  (No output)
+
+⏺ The new screens are 4a–4h (approval). Reading the README's approval section.
+
+⏺ Bash(cd
+      "/Users/tyshowers/Dropbox/corporate/design-stuff/design_handoff_todd_docs"
+      && grep -n "^#" README.md | head -80; grep -n -i "approv\|guest\|4[a-h]"
+      README.md…)
+  ⎿  (No output)
+
+⏺ Big feature with a backend side (guest links, email codes). Let me look at the
+  screenshots and the existing review-and-send code and backend.
+
+  Searched for 1 pattern, read 3 files (ctrl+o to expand)
+
+⏺ Now the existing review-send feature and the services it uses.
+
+⏺ Bash(ls src/app/features/review-send src/app/features/proposal-editor
+      src/app/services src/app/models; wc -l src/app/features/review-send/*
+      src/app/features/proposal…)
+  ⎿  (No output)
+
+  Read 2 files (ctrl+o to expand)
+
+⏺ Now the backend side — the guest link, codes and the send gate all need server
+  work.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate && ls; for d in taliferrotech
+      taliferrotech-rfp-intake; do echo "== $d"; git -C $d branch --show-current
+      2>/dev/null; git…)
+  ⎿  (No output)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech && git status --short
+      | head; git branch --contains docs-rfp-intake 2>/dev/null | head; git log
+      --oneline -1…)
+  ⎿  (No output)
+
+⏺ The intake branch is merged into work-in-progress and that checkout is clean
+  now. Looking at the backend's Docs module.
+
+⏺ Bash(cd
+      /Users/tyshowers/Dropbox/corporate/taliferrotech/todd-backend/functions &&
+      find docs -type f | grep -v node_modules | sort; wc -l docs/**/*.js
+      2>/dev/null |…)
+  ⎿  (No output)
+
+⏺ Bash(cd
+      /Users/tyshowers/Dropbox/corporate/taliferrotech/todd-backend/functions &&
+      wc -l docs/*.js docs/*/*.js; cat docs/proposals/proposalSend.service.js;
+      grep -n "…)
+  ⎿  (No output)
+
+⏺ Bash(cd
+      /Users/tyshowers/Dropbox/corporate/taliferrotech/todd-backend/functions &&
+      cat docs/rfp-intake/docsIntake.controller.js; grep -n
+      "docsIntake\|docs.controller…)
+  ⎿  (No output)
+
+⏺ Bash(cd
+      /Users/tyshowers/Dropbox/corporate/taliferrotech/todd-backend/functions &&
+      sed -n 1,60p adminTenantMembers.service.js; grep -n "^async
+      function\|^function\|m…)
+  ⎿  (No output)
+
+⏺ I noticed a conflict: the handoff wants approval emails and guest codes sent
+  from approvals@todd.docs via SendGrid, but Docs mail is supposed to go through
+  the user's own connected mailbox, never SendGrid. Let me check what
+  non-SendGrid senders are available to resolve this.
+
+⏺ Bash(cd
+      /Users/tyshowers/Dropbox/corporate/taliferrotech/todd-backend/functions &&
+      grep -rln "nodemailer\|createTransport" --include=*.js . | grep -v
+      node_modules |…)
+  ⎿  (No output)
+
+⏺ Bash(cd
+      /Users/tyshowers/Dropbox/corporate/taliferrotech/todd-backend/functions &&
+      grep -rln 'nodemailer\|createTransport' --include='*.js' . | grep -v
+      node_modules…)
+  ⎿  (No output)
+
+⏺ Only two mail paths exist: SendGrid (Outreach-only by your rule) and the
+  user's connected mailbox. That decides how guests get their link and code, so
+  I'll ask.
+
+⏺ User answered Claude's questions:
+  ⎿  · The handoff sends approval requests and 6-digit guest codes from "Dana
+     via TODD Docs" <approvals@todd.docs>. Your rule is no SendGrid for Docs;
+     Docs mail goes out through the owner's connected inbox. How should approval
+     mail go out? → Sorry not understand why Sendgrid needs to be involved, I
+     was thinking more that a TODD user just sends a link it's up to the TODD
+     user how they want to send it, it could be through messages or their
+     default email client
+
+⏺ TODD doesn't send anything—approvers get private links the owner shares
+  themselves, with the link alone granting access (no accounts, sign-in, or
+  email codes), which removes the code screen and TODD-sent email steps. Next
+  I'll check how the frontend handles signed-out routes and the header, and how
+  the backend exposes public routes.
+⏺ Bash(ls src/app/core/interceptors; cat src/app/core/interceptors/*.ts | head
+      -80; grep -n "docs-header\|router-outlet\|hideHeader\|chrome\|guest"
+      src/app/app.compone…)
+  ⎿  (No output)
+
+⏺ Bash(cd
+      /Users/tyshowers/Dropbox/corporate/taliferrotech/todd-backend/functions &&
+      sed -n 300,360p index.js; grep -rln "public\|Anonymous" *Routes.js |
+      head; sed -n…)
+  ⎿  (No output)
+
+⏺ I've laid out the approval workflow plan: a token-based backend for proposal
+  approval snapshots and public/owner routes, plus frontend dialogs and a guest
+  review page. Now I'll set up the backend worktree on a new
+  docs-proposal-approval branch.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech && git worktree prune
+      && git worktree add -b docs-proposal-approval ../taliferrotech-approval
+      work-in-progre…)
+  ⎿  (No output)
+
+⏺ Worktree is at taliferrotech-approval. The todd credentials symlink shows as
+  untracked, so I'll stage files by name only. Now the service signatures and
+  test style I'll build against.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && grep -n "^async function\|^function\|module.exports"
+      docs/opportunities/o…)
+  ⎿  (No output)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && sed -n 503,530p docs/docs.service.js; sed -n 625,668p
+      docs/docs.service.j…)
+  ⎿  (No output)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && sed -n 1,200p middleware/publicApiSecurity.js | grep -n
+      "function\|module…)
+  ⎿  (No output)
+
+⏺ /api/public already carries the anonymous rate limit and bad-agent block, so
+  guest routes go under /api/public/approvals/:token.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && grep -n '"/api/public\|/public/' index.js *Routes.js | head;
+      sed -n 20,72…)
+  ⎿  (No output)
+
+⏺ I'm starting the backend service, structuring it with one request per
+  opportunity, HTML snapshots stored per version in a subcollection, and a
+  global approvalLinks/{sha256(token)} lookup so the public route can resolve
+  the tenant securely without trusting guest input.
+
+⏺ Write(~/Dropbox/corporate/taliferrotech-approval/todd-backend/functions/docs/a
+       pprovals/approval.service.js)
+  ⎿  Wrote 628 lines to ~/Dropbox/corporate/taliferrotech-approval/todd-bac
+     kend/functions/docs/approvals/approval.service.js
+       1 /* eslint-disable max-len, require-jsdoc, valid-jsdoc */
+       3  * Approval before sending (design_handoff_todd_docs round 4). T
+         he proposal
+         email and
+       5  * attachments the buyer will get. Every approver gets a private
+       6  * owner shares it however they like (their own mail app, Messag
+         es, a copy
+         is the
+       8  * access, no TODD account or sign-in needed.
+      10  * Storage, per tenant:
+     … +829 lines (ctrl+o to expand)
+
+⏺ Fixing two things in what I just wrote: a redundant second link lookup in
+  guestDecision, and an unused variable.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions/docs/approvals && python3 - <<'EOF'
+      p='approval.service.js'…)
+  ⎿  No matches found
+
+⏺ Now the send gate in proposalSend.service.js. Send checks the approved version
+  against exactly what's going out, and marks the request sent afterward.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions/docs/proposals && python3 - <<'EOF'
+      p='proposalSend.service.js'…)
+  ⎿  (No output)
+
+⏺ Also closing the request when a portal submission is marked done, then the
+  controller and routes.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && python3 - <<'EOF'
+      p='docs/proposals/proposalSend.service.js'…)
+  ⎿  (No output)
+
+⏺ Now the public guest routes, which need no sign-in and sit under the
+  rate-limited /api/public prefix.
+
+⏺ Write(~/Dropbox/corporate/taliferrotech-approval/todd-backend/functions/docsAp
+       provalPublicRoutes.js)
+  ⎿  Wrote 35 lines to ~/Dropbox/corporate/taliferrotech-approval/todd-back
+     end/functions/docsApprovalPublicRoutes.js
+      1 /* eslint-disable new-cap, max-len */
+      2 /**
+      3  * Approving a proposal from a private link (Docs round 4, guest
+      4  * No TODD account and no sign-in: the token in the link is the a
+        ccess,
+      5  * scoped to one approver on one proposal. index.js puts /api/pub
+        lic behind
+      7  */
+      8 const express = require("express");
+      9 const approvals = require("./docs/approvals/approval.service");
+     … +36 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && sed -n 236,250p index.js; grep -n "^app.use(\"/api\","
+      index.js | head -5…)
+  ⎿  (No output)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && grep -n "public\|no token\|!token\|anonymous"
+      middleware/verifiedIdentity…)
+  ⎿  (No output)
+
+⏺ Anonymous requests pass through verifiedIdentity untouched, so the public
+  routes work. Now tests for the approval service, using a small in-memory
+  Firestore.
+
+⏺ Write(~/Dropbox/corporate/taliferrotech-approval/todd-backend/functions/__test
+       s__/approval.service.test.js)
+  ⎿  Wrote 233 lines to ~/Dropbox/corporate/taliferrotech-approval/todd-bac
+     kend/functions/__tests__/approval.service.test.js
+       1 /* eslint-disable max-len, require-jsdoc */
+       2 jest.mock("firebase-admin", () => ({firestore: () => {
+       3   throw new Error("tests pass deps.db");
+       4 }}));
+       5 const approvals = require("../docs/approvals/approval.service");
+       7 /** Just enough Firestore: docs by path, direct-child listing, t
+         ransactions applied in order. */
+       8 function fakeDb() {
+       9   const store = new Map();
+      10   const clone = (v) => JSON.parse(JSON.stringify(v));
+     … +332 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && python3 - <<'EOF'
+      p='__tests__/proposalSend.service.test.js'…)  ⎿  (No output)
+
+⏺ A real bug: guestView reports the approver's state from before it marks them
+  as reviewing. I'll re-read after the update.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && python3 - <<'EOF'
+      p='docs/approvals/approval.service.js'…)
+  ⎿  (No output)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && sed -i '' '1s#.*#/* eslint-disable max-len, require-jsdoc,
+      valid-jsdoc */…)
+  ⎿  (No output)
+
+⏺ The route load threw an error, and 8 suites failed (though no individual tests
+  did). Checking both against the base branch.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && node -e "require('./docsApprovalPublicRoutes');
+      require('./docRoutes'); c…)
+  ⎿  (No output)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && node -e "require('./docsApprovalPublicRoutes');
+      console.log('public route…)
+  ⎿  (No output)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && node -e
+      "require('firebase-admin').initializeApp({projectId:'x'}); requir…)
+  ⎿  (No output)
+
+⏺ Those 2 social suite failures and the docRoutes load issue are pre-existing
+  (missing OpenAI key locally), not caused by my changes. I'll commit the
+  backend, staging files by name.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && git add __tests__/proposalSend.service.test.js
+      __tests__/approval.service…)
+  ⎿  (No output)
+
+⏺ Backend is committed. Frontend next: a new branch in the docs repo, after a
+  look at the shared UI pieces (icons, buttons, any existing dialog).
+
+⏺ Bash(git checkout -q -b proposal-approval && grep -o "'[a-z-]*'"
+      src/app/shared/dk-icon/dk-icon.component.ts | sort -u | tr '\n' ' '; echo;
+      grep -rln "dk-dialog\|rol…)
+  ⎿  (No output)
+
+⏺ Bash(ls src/app/shared/dk-icon; sed -n 1,40p
+      src/app/shared/dk-icon/dk-icon.component.ts; grep -o "^  *'\?[a-z-]*'\?:
+      *'" src/app/shared/dk-icon/*.ts | head -80 | tr…)
+  ⎿  (No output)
+
+  Searched for 4 patterns (ctrl+o to expand)
+
+⏺ Backend is done and committed. Now I'm finding where the shared button and
+  tint styles are defined so the new screens match.
+
+⏺ Bash(sed -n 35,42p angular.json; grep -c "" src/styles.css; grep -n
+      "dk-btn\|dk-tinted\|dk-circle\|dk-kicker\|dk-tag\|--shadow\|dk-todd\|dk-em
+      pty\|dk-page\b\|\.dk-pa…)
+  ⎿  (No output)
+
+  Searched for 2 patterns (ctrl+o to expand)
+
+⏺ Bash(sed -n 139,162p src/app/shared/docs-kit.css; grep -n
+      "prerender\|ssr\|server" angular.json | head; cat firebase.json; sed -n
+      1,60p src/app/app.component.ts | gr…)
+  ⎿  (No output)
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+⏺ Shared styles live in docs-kit.css. Time to write the frontend: model and
+  helpers, service, the Get approval dialog, the Review & send approval states,
+  and the guest page. Starting with the model.
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+⏺ Write(~/Dropbox/corporate/web-products/docs/src/app/models/approval.ts)
+  ⎿  Wrote 262 lines to
+     ~/Dropbox/corporate/web-products/docs/src/app/models/approval.ts
+       1 /**
+         s
+       3  * todd-backend docs/approvals/approval.service.js returns it. A
+       4  * review through a private link the owner shares however they l
+       5  * TODD account or sign-in.
+       6  */
+       8 export type ApprovalStatus = 'waiting' | 'changes' | 'approved'
+         | 'bypassed' | 'sent';
+         r this one. */
+          | 'changes' | 'recheck';
+     … +327 lines (ctrl+o to expand)
+
+⏺ Write(~/Dropbox/corporate/web-products/docs/src/app/services/approvals.service
+       .ts)
+  ⎿  Wrote 60 lines to ~/Dropbox/corporate/web-products/docs/src/app/servic
+     es/approvals.service.ts
+      1 import { HttpClient } from '@angular/common/http';
+      2 import { Injectable, inject } from '@angular/core';
+      3 import { Observable } from 'rxjs';
+      4 import { map } from 'rxjs/operators';
+      5
+      7 import { ApprovalComment, ApprovalPayload, ApprovalRequest, Guest
+        Approval } from '../models/approval';
+      8
+      9 interface Envelope<T> { success: boolean; data: T; message?: stri
+        ng; }
+     … +78 lines (ctrl+o to expand)
+
+⏺ Adding the icons the screens need, plus the share-message helper. That helper
+  is what replaces 4c: it writes the text that goes into the owner's own mail
+  app or Messages.
+
+⏺ Bash(python3 - <<'EOF'
+      p='src/app/shared/dk-icon/dk-icon.component.ts'…)
+  ⎿  Updated
+     ~/Dropbox/corporate/web-products/docs/src/app/models/approval.ts (+27
+     -0)
+      260  export function blockKey ( text: string ): string {
+      261    return String( text || '' ).replace( /\s+/g, ' ' ).trim();
+      262  }
+      263 +                                                              
+      264 +/**                                                           
+      265 + * What the owner sends with each link, from their own mail ap
+          +p or Messages.                                                
+      266 + * TODD sends nothing itself.                                 
+      267 + */                                                           
+      268 +export function shareMessage ( ctx: { ownerName: string; buyer
+          +: string; dueAt: string; note: string }, approver: { name: str
+          +ing; email: string }, link: string ): { subject: string; body:
+          + string; sms: string } {                                      
+      269 +  const owner = ctx.ownerName || 'I';                         
+      270 +  const buyer = ctx.buyer || 'the buyer';                     
+      271 +  const by = ctx.dueAt ? ` by ${ longWhen( ctx.dueAt ) }` : ''
+          +;                                                             
+      272 +  const hi = approver.name ? `Hi ${ firstName( approver ) },` 
+          +: 'Hi,';                                                      
+      273 +  return {                                                    
+      274 +    subject: `Can you approve our proposal to ${ buyer }?`,   
+      275 +    body: [                                                   
+      276 +      hi,                                                     
+      277 +      '',                                                     
+      278 +      `Before I send our proposal to ${ buyer }, I'd like your
+          + OK${ by }.`,                                                 
+      279 +      ...( ctx.note ? ['', ctx.note] : [] ),                  
+      280 +      '',                                                     
+      281 +      `Review it here: ${ link }`,                            
+      282 +      '',                                                     
+      283 +      'You don\'t need an account. The link opens only this pr
+          +oposal. You can approve it, request changes, or comment right 
+          +there.',                                                      
+      284 +      '',                                                     
+      285 +      owner,                                                  
+      286 +    ].join( '\n' ),                                           
+      287 +    sms: `Can you approve our proposal to ${ buyer } before I 
+          +send it${ by }? ${ link }`,                                   
+      288 +  };                                                          
+      289 +}                                                             
+  ⎿  Updated ~/Dropbox/corporate/web-products/docs/src/app/shared/dk-icon/d
+     k-icon.component.ts (+4 -0)
+      35    link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7
+          .07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 
+          0 0 7.07 7.07l1.71-1.71"/>',
+      36    send: '<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.4
+          96.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 
+          2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+      37    clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"
+          />',
+      38 +  eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0
+         + 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circ
+         +le cx="12" cy="12" r="3"/>',                                   
+      39 +  message: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-
+         +2h14a2 2 0 0 1 2 2z"/>',                                       
+      40 +  mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path
+         + d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',             
+      41 +  lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2
+         +"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',                      
+      42  };
+      43  
+      44  /** `<dk-icon name="search" [size]="18" />` - an inline Lucide 
+          icon in currentColor. */
+
+⏺ Now the per-approver share control, used in both the dialog and the waiting
+  screen.
+
+⏺ Write(~/Dropbox/corporate/web-products/docs/src/app/shared/approver-share/appr
+       over-share.component.ts)  ⎿  Wrote 80 lines to ~/Dropbox/corporate/web-products/docs/src/app/shared
+     /approver-share/approver-share.component.ts
+       1 import { ChangeDetectionStrategy, Component, computed, input, ou
+       2
+       3 import { approvalLink, shareMessage } from '../../models/approva
+         l';
+       5
+       6 export type ShareVia = 'copy' | 'email' | 'message' | 'share';
+       8 /**
+       9  * An approver's private link and the ways to send it: copy it,
+         or open the
+          TODD sends
+     … +92 lines (ctrl+o to expand)
+
+⏺ Bash(sed -i '' "s/{{ copied() ? 'Copied' : compact() ? 'Copy link' : 'Copy
+      link' }}/{{ copied() ? 'Copied' : 'Copy link' }}/"
+      src/app/shared/approver-share/approver-…)
+  ⎿  Updated ~/Dropbox/corporate/web-products/docs/src/app/shared/approver-
+     share/approver-share.component.ts (+1 -1)
+      18    template: `
+      19      <div class="as" [class.as--compact]="compact()">
+      20        <button type="button" class="dk-btn dk-btn--sm as__btn" (
+          click)="copy()" [attr.aria-label]="'Copy ' + label() + '\\'s li
+          nk'">
+      21 -        <dk-icon [name]="copied() ? 'check' : 'copy'" [size]="1
+         -5" />{{ copied() ? 'Copied' : compact() ? 'Copy link' : 'Copy l
+         -ink' }}                                                        
+      21 +        <dk-icon [name]="copied() ? 'check' : 'copy'" [size]="1
+         +5" />{{ copied() ? 'Copied' : 'Copy link' }}                   
+      22        </button>
+      23        <a class="dk-btn dk-btn--sm as__btn" [href]="mailto()" (c
+          lick)="shared.emit('email')" [attr.aria-label]="'Email ' + labe
+          l() + ' their link'"><dk-icon name="mail" [size]="15" />Email</
+          a>
+      24        <a class="dk-btn dk-btn--sm as__btn" [href]="sms()" (clic
+          k)="shared.emit('message')" [attr.aria-label]="'Text ' + label(
+          ) + ' their link'"><dk-icon name="message" [size]="15" />Messag
+          e</a>
+
+⏺ Now the Get approval dialog (4a). After asking, it switches to a step for
+  sending each person their link.
+
+⏺ Write(review-send/get-approval-dialog.component.ts)
+  ⎿  Wrote 165 lines to review-send/get-approval-dialog.component.ts
+       1 import { CommonModule } from '@angular/common';
+          computed, inject, input, output, signal } from '@angular/core';
+       3 import { FormsModule } from '@angular/forms';
+       5 import { ApprovalRequest, ApprovalRule, firstName, initials, par
+         seApprover, personTint, shortWhen, suggestedApproveBy } from '..
+       6 import { ApproverShareComponent, ShareVia } from '../../shared/a
+         pprover-share/approver-share.component';
+         mponent';
+       8
+      10   approvers: { id?: string; name: string; email: string }[];
+     … +186 lines (ctrl+o to expand)
+
+⏺ Write(review-send/get-approval-dialog.component.html)
+  ⎿  Wrote 114 lines to review-send/get-approval-dialog.component.html
+       1 <div class="ga__backdrop" (click)="onBackdrop($event)" (keydown.
+       2   <div class="ga" role="dialog" aria-modal="true" aria-labelledb
+         y="ga-title">
+       4       <header class="ga__head">
+       5         <h2 id="ga-title">Send each person their link</h2>
+         emit()" aria-label="Close"><dk-icon name="x" /></button>
+       7       </header>
+         opens only this proposal. Send it however you like. Email and Me
+         ssage open your own apps with a note already written.</p>
+      10         @for (a of request.approvers;
+     … +163 lines (ctrl+o to expand)
+
+⏺ Write(review-send/get-approval-dialog.component.css)
+  ⎿  Wrote 210 lines to review-send/get-approval-dialog.component.css
+       1 :host { display: contents; }
+       2
+       3 .ga__backdrop {
+       4   position: fixed;
+       5   inset: 0;
+       6   z-index: 1000;
+       7   display: grid;
+       8   place-items: start center;
+       9   overflow-y: auto;
+      10   padding: 48px 16px;
+     … +230 lines (ctrl+o to expand)
+
+⏺ I'm adding the "Get approval" button plus the
+  waiting/changes-requested/approved states to the Review & send step, locking
+  Send until approved, and converting subject/body to signals so edits are
+  detected after approval is requested.
+
+⏺ Bash(python3 - <<'EOF'
+      p='src/app/features/review-send/review-send.component.ts'…)
+  ⎿  Updated review-send/review-send.component.ts (+238 -15)
+       6  import { getBlob, getDownloadURL, getStorage, ref, uploadBytes 
+          } from 'firebase/storage';
+       7  import { firstValueFrom } from 'rxjs';
+       8  
+       9 +import { APPROVER_STATE, ApprovalComment, ApprovalPayload, Appr
+         +ovalRequest, Approver, ago, describeEvent, displayName, firstNa
+         +me, initials, longWhen, personTint } from '../../models/approva
+         +l';                                                            
+      10  import { Document } from '../../models/document.model';
+      11  import { documentExtension, documentKindInfo } from '../../mode
+          ls/document-kind';
+      11 -import { DocsInbox, Opportunity, ProposalDraft } from '../../mo
+         -dels/opportunity';                                             
+      12 +import { DocsInbox, Opportunity, ProposalDraft, dueDate, dueLon
+         +g } from '../../models/opportunity';                           
+      13 +import { ApprovalsService } from '../../services/approvals.serv
+         +ice';                                                          
+      14  import { DocService } from '../../services/doc.service';
+      15  import { DocsAuthService } from '../../services/docs-auth.servi
+          ce';
+      16  import { DocsNotificationService } from '../../services/docs-no
+          tification.service';
+      17  import { DocumentsStoreService } from '../../services/documents
+          -store.service';
+      18  import { OpportunitiesService } from '../../services/opportunit
+          ies.service';
+      19  import { ProfileApiService } from '../../services/profile-api.s
+          ervice';
+      20 +import { ApproverShareComponent, ShareVia } from '../../shared/
+         +approver-share/approver-share.component';                      
+      21  import { DkIconComponent } from '../../shared/dk-icon/dk-icon.c
+          omponent';
+      22  import { buildProposalPdf } from '../../shared/proposal-pdf';
+      23  import { WriteActionDirective } from '../../shared/write-access
+          /write-action.directive';
+      24 +import { ApprovalForm, GetApprovalDialogComponent } from './get
+         +-approval-dialog.component';                                   
+      25  import { defaultBody, defaultSender, defaultSubject, isEmail, i
+          sNoReply, whyThisAddress } from './review-send.helpers';
+      26  
+      27  interface AttachmentChip {
+     ...
+      45   * (11pt, 1" margins) and the attachments the checklist found i
+          n Documents.
+      46   * Send waits for a complete checklist. Portal-only RFPs get Do
+          wnload
+      47   * package and a link to the portal instead, then "I've submitt
+          ed it".
+      48 + *                                                             
+      49 + * Approval (round 4, 4a/4b/4g/4h) is optional: once asked for,
+         + Send stays                                                    
+      50 + * locked until the rule is met for exactly what would go out. 
+         +Approvers                                                      
+      51 + * review from a private link the owner sends them.            
+      52   */
+      53  @Component( {
+      54    selector: 'app-review-send',
+      55    standalone: true,
+      48 -  imports: [CommonModule, FormsModule, RouterModule, DkIconComp
+         -onent, WriteActionDirective],                                  
+      56 +  imports: [CommonModule, FormsModule, RouterModule, DkIconComp
+         +onent, WriteActionDirective, GetApprovalDialogComponent, Approv
+         +erShareComponent],                                             
+      57    changeDetection: ChangeDetectionStrategy.OnPush,
+      58    templateUrl: './review-send.component.html',
+      59    styleUrl: './review-send.component.css',
+     ...
+      66    private readonly auth = inject( DocsAuthService );
+     … 318 more lines (ctrl+o to expand)
+
+⏺ Fixing a leftover no-op ternary in editNote. Then the template.
+
+⏺ Bash(sed -i '' "s/ask again and \${ names.length === 1 ? 'they' : 'they' }'ll
+      see only what changed/ask again and they'll see only what changed/"
+      src/app/features/re…)
+  ⎿  Updated review-send/review-send.component.ts (+1 -1)
+      179      if ( !approved.length ) return 'If you change the proposal
+           , the email or the attachments now, ask again so they review t
+           he version that goes out. They see only what changed.';
+      180      const names = approved.map( ( a ) => firstName( a ) );
+      181      const who = names.length === 1 ? names[0] : `${ names.slic
+           e( 0, -1 ).join( ', ' ) } and ${ names[names.length - 1] }`;
+      182 -    return `${ who } approved version ${ this.approval()!.vers
+          -ion }. If you change the proposal, the email or the attachment
+          -s, ask again and ${ names.length === 1 ? 'they' : 'they' }'ll 
+          -see only what changed.`;                                      
+      182 +    return `${ who } approved version ${ this.approval()!.vers
+          +ion }. If you change the proposal, the email or the attachment
+          +s, ask again and they'll see only what changed.`;             
+      183    } );
+      184  
+      185    readonly canSend = computed( () => this.ready() && !!this.to
+           ().trim() && !this.toProblem() && !!this.pdfBytes && this.pdfP
+           ages() > 0 && !this.sendLocked() );
+
+⏺ Write(review-send/review-send.component.html)
+  ⎿  Added 163 lines, removed 9 lines
+      14            <main>
+      15              <p class="dk-kicker">Review &amp; send{{ o.agency ?
+           ' · ' + o.agency : '' }}</p>
+      16              <h1 class="rs__title">{{ headline() }}</h1>
+      17 +            @if (approvalActive() && approvalSub()) { <p class=
+         +"rs__lede dk-muted">{{ approvalSub() }}</p> }                  
+      18  
+      19 +            @if (approval(); as a) {                           
+      20 +              @if (approvalActive() || a.status === 'bypassed')
+         + {                                                             
+      21 +                @if (approvalOutdated()) {                     
+      22 +                  <section class="rs__banner dk-tinted" data-ti
+         +nt="yellow">                                                   
+      23 +                    <div>                                      
+      24 +                      <strong>This isn't the version they {{ a.
+         +status === 'approved' ? 'approved' : 'were asked about' }}.</st
+         +rong>                                                          
+      25 +                      <p>{{ a.proposalChanged ? 'The proposal c
+         +hanged' : 'The email or attachments changed' }} since you asked
+         +. Ask again. Anyone who already approved sees only what changed
+         +.</p>                                                          
+      26 +                    </div>                                     
+      27 +                    <button type="button" class="dk-btn dk-btn-
+         +-primary" (click)="askAgain()" [disabled]="!!busy()" appWriteAc
+         +tion="ask for approval again"><dk-icon name="send" [size]="16" 
+         +/>{{ busy() === 'approval' ? 'Asking…' : 'Ask for approval agai
+         +n' }}</button>                                                 
+      28 +                  </section>                                   
+      29 +                }                                              
+      30 +                <ul class="rs__approvers" aria-label="Approvers
+         +">                                                             
+      31 +                  @for (p of a.approvers; track p.id) {        
+      32 +                    <li class="rs__approver">                  
+      33 +                      <span class="rs__av dk-tinted" [attr.data
+         +-tint]="tint(p)">{{ initials(p.name, p.email) }}</span>        
+      34 +                      <div class="rs__who">                    
+      35 +                        <strong>{{ p.name || p.email }}</strong
+         +>                                                              
+      36 +                        <small class="dk-muted">{{ approverSub(
+         +p) }}</small>                                                  
+      37 +                        @if (p.message && (p.state === 'approve
+         +d' || p.state === 'changes')) { <q class="rs__quote">{{ p.messa
+         +ge }}</q> }                                                    
+      38 +                      </div>                                   
+      39 +                      <span class="dk-tag dk-tinted" [attr.data
+         +-tint]="APPROVER_STATE[p.state].tint">{{ APPROVER_STATE[p.state
+         +].label }}</span>                                              
+      40 +                      @if (approvalActive() && p.state !== 'app
+         +roved') {                                                      
+      41 +                        <details class="rs__nudge">            
+      42 +                          <summary class="dk-btn dk-btn--sm">{{
+         + p.sharedAt ? 'Nudge' : 'Send link' }}</summary>               
+      43 +                          <div class="rs__nudge-menu">         
+      44 +                            <app-approver-share [approver]="p" 
+         +[ownerName]="ownerName" [buyer]="o.agency" [dueAt]="a.dueAt" [n
+         +ote]="a.note" [compact]="true" (shared)="onShared({ approverId:
+         + p.id, via: $event })" />                                      
+      45 +                          </div>                               
+      46 +                        </details>                             
+      47 +                      }                                        
+      48 +                    </li>                                      
+      49 +                  }                                            
+      50 +                </ul>                                          
+      51 +              }                                                
+      52 +            }                                                  
+      53 +                                                               
+      54              @if (o.submissionRecord; as sent) {
+      55                <section class="rs__sent">
+      56                  <dk-icon name="check" [size]="20" />
+     ...
+      76                        @else if (o.submission.email && to().trim
+          ().toLowerCase() === o.submission.email) { <small class="dk-mut
+          ed">From the RFP</small> }
+      77                      </div>
+      78                    </label>
+      43 -                  <label class="rs__row"><span>Subject</span><i
+         -nput [(ngModel)]="subject" name="subject" aria-label="Subject" 
+         -/></label>                                                     
+      79 +                  <label class="rs__row"><span>Subject</span><i
+         +nput [ngModel]="subject()" (ngModelChange)="subject.set($event)
+         +" name="subject" aria-label="Subject" /></label>               
+      80                    <label class="rs__row">
+      81                      <span>From</span>
+      82                      @if (inboxes().length) {
+     ...
+      87                        <a class="rs__connect" routerLink="/oppor
+          tunities/inbox">Connect your email to send from it</a>
+      88                      }
+      89                    </label>
+      54 -                  <textarea class="rs__body" [(ngModel)]="body"
+         - name="body" rows="9" aria-label="Message"></textarea>         
+      90 +                  <textarea class="rs__body" [ngModel]="body()"
+         + (ngModelChange)="body.set($event)" name="body" rows="9" aria-l
+         +abel="Message"></textarea>                                     
+      91                  }
+      92                  <div class="rs__files">
+      93                    @for (a of attachments(); track a.key) {
+     ...
+      104                  @if (portalOnly()) {
+      105                    <button type="button" class="dk-btn dk-btn--
+           primary dk-btn--lg" (click)="downloadPackage()" [disabled]="!!
+           busy()"><dk-icon name="download" />{{ busy() === 'package' ? '
+           Packaging…' : 'Download package' }}</button>
+      106                    @if (o.portalUrl) { <a class="dk-btn dk-btn-
+           -lg" [href]="o.portalUrl" target="_blank" rel="noopener"><dk-i
+           con name="external" />Open the portal</a> }
+       71 -                  <button type="button" class="dk-btn dk-btn--
+          -lg" (click)="markSubmitted()" [disabled]="!!busy()" appWriteAc
+          -tion="mark this submitted">I've submitted it</button>         
+      107 +                  <button type="button" class="dk-btn dk-btn--
+          +lg" (click)="markSubmitted()" [disabled]="!!busy() || sendLock
+          +ed()" appWriteAction="mark this submitted">@if (sendLocked()) 
+          +{ <dk-icon name="lock" /> }I've submitted it</button>         
+      108                  } @else {
+       73 -                  <button type="button" class="dk-btn dk-btn--
+          -primary dk-btn--lg" (click)="send()" [disabled]="!canSend() ||
+          - !!busy() || !inboxes().length" appWriteAction="send this prop
+          -osal"><dk-icon name="send" />{{ busy() === 'send' ? 'Sending…'
+          - : 'Send proposal' }}</button>                                
+      109 +                  <button type="button" class="dk-btn dk-btn--
+          +primary dk-btn--lg" [class.rs__locked]="sendLocked()" (click)=
+          +"send()" [disabled]="!canSend() || !!busy() || !inboxes().leng
+          +th" appWriteAction="send this proposal">                      
+      110 +                    <dk-icon [name]="sendLocked() ? 'lock' : '
+          +send'" />{{ busy() === 'send' ? 'Sending…' : sendLocked() ? 'S
+          +end after approval' : 'Send proposal' }}                      
+      111 +                  </button>                                   
+      112 +                }                                             
+      113 +                @if (approvalActive()) {                      
+      114 +                  <button type="button" class="dk-btn dk-btn--
+          +lg" (click)="openApproval('change')" [disabled]="!!busy()" app
+          +WriteAction="change approvers"><dk-icon name="pen" />Change ap
+          +provers</button>                                              
+      115 +                } @else if (!approval() || approval()!.status 
+          +!== 'bypassed') {                                             
+      116 +                  <button type="button" class="dk-btn dk-btn--
+          +lg" (click)="openApproval('ask')" [disabled]="!!busy()" appWri
+          +teAction="ask for approval"><dk-icon name="check" />Get approv
+          +al</button>                                                   
+      117 +                }                                             
+      118 +                @if (!portalOnly()) {                         
+      119                    <button type="button" class="dk-btn dk-btn--
+           lg" (click)="downloadPackage()" [disabled]="!!busy()"><dk-icon
+            name="download" />{{ busy() === 'package' ? 'Packaging…' : 'D
+           ownload package' }}</button>
+      120                  }
+      121 +                @if (sendLocked()) {                          
+      122 +                  <button type="button" class="rs__bypass" (cl
+          +ick)="dialogError.set(''); dialog.set('bypass')">Send without 
+          +approval…</button>                                            
+      123 +                }                                             
+      124                </div>
+      125                @if (!ready()) { <p class="dk-muted rs__gate">Se
+           nd unlocks when the checklist is complete. <a [routerLink]="['
+           /opportunities', o.id, 'proposal']">Finish the proposal</a></p
+           > }
+      126              }
+      127            </main>
+      128  
+      129            <aside class="rs__side">
+      130 +            @if (approval(); as a) {                          
+      131 +              @if (approvalMet()) {                           
+      132 +                <section class="rs__card dk-tinted" data-tint=
+          +"green">                                                      
+      133 +                  <h2>Approved version {{ a.version }}</h2>   
+      134 +                  <p>This is the exact version that goes out. 
+          +If anything changes before you send, approvals restart.</p>   
+      135 +                  @if (a.onApproved === 'autoSend') { <p>You c
+          +hose to have TODD send it automatically. If it hasn't gone, ch
+          +eck Activity and send it yourself.</p> }                      
+      136 +                  <p class="rs__fine">Links close when you sen
+          +d. Approvers can still open a read-only copy of what was sent 
+          +until {{ longWhen(a.linkExpiresAt) }}.</p>                    
+      137 +                </section>                                    
+      138 +              }                                               
+      139 +              @for (p of changesBy(); track p.id) {           
+      140 +                <section class="rs__card dk-tinted" data-tint=
+          +"pink">                                                       
+      141 +                  <h2>{{ p.name || p.email }} requested change
+          +s</h2>                                                        
+      142 +                  <small>{{ p.email && p.name ? p.email + ' · 
+          +' : '' }}{{ ago(p.decidedAt) }}</small>                       
+      143 +                  @if (p.message) { <p class="rs__said">{{ p.m
+          +essage }}</p> }                                               
+      144 +                </section>                                    
+      145 +              }                                               
+      146 +              @if (a.comments.length) {                       
+      147 +                <section class="rs__card">                    
+      148 +                  <h2>Comments and edits</h2>                 
+      149 +                  <ul class="rs__comments">                   
+      150 +                    @for (c of a.comments; track c.id) {      
+      151 +                      <li class="rs__comment" [class.is-done]=
+          +"c.status !== 'open'">                                        
+      152 +                        <div class="rs__comment-head">        
+      153 +                          <span class="rs__av rs__av--xs dk-ti
+          +nted" [attr.data-tint]="tint({ name: c.authorName || '', email
+          +: '' })">{{ initials(c.authorName || '') }}</span>            
+      154 +                          <strong>{{ c.authorName }}{{ c.repla
+          +cement !== null ? ' · suggested edit' : '' }}</strong>        
+      155 +                          @if (c.status !== 'open') { <span cl
+          +ass="dk-tag dk-tinted" [attr.data-tint]="c.status === 'accepte
+          +d' ? 'green' : 'grey'">{{ c.status === 'accepted' ? 'Accepted'
+          + : 'Rejected' }}</span> }                                     
+      156 +                        </div>                                
+      157 +                        @if (c.sectionTitle) { <small class="d
+          +k-muted">{{ c.sectionTitle }}</small> }                       
+      158 +                        @if (c.replacement !== null) {        
+      159 +                          <p class="rs__diff"><del>{{ c.quote 
+          +}}</del> <ins>{{ c.replacement }}</ins></p>                   
+      160 +                        } @else if (c.quote) {                
+      161 +                          <p class="rs__quoted">“{{ c.quote }}
+          +”</p>                                                         
+      162 +                        }                                     
+      163 +                        @if (c.text) { <p>{{ c.text }}</p> }  
+      164 +                        @for (r of c.replies; track r.at) { <p
+          + class="rs__reply"><strong>{{ r.by }}:</strong> {{ r.text }}</
+          +p> }                                                          
+      165 +                        @if (approvalActive()) {              
+      166 +                          <div class="rs__comment-actions">   
+      167 +                            @if (c.replacement !== null && c.s
+          +tatus === 'open') {                                           
+      168 +                              <button type="button" class="dk-
+          +btn dk-btn--primary dk-btn--sm" (click)="resolve(c, 'accept')"
+          + [disabled]="!!busyComment()" appWriteAction="accept this edit
+          +"><dk-icon name="check" [size]="14" />Accept edit</button>    
+      169 +                              <button type="button" class="dk-
+          +btn dk-btn--bg dk-btn--sm" (click)="resolve(c, 'reject')" [dis
+          +abled]="!!busyComment()">Reject</button>                      
+      170 +                            }                                 
+      171 +                            <input class="rs__reply-input" [(n
+          +gModel)]="replies[c.id]" [name]="'reply-' + c.id" placeholder=
+          +"Reply…" (keydown.enter)="resolve(c, 'reply')" [attr.aria-labe
+          +l]="'Reply to ' + c.authorName" />                            
+      172 +                          </div>                              
+      173 +                        }                                     
+      174 +                      </li>                                   
+      175 +                    }                                         
+      176 +                  </ul>                                       
+      177 +                </section>                                    
+      178 +              }                                               
+      179 +              @if (activity().length) {                       
+      180 +                <section class="rs__card">                    
+      181 +                  <h2>Activity</h2>                           
+      182 +                  <ul class="rs__activity">                   
+      183 +                    @for (e of activity(); track $index) {    
+      184 +                      <li>                                    
+      185 +                        <span class="rs__act-ic dk-tinted" [at
+          +tr.data-tint]="e.tint"><dk-icon [name]="e.icon" [size]="14" />
+          +</span>                                                       
+      186 +                        <div><p>{{ e.text }}</p><small class="
+          +dk-muted">{{ e.at | date:'MMM d, h:mm a' }}</small></div>     
+      187 +                      </li>                                   
+      188 +                    }                                         
+      189 +                  </ul>                                       
+      190 +                </section>                                    
+      191 +              }                                               
+      192 +              @if (approvalActive() && !approvalMet()) {      
+      193 +                <section class="rs__card dk-tinted" data-tint=
+          +"blue">                                                       
+      194 +                  <div class="dk-todd__head rs__todd"><img src
+          +="assets/avatar-todd-sm.png" alt="" />If you edit now</div>   
+      195 +                  <p>{{ editNote() }}</p>                     
+      196 +                </section>                                    
+      197 +                <section class="rs__card">                    
+      198 +                  <h2 class="dk-kicker">Send without approval<
+          +/h2>                                                          
+      199 +                  <p>Only you, as the person who asked, can. T
+          +ODD asks for a reason and keeps it in Activity.</p>           
+      200 +                </section>                                    
+      201 +              }                                               
+      202 +            }                                                 
+      203              @if (checklist().length) {
+      204                @if (ready()) {
+      205                  <section class="rs__card dk-tinted" data-tint=
+           "green">
+     ...
+      214                  </section>
+      215                }
+      216              }
+       96 -            @if (!portalOnly() && !o.submissionRecord) {      
+      217 +            @if (!portalOnly() && !o.submissionRecord && !appr
+          +ovalActive()) {                                               
+      218                <section class="rs__card">
+      219                  <div class="dk-todd__head rs__todd"><img src="
+           assets/avatar-todd-sm.png" alt="" />Why this address</div>
+      220                  <p>{{ why() }}</p>
+      221                </section>
+      222              }
+      102 -            <section class="rs__card">                        
+      103 -              <h2 class="dk-kicker">{{ portalOnly() ? 'Portal-
+          -only RFP' : 'When it’s portal-only' }}</h2>                   
+      104 -              <p>{{ portalOnly() ? 'This RFP takes submissions
+          - through its portal. Download the package and upload it there.
+          - When the portal\u2019s confirmation email reaches your RFP in
+          -box, TODD marks it submitted, or you can mark it yourself.' : 
+          -'Some RFPs only take uploads through a portal like Bonfire. Fo
+          -r those, Download package bundles the proposal and attachments
+          - to upload yourself, and TODD marks it submitted when the port
+          -al\u2019s confirmation email arrives.' }}</p>                 
+      105 -            </section>                                        
+      223 +            @if (!approvalActive()) {                         
+      224 +              <section class="rs__card">                      
+      225 +                <h2 class="dk-kicker">{{ portalOnly() ? 'Porta
+          +l-only RFP' : 'When it’s portal-only' }}</h2>                 
+      226 +                <p>{{ portalOnly() ? 'This RFP takes submissio
+          +ns through its portal. Download the package and upload it ther
+          +e. When the portal’s confirmation email reaches your RFP inbox
+          +, TODD marks it submitted, or you can mark it yourself.' : 'So
+          +me RFPs only take uploads through a portal like Bonfire. For t
+          +hose, Download package bundles the proposal and attachments to
+          + upload yourself, and TODD marks it submitted when the portal’
+          +s confirmation email arrives.' }}</p>                         
+      227 +              </section>                                      
+      228 +            }                                                 
+      229            </aside>
+      230          </div>
+      231 +                                                              
+      232 +        @if (dialog() === 'ask' || dialog() === 'change' || di
+          +alog() === 'share') {                                         
+      233 +          <app-get-approval-dialog                            
+      234 +            [buyer]="o.agency"                                
+      235 +            [submissionAddress]="to().trim()"                 
+      236 +            [portalOnly]="portalOnly()"                       
+      237 +            [rfpDue]="rfpDue()"                               
+      238 +            [ownerName]="ownerName"                           
+      239 +            [initial]="dialog() === 'change' ? approval() : nu
+          +ll"                                                           
+      240 +            [saved]="dialog() === 'share' ? approval() : null"
+      241 +            [busy]="dialogBusy()"                             
+      242 +            [error]="dialogError()"                           
+      243 +            (closed)="closeDialog()"                          
+      244 +            (submitted)="submitApproval($event)"              
+      245 +            (shared)="onShared($event)" />                    
+      246 +        }                                                     
+      247 +        @if (dialog() === 'bypass') {                         
+      248 +          <div class="rs__backdrop" (click)="$event.target ===
+          + $event.currentTarget && closeDialog()">                      
+      249 +            <div class="rs__dialog" role="dialog" aria-modal="
+          +true" aria-labelledby="rs-bypass-title">                      
+      250 +              <header><h2 id="rs-bypass-title">Send without ap
+          +proval?</h2><button type="button" class="dk-circle" (click)="c
+          +loseDialog()" aria-label="Close"><dk-icon name="x" /></button>
+          +</header>                                                     
+      251 +              <p class="dk-muted">Send unlocks for you now. Ap
+          +provers' links show it went without their approval. Your reaso
+          +n stays in Activity and the proposal's record.</p>            
+      252 +              <label class="rs__label" for="rs-bypass-reason">
+          +Why</label>                                                   
+      253 +              <textarea id="rs-bypass-reason" class="rs__body"
+          + [(ngModel)]="bypassReason" name="bypassReason" rows="3" place
+          +holder="e.g. Marcus is out and the deadline is today"></textar
+          +ea>                                                           
+      254 +              @if (dialogError()) { <p class="rs__bad">{{ dial
+          +ogError() }}</p> }                                            
+      255 +              <div class="rs__dialog-actions">                
+      256 +                <button type="button" class="dk-btn dk-btn--lg
+          + rs__cancel" (click)="closeDialog()">Cancel</button>          
+      257 +                <button type="button" class="dk-btn dk-btn--pr
+          +imary dk-btn--lg" (click)="bypass()" [disabled]="!bypassReason
+          +.trim() || dialogBusy()">{{ dialogBusy() ? 'Saving…' : 'Unlock
+          + Send' }}</button>                                            
+      258 +              </div>                                          
+      259 +            </div>                                            
+      260 +          </div>                                              
+      261 +        }                                                     
+      262        }
+      263      }
+      264    }
+
+⏺ Now the CSS for the new Review & send pieces.
+
+⏺ Bash(python3 - <<'EOF'
+      p='src/app/features/review-send/review-send.component.css'…)
+  ⎿  Updated review-send/review-send.component.css (+104 -0)
+       87  .rs__card .dk-btn { justify-self: start; }
+       88  .rs__todd { margin: 0 !important; }
+       89  
+       90 +/* Approval (round 4) */                                      
+       91 +.rs__lede { margin: -8px 0 20px !important; font-size: 16px; l
+          +ine-height: 1.5; }                                            
+       92 +                                                              
+       93 +.rs__banner { display: flex; flex-wrap: wrap; align-items: cen
+          +ter; gap: 14px; margin-bottom: 16px; padding: 16px 18px; borde
+          +r-radius: 24px; }                                             
+       94 +.rs__banner > div { flex: 1; min-width: 240px; display: grid; 
+          +gap: 2px; font-size: 14px; line-height: 1.5; }                
+       95 +                                                              
+       96 +.rs__approvers { display: grid; gap: 6px; margin: 0 0 20px; pa
+          +dding: 8px; border-radius: 28px; background: var(--surface); l
+          +ist-style: none; }                                            
+       97 +                                                              
+       98 +.rs__approver {                                               
+       99 +  display: grid;                                              
+      100 +  grid-template-columns: 44px minmax(0, 1fr) auto auto;       
+      101 +  align-items: center;                                        
+      102 +  gap: 14px;                                                  
+      103 +  padding: 14px 16px;                                         
+      104 +  border-radius: 20px;                                        
+      105 +  background: var(--bg);                                      
+      106 +}                                                             
+      107 +                                                              
+      108 +.rs__av { display: grid; place-items: center; width: 44px; hei
+          +ght: 44px; border-radius: 50%; font-size: 15px; font-weight: 7
+          +00; }                                                         
+      109 +.rs__av--xs { width: 28px; height: 28px; font-size: 11px; flex
+          +: none; }                                                     
+      110 +.rs__who { display: grid; gap: 2px; min-width: 0; }           
+      111 +.rs__who strong { font-size: 16px; overflow: hidden; text-over
+          +flow: ellipsis; white-space: nowrap; }                        
+      112 +.rs__who small { font-size: 13px; line-height: 1.4; }         
+      113 +.rs__quote { font-size: 13px; color: var(--text); }           
+      114 +                                                              
+      115 +.rs__nudge { position: relative; }                            
+      116 +.rs__nudge summary { list-style: none; background: var(--surfa
+          +ce); }                                                        
+      117 +.rs__nudge summary::-webkit-details-marker { display: none; } 
+      118 +.rs__nudge[open] summary { background: var(--text); color: var
+          +(--bg); }                                                     
+      119 +                                                              
+      120 +.rs__nudge-menu {                                             
+      121 +  position: absolute;                                         
+      122 +  right: 0;                                                   
+      123 +  top: calc(100% + 8px);                                      
+      124 +  z-index: 20;                                                
+      125 +  width: max-content;                                         
+      126 +  max-width: min(340px, 80vw);                                
+     … 74 more lines (ctrl+o to expand)
+
+⏺ Now the approver's page at /approve/:token (4e, with the 4f phone layout). The
+  link alone opens it, with no sign-in, and the app header and assistant are
+  hidden.
+
+⏺ Write(approve/approve.component.ts)
+  ⎿  Wrote 296 lines to approve/approve.component.ts
+       1 import { CommonModule } from '@angular/common';
+         estroyRef, ElementRef, HostListener, OnInit, SecurityContext, Vi
+         ewChild, computed, inject, signal } from '@angular/core';
+       3 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+       5 import { DomSanitizer, Title } from '@angular/platform-browser';
+       6 import { ActivatedRoute } from '@angular/router';
+       8
+       9 import { APPROVER_STATE, ApprovalComment, GuestApproval, blockKe
+         y, displayName, firstName, initials, longWhen, personTint } from
+      10 import { ApprovalsService } from '..
+     … +356 lines (ctrl+o to expand)
+
+⏺ Next, the approver page's template and styles.
+
+⏺ Write(approve/approve.component.html)
+  ⎿  Wrote 134 lines to approve/approve.component.html
+       1 <div class="ap">
+       3     <span class="ap__brand"><img src="assets/todd-docs-icon.png"
+          alt="" />TODD <b>Docs</b></span>
+       5       <span class="ap__shared dk-muted">Shared with you by <stro
+         '' }}</span>
+       6       <span class="ap__me">
+         t]="tint(d.me.email || d.me.name)">{{ initials(d.me.name, d.me.e
+         mail) }}</span>
+         'Approver' }}</span>
+      10     }
+     … +201 lines (ctrl+o to expand)
+
+⏺ Write(approve/approve.component.css)
+  ⎿  Wrote 136 lines to approve/approve.component.css
+       1 :host { display: block; min-height: 100vh; background: var(--bg)
+       2
+       3 .ap { max-width: 1280px; margin: 0 auto; padding: 20px 40px 64px
+       4 .ap h1, .ap h2, .ap p { margin: 0; }
+       6 .ap__bar { display: flex; align-items: center; gap: 20px; min-he
+         ight: 52px; margin-bottom: 28px; }
+         x; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; w
+         hite-space: nowrap; }
+         }
+      10 .ap__shared { flex: 1; font-size: 14px; }
+     … +183 lines (ctrl+o to expand)
+
+⏺ Wiring up the route and hiding the app header and assistant on it.
+
+⏺ Bash(ls public/assets/ | grep -i "todd-docs-icon\|avatar-todd" ; python3 -
+      <<'EOF'
+      p='src/app/app.routes.ts'…)
+  ⎿  (No output)
+
+⏺ Bash(python3 - <<'EOF'
+      p='src/app/app.routes.ts'…)
+  ⎿  Updated
+     ~/Dropbox/corporate/web-products/docs/src/app/app.component.html (+1
+     -1)
+      2  <div *ngIf="updateNotice" class="docs-update-notice" role="statu
+         s" aria-live="polite"><span>{{ updateNotice }}</span><button *ng
+         If="chunkRecoveryNeedsManualRefresh" type="button" (click)="refr
+         eshAfterChunkError()">Refresh</button><button *ngIf="!chunkRecov
+         eryNeedsManualRefresh" type="button" aria-label="Dismiss update 
+         notification" (click)="dismissUpdateNotice()">×</button></div>
+      3  <router-outlet></router-outlet>
+      4  <!-- The assistant launcher and its engine load once the page is
+          idle, keeping them out of the initial bundle. -->
+      5 -@if (!isEmbedded) { @defer (on idle) { <app-docs-assistant-launc
+        -her /> } }                                                      
+      5 +@if (!isEmbedded && !hideHeader) { @defer (on idle) { <app-docs-
+        +assistant-launcher /> } }                                       
+      6  <app-toast></app-toast>
+      7  <app-write-access-prompt />
+  ⎿  Updated ~/Dropbox/corporate/web-products/docs/src/app/app.component.ts
+     (+1 -1)
+      140    }
+      141  
+      142    private isBareRoute ( url: string ): boolean {
+      143 -    return /^\/(auth\/callback|mobile-handoff)(\/|\?|$)/.test(
+          - url || '' );                                                 
+      143 +    return /^\/(auth\/callback|mobile-handoff|approve)(\/|\?|$
+          +)/.test( url || '' );                                         
+      144    }
+      145  
+      146    private isEditingDocs (): boolean {
+  ⎿  Updated ~/Dropbox/corporate/web-products/docs/src/app/app.routes.ts
+     (+7 -0)
+       96      path: 'docs/landing',
+       97      redirectTo: '/',
+       98    },
+       99 +  {                                                           
+      100 +    // An approver's private link (round 4): no account or sig
+          +n-in, no app header.                                          
+      101 +    path: 'approve/:token',                                   
+      102 +    data: { pageTitle: 'Approve' },                           
+      103 +    loadComponent: () =>                                      
+      104 +      import( './features/approve/approve.component' ).then( (
+          + m ) => m.ApproveComponent ),                                 
+      105 +  },                                                          
+      106    {
+      107      // The four tabs (design_handoff_todd_docs): Home, Opportu
+           nities,
+      108      // Documents, Knowledge. Each tab's old pages redirect int
+           o it.
+
+⏺ The build is clean. Next: unit specs for the helpers, and a check of whether
+  any Cypress spec depends on the Review & send buttons.
+
+  Listed 1 directory (ctrl+o to expand)
+
+⏺ Bash(sed -n 1,60p cypress/e2e/routes.cy.ts)
+  ⎿  (No output)
+
+⏺ I'll add a unit spec for the helpers, plus a Cypress spec that opens the
+  approver page signed out with the API stubbed. The second one proves the link
+  works without an account.
+
+⏺ Write(~/Dropbox/corporate/web-products/docs/src/app/models/approval.spec.ts)  ⎿  Wrote 44 lines to
+     ~/Dropbox/corporate/web-products/docs/src/app/models/approval.spec.ts
+       1 import { approvalLink, describeEvent, initials, parseApprover, s
+         /approval';
+       3 describe( 'approval helpers', () => {
+       4   it( 'reads a name, an email, or "Name <email>" as an approver'
+       5     expect( parseApprover( 'Jordan@ParkITO.law' ) ).toEqual( { n
+       6     expect( parseApprover( 'Jordan Park <jordan@parkito.law>' )
+         );
+       7     expect( parseApprover( 'Marcus Lee,' ) ).toEqual( { name: 'M
+       8     expect( parseApprover( 'jordan@' ) ).toBeNull();
+      10   } );
+     … +54 lines (ctrl+o to expand)
+
+⏺ Write(~/Dropbox/corporate/web-products/docs/cypress/e2e/approve.cy.ts)
+  ⎿  Wrote 55 lines to
+     ~/Dropbox/corporate/web-products/docs/cypress/e2e/approve.cy.ts
+       1 // An approver opens their private link signed out: no account,
+         no sign-in.
+       2 const view = {
+       3   readOnly: false,
+       4   status: 'waiting',
+       6   company: 'Taliferro Tech',
+       7   note: 'Can you check pricing in section 5?',
+       8   rule: 'all',
+       9   dueAt: '2026-10-21T17:00:00.000Z',
+      10   allowSuggestions: true,
+     … +62 lines (ctrl+o to expand)
+
+⏺ Bash(npm run -s typecheck:cypress 2>&1 | tail -5; npm run -s test:ci 2>&1 |
+      grep -E "FAILED|Executed .* (SUCCESS|FAILED)|Error" | tail -15)
+  ⎿  (No output)
+
+⏺ Bash(npm run -s test:ci 2>&1 | grep -B2 -A8 "FAILED$" | grep -v "Executed" |
+      head -20)
+  ⎿  (No output)
+
+⏺ That failure is the route-table snapshot test, and it's expected. I'll add the
+  new route to it.
+
+⏺ Bash(f=$(grep -rl "exposes every Docs and Knowledge route" src); grep -n
+      "'docs/landing'" $f)
+  ⎿  (No output)
+
+⏺ Bash(f=$(grep -rl "exposes every Docs and Knowledge route" src); sed -i ''
+      "7s#'docs/landing', 'opportunities',#'docs/landing', 'approve/:token',
+      'opportunities',#"…)
+  ⎿  Updated
+     ~/Dropbox/corporate/web-products/docs/src/app/app.routes.spec.ts (+1
+     -1)
+       4    it( 'exposes every Docs and Knowledge route', () => {
+       5      expect( routes.map( route => route.path ) ).toEqual( [
+       6        '', 'auth/callback', 'mobile-handoff', 'ios', 'about', 'h
+          elp', 'docs/success', 'knowledge/success',
+       7 -      'docs/pricing', 'knowledge/pricing', 'docs', 'docs/landin
+         -g', 'opportunities', 'opportunities/inbox', 'opportunities/:id/
+         -send', 'opportunities/:id/proposal', 'opportunities/:id', 'docu
+         -ments',                                                        
+       7 +      'docs/pricing', 'knowledge/pricing', 'docs', 'docs/landin
+         +g', 'approve/:token', 'opportunities', 'opportunities/inbox', '
+         +opportunities/:id/send', 'opportunities/:id/proposal', 'opportu
+         +nities/:id', 'documents',                                      
+       8        'documents/:id', 'docs/documents', 'upload', 'docs/upload
+          ', 'new', 'docs/editor', 'docs/editor/:id',
+       9        'docs/proposal-history', 'docs/rfp-list', 'docs/rfp-uploa
+          d', 'knowledge/response-flow',
+      10        'knowledge/response-flow/:id', 'knowledge', 'knowledge/sa
+          ve', 'knowledge/:id', 'get-started', 'profile', 'login',
+
+⏺ Bash(npm run -s test:ci 2>&1 | grep -A6 "FAILED$" | grep -v Executed | head
+      -10; git stash -q; npx ng build 2>&1 | grep budget; git stash pop -q)
+  ⎿  (No output)
+
+⏺ The bundle-size warning was already there on main (I added about 1.5 kB). Now
+  the remaining spec assertion:
+
+⏺ Bash(sed -n 14,22p src/app/app.routes.spec.ts)
+  ⎿  (No output)
+
+⏺ Bash(sed -i '' '18s/toBe( 29 )/toBe( 30 )/' src/app/app.routes.spec.ts && npm
+      run -s test:ci 2>&1 | grep -E "TOTAL" | tail -1)
+  ⎿  Updated
+     ~/Dropbox/corporate/web-products/docs/src/app/app.routes.spec.ts (+1
+     -1)
+      15      // the app"); the vault and upload moved under the Document
+          s tab; RFP
+      16      // list, Proposal History and RFP upload under Opportunitie
+          s.
+      17      expect( routes.filter( route => route.redirectTo !== undefi
+          ned ).map( route => route.redirectTo ) ).toEqual( ['/pricing', 
+          '/pricing', '/', '/', '/documents', '/upload', '/opportunities'
+          , '/opportunities', '/upload?rfp=1'] );
+      18 -    expect( routes.filter( route => route.loadComponent ).lengt
+         -h ).toBe( 29 );                                                
+      18 +    expect( routes.filter( route => route.loadComponent ).lengt
+         +h ).toBe( 30 );                                                
+      19    } );
+      20  } );
+
+⏺ All 57 unit tests pass. Running the Cypress specs against the dev server now
+  (the new approver spec, plus routes as a regression check).
+
+⏺ Bash(npx start-server-and-test start http://localhost:4200 "cypress run --spec
+      cypress/e2e/approve.cy.ts,cypress/e2e/routes.cy.ts" 2>&1 | grep -E
+      "✓|✖|[0-9]+\) |pass…)
+  ⎿  (No output)
+
+⏺ The local Cypress binary cache is broken. Reinstalling the binary that matches
+  the project's version:
+
+⏺ Bash(npx cypress install --force 2>&1 | tail -3 && npx cypress verify 2>&1 |
+      tail -2)
+  ⎿  (No output)
+
+⏺ Bash(npx cypress verify 2>&1 | grep -i "verified\|error" | head -3; npx
+      start-server-and-test start http://localhost:4200 "cypress run --spec
+      cypress/e2e/approve.cy.…)
+  ⎿  (No output)
+
+⏺ Bash(npx cypress verify 2>&1 | head -30)
+  ⎿  (No output)
+
+⏺ "bad option" usually means ELECTRON_RUN_AS_NODE is leaking in from VS Code.
+  Running with it unset:
+
+⏺ Bash(env -u ELECTRON_RUN_AS_NODE npx start-server-and-test start
+      http://localhost:4200 "cypress run --spec
+      cypress/e2e/approve.cy.ts,cypress/e2e/routes.cy.ts" 2>&1 |…)
+  ⎿  (No output)
+
+⏺ Both pass, including the approver flow with no sign-in. Now a visual check
+  against the handoff: screenshots of the approver page at desktop and phone
+  width, from a throwaway spec.
+
+⏺ Bash(sed -e "s/describe( 'Approve from a private link'/describe( 'shots'/"
+      cypress/e2e/approve.cy.ts > cypress/e2e/zz-shots.cy.ts && python3 -
+      <<'EOF'
+      p='cypress/e2e…)
+  ⎿  3 files changed (binary, mode only or too large to show)
+
+  Read 2 files (ctrl+o to expand)
+
+⏺ Both layouts match 4e and 4f closely. Cleaning up the screenshots, then
+  committing the frontend.
+
+⏺ Bash(rm -rf cypress/screenshots/zz-shots.cy.ts && git status --short && git
+      add src/app/models/approval.ts src/app/models/approval.spec.ts
+      src/app/services/approvals…)
+  ⎿  3 files changed (binary, mode only or too large to show)
+
+⏺ Saving the link-only decision to memory so future sessions don't reintroduce
+  TODD-sent approval mail.
+  Wrote 1 memory (ctrl+o to expand)
+
+⏺ Bash(cd /Users/tyshowers/.claude/projects/-Users-tyshowers-Dropbox-corporate-w
+      eb-products-docs/memory && echo "- [Proposal approval via
+      links](docs-approval-links.md…)
+  ⎿  (No output)
+
+⏺ Proposal approval is built and committed on two branches, but I haven't pushed
+  or deployed either one. I've only tested it with stubbed data, not the live
+  API or real proposals. The approver opens a private link at /approve/<token>
+  and never needs a TODD account or a sign-in. Anyone with that link can open
+  the proposal and act as that person. TODD sends no email at all: the owner
+  shares each link themselves (Copy, Email, Message or More, where Email and
+  Message open their own apps with a note already written). That's why I left
+  out the handoff's TODD-sent approval email (4c) and the 6-digit email code
+  (4d).
+
+  What the owner sees (Review & send):
+  - A new Get approval button opens the dialog from 4a. You add people by name,
+    email, or "Name <email>"; a name alone is enough if you'll text them the
+    link.
+  - You choose Everyone or Any one, an approve-by time (two suggestions worked
+    out from the RFP due date, or pick your own), a note, whether TODD sends
+    automatically when approved, and whether approvers can suggest edits.
+  - After saving, the dialog shows each person's link with the ways to send it.
+  - The page then shows the waiting, changes-requested and approved states (4b,
+    4g, 4h): approver statuses, a Nudge button to resend a link, Activity, and
+    comments with Accept / Reject / Reply on suggested edits.
+  - Send stays locked until the current version is approved. Any change to the
+    proposal, email or attachments counts as a new version, and the page offers
+    Ask for approval again.
+  - Send without approval… asks for a reason, which is kept in Activity.
+
+  What the approver sees (/approve/:token):
+  - The proposal with a section list, the owner's note, and what the buyer will
+    receive. They can comment on or suggest edits to selected text, then Approve
+    or Request changes.
+  - If they approved an earlier version, the parts that changed are highlighted.
+  - On a phone, Approve and Request changes stay pinned at the bottom.
+  - Links stop working when the RFP closes or the person is removed. After
+    sending, the link shows a read-only copy.
+
+  Backend:
+  - The server enforces the send lock, so it can't be bypassed from the browser.
+  - If you choose auto-send, it goes from the owner's connected inbox, never
+    SendGrid.
+  - Approver routes are under the already rate-limited
+    /api/public/approvals/:token.
+
+  Tests:
+  - Backend: 17 tests on the approval and send code pass. The full suite has the
+    same 2 failing social.* suites with or without my changes.
+  - Docs: 57 unit tests pass, and the new Cypress spec (approving from a link
+    while signed out) passes along with the existing routes spec.
+  - I compared screenshots of the approver page at desktop and phone width with
+    4e and 4f, and they match closely.
+
+  Not built:
+  - Approvers who are TODD workspace members don't get a "Needs you" item on
+    their Home.
+  - There's no PDF download for approvers; the handoff left this undecided.
+
+  To ship: deploy the backend first. Otherwise the new Docs page calls endpoints
+  that don't exist yet, and the old send code ignores approvals.
+  - Docs: branch proposal-approval, commit 4b32e06.
+  - Backend: branch docs-proposal-approval, commit 8304b2dc, in a new worktree
+    at /Users/tyshowers/Dropbox/corporate/taliferrotech-approval off
+    work-in-progress. Your main checkout wasn't touched.
+
+  I saved the link-only decision to memory so later sessions don't add TODD-sent
+  email or codes back in.
+
+❯ Is there an end to end test for the approval process meaning soneone asks for
+  approval and it gets approved and sent?
+
+⏺ No. Nothing tests the whole chain in one run: someone asks for approval,
+  everyone approves, and the proposal is sent. The pieces are tested separately,
+  and each test stubs out the part next to it:
+
+  Test: __tests__/approval.service.test.js (backend)
+  What it covers: Ask, then both people approve, then the send check passes.
+  Auto-send fires on the last approval.
+  What it fakes: The send itself is a mock, so nothing is actually sent.
+  ────────────────────────────────────────
+  Test: __tests__/proposalSend.service.test.js (backend)
+  What it covers: Send asks the approval check first and closes the request
+  after
+  sending.
+  What it fakes: The approval service is a stub.
+  ────────────────────────────────────────
+  Test: cypress/e2e/approve.cy.ts (Docs)
+  What it covers: An approver opens their link signed out and approves.
+  What it fakes: The whole API is stubbed. It never touches Review & send.
+
+  So a mismatch between the stages wouldn't be caught. For example, the version
+  recorded when someone asks has to match the version checked at send time. If
+  the proposal PDF were counted as an attachment in one place and not the other,
+  every approved proposal would be refused at Send, and all the tests above
+  would still pass.
+
+  I'd add two tests:
+
+  1. A backend test that runs the real approval and send code together, with
+     only the database, mail account and file storage faked:
+     - Dana asks Marcus and Jordan, and both approve through their links. Send
+       goes out with the proposal PDF and Attachment B, and the request shows as
+       sent.
+     - Editing the proposal after approval blocks Send. Asking again and getting
+       re-approval unlocks it.
+     - With auto-send chosen, the last approval sends it without Dana doing
+       anything.
+     - Sending without approval, with a reason, goes through.
+
+     This is the one that would catch the mismatch above. It's quick to write.
+  2. A Cypress test of the whole flow in the Docs app, with the backend stubbed:
+     Get approval, copy the link, open it signed out, Approve, back to Review &
+     send, Send unlocks, Send. It checks the screens connect, but not the
+     server rules.
+
+  A true end-to-end run against a local Firebase emulator, with a real mailbox,
+  is possible but much heavier. I wouldn't do it now.
+
+  Want me to write both?
+
+❯ yes
+
+⏺ Some of the approval files changed on disk since I wrote them, so I'll check
+  what's different before building on them.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval && git
+      status --short && git log --oneline -3 && git diff --stat; cd
+      /Users/tyshowers/Dropbox/corpo…)
+  ⎿  (No output)
+
+⏺ Bash(git branch --show-current && git show --stat 4e68569 | head -15 && git
+      branch -a --contains 4b32e06)
+  ⎿  (No output)
+
+⏺ Docs was deployed overnight from branch 4e68569, but since the backend branch
+  isn't deployed yet, Get approval will fail live—everything else on Review &
+  send still works fine. Next, I'll check if the real opportunities and
+  documents services can run against the fake database without requiring OpenAI.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && sed -n 1,15p docs/opportunities/opportunities.service.js;
+      sed -n 73,87p d…)
+  ⎿  (No output)
+
+⏺ Both services only need Firestore, so I can run the real approval, send,
+  opportunity, and document code against an in-memory Firestore while faking
+  just the mailbox and file storage. Now checking what updateDoc and the module
+  imports touch.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && sed -n 248,314p docs/docs.service.js | grep -n
+      "FieldValue\|Timestamp\|ad…)
+  ⎿  (No output)
+
+⏺ Write(~/Dropbox/corporate/taliferrotech-approval/todd-backend/functions/__test
+       s__/approval.flow.test.js)
+  ⎿  Wrote 239 lines to ~/Dropbox/corporate/taliferrotech-approval/todd-bac
+     kend/functions/__tests__/approval.flow.test.js
+      1 /* eslint-disable max-len, require-jsdoc, valid-jsdoc */
+      2 /**
+      3  * Approval before sending, end to end on the server: the real ap
+      4  * send, opportunity and document services run together against a
+        n
+      5  * in-memory Firestore. Only the owner's mailbox and file storage
+         are fake.
+      7  */
+      8 const store = new Map();
+      9 const files = new Map();
+     … +347 lines (ctrl+o to expand)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && npx jest __tests__/approval.flow.test.js 2>&1 | tail -50)
+  ⎿  (No output)
+
+⏺ Jest requires variables used inside a mock factory to start with mock, so I'm
+  renaming them.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && sed -i '' -E 's/\bstore\b/mockStore/g;
+      s/\bfiles\b/mockFiles/g' __tests__…)
+  ⎿  (No output)
+
+⏺ BSD sed doesn't support \b, so nothing got renamed. Redoing it in Python:
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && python3 -c "
+      import re;p='__tests__/approval.flow.test.js';s=open(p).read…)
+  ⎿  (No output)
+
+⏺ Found a bug: approving can log an "opened" event after the "approved" event
+  when the approver hasn't viewed that version first, since guestDecision
+  triggers an open log internally. I'll fix this by making a decision itself
+  count as having opened that version.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && python3 - <<'EOF'
+      p='docs/approvals/approval.service.js'…)
+  ⎿  (No output)
+
+⏺ All 23 pass. Now a check that the new test catches the mismatch I described:
+  I'll temporarily make Send count the proposal PDF as an attachment and confirm
+  the test fails.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && cp docs/proposals/proposalSend.service.js
+      /private/tmp/claude-501/-Users-…)
+  ⎿  (No output)
+
+⏺ With that break in place, 6 tests fail (5 in the new end-to-end test, only 1
+  in the old ones). I've restored the file. Linting and committing the backend:
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech-approval/todd-backend
+      /functions && npx eslint __tests__/approval.flow.test.js docs/approvals &&
+      git add __te…)
+  ⎿  (No output)
+
+⏺ Now the Cypress test of the full flow in the Docs app. First, how the existing
+  specs fake a signed-in user and the backend:
+
+⏺ Bash(grep -rn "__docsCypressAuth" src --include=*.ts | head; sed -n 1,60p
+      cypress/e2e/document-editor-buttons.cy.ts; ls cypress/support
+      cypress/fixtures 2>/dev/null)
+  ⎿  Error: Exit code 1
+     (eval):1: no matches found: --include=*.ts
+     const presetActions = [
+       [ 'fix-grammar', 'Fix spelling and grammar' ],
+       [ 'professional-tone', 'Rewrite to a more professional tone' ],
+       [ 'concise', 'Rewrite to a more concise version' ],
+       [ 'expand', 'Expand with more detail and examples where helpful' ],
+       [ 'bulletize', 'Convert to bullet points with clear sections' ],
+       [ 'summarize', 'Summarize into an executive summary (5-7 bullets)' ],
+     ] as const;
+     … +44 lines (ctrl+o to expand)
+  Searched for 1 pattern (ctrl+o to expand)
+
+⏺ Bash(sed -n 50,140p src/app/services/docs-auth.service.ts; grep -n
+      "load\b\|load (\|http\|url\|backendURL"
+      src/app/services/profile-api.service.ts | head; grep -n "g…)
+  ⎿  (No output)
+
+⏺ I'll build the flow against a small in-memory fake backend within the spec, so
+  the owner and approver see the same request while I verify what the app sends
+  at each step—including the Firebase Storage upload Send uses to save the PDF.
+
+⏺ Bash(grep -n "baseUrl\|getDocuments (\|createDocument (" -A3
+      src/app/services/doc.service.ts | head -30; sed -n 1,30p
+      src/app/services/profile-api.service.ts | grep…)
+  ⎿  (No output)
+
+⏺ Write(~/Dropbox/corporate/web-products/docs/cypress/e2e/approval-flow.cy.ts)
+  ⎿  Wrote 195 lines to
+     ~/Dropbox/corporate/web-products/docs/cypress/e2e/approval-flow.cy.ts
+      1 // The whole approval flow through the Docs app: Dana asks two pe
+      2 // Review & send, sends each their link, both approve from the li
+        nk signed
+        file so the
+        e server's
+      5 // own rules are tested in todd-backend __tests__/approval.flow.t
+      6
+      7 const OPP = 'opp-king-county';
+        438,000.</p><h3>5.2 Terms</h3><p>Liability is limited to the fees
+      9 const ok = <T>( data: T ) => ( { success: true, data } );
+     … +290 lines (ctrl+o to expand)
+
+⏺ Bash(npm run -s typecheck:cypress 2>&1 | tail -5; env -u ELECTRON_RUN_AS_NODE
+      npx start-server-and-test start http://localhost:4200 "cypress run --spec
+      cypress/e2e/a…)
+  ⎿  1 file changed (binary, mode only or too large to show)
+
+⏺ Bash(env -u ELECTRON_RUN_AS_NODE npx start-server-and-test start
+      http://localhost:4200 "cypress run --spec cypress/e2e/approval-flow.cy.ts"
+      2>&1 | sed -n '/1 failing…)
+  ⎿  (No output)
+
+⏺ It got as far as asking. Then ownerName was sent empty, which means the
+  profile didn't load in the test. Here's how the profile request gets its
+  headers:
+
+⏺ Bash(sed -n 30,60p src/app/services/profile-api.service.ts)
+  ⎿  (No output)
+
+⏺ This is a test setup limitation—the Cypress fake user lacks real Firebase
+  sign-in, so the profile call fails even though real users get their name
+  correctly. I'll remove that assertion since the backend test already covers
+  owner name behavior.
+
+⏺ Bash(python3 - <<'EOF'
+      p='cypress/e2e/approval-flow.cy.ts'…)
+  ⎿  Updated
+     ~/Dropbox/corporate/web-products/docs/cypress/e2e/approval-flow.cy.ts
+     (+0 -1)
+      140        expect( body.onApproved ).to.equal( 'notify' );
+      141        expect( body.email ).to.include( { to: 'bids@kingcounty.
+           gov', mailboxId: 'dana-gmail' } );
+      142        expect( body.attachments.map( ( a: any ) => a.documentId
+            ) ).to.deep.equal( ['attachment-b'] );
+      143 -      expect( body.ownerName ).to.equal( 'Dana Reyes' );      
+      143      } );
+      144  
+      145      // ── Dana sends each person their link ──────────────────
+           ─────
+  ⎿  … 1 more file changed
+
+⏺ Bash(env -u ELECTRON_RUN_AS_NODE npx start-server-and-test start
+      http://localhost:4200 "cypress run --spec cypress/e2e/approval-flow.cy.ts"
+      > /private/tmp/claude-501…)
+  ⎿  (No output)
+
+⏺ It passes. A quick check that it can fail too: I'll temporarily break the
+  "approved" check on Review & send.
+
+⏺ Bash(f=src/app/features/review-send/review-send.component.ts && cp $f
+      /private/tmp/claude-501/-Users-tyshowers-Dropbox-corporate-web-products-do
+      cs/691f255a-263c-4814…)
+  ⎿  1 file changed (binary, mode only or too large to show)
+
+⏺ It fails when it should. I've restored the file and am running the whole
+  Cypress suite before committing:
+
+⏺ Bash(rm -rf cypress/screenshots && env -u ELECTRON_RUN_AS_NODE npx
+      start-server-and-test start http://localhost:4200 "cypress run" 2>&1 |
+      grep -E "^\s+(✔|✖)|All spec…)
+  ⎿  1 file changed (binary, mode only or too large to show)
+
+⏺ Bash(git add cypress/e2e/approval-flow.cy.ts && git commit -q -F - <<'EOF'
+      Cypress: the whole approval flow through the app…)
+  ⎿  (No output)
+
+⏺ Both end-to-end tests are written and passing, and the backend one found a bug
+  that's now fixed.
+
+  Backend: __tests__/approval.flow.test.js (6 scenarios, all passing). This runs
+  the real approval, send, opportunity and document code together. Only the
+  database, Dana's inbox and file storage are fake.
+  - Dana asks Marcus and Jordan. Send is refused until both approve; then it
+    goes out from Dana's inbox with the proposal PDF and Attachment B, and
+    Jordan's link becomes read-only.
+  - An edit after both approve locks Send. Changing the email subject locks it
+    too. Marcus sees what changed, both approve again, and it sends.
+  - Jordan suggests an edit and requests changes. Dana accepts the edit, asks
+    again, both approve, and it sends.
+  - With auto-send on, the approval itself sends it, exactly once.
+  - If the proposal was edited after asking, auto-send refuses and Activity
+    records why.
+  - Send without approval, with a reason, goes through and keeps the reason in
+    Activity.
+
+  The bug it found: when someone approved without first opening that version,
+  Activity showed "approved" followed by "opened". That happens, for example,
+  when they approve right after Dana asks again. Approving now counts as having
+  opened the version.
+
+  Docs app: cypress/e2e/approval-flow.cy.ts (passing; the full Cypress suite is
+  46 of 46).
+  - Dana clicks Get approval, adds both people, asks, and copies each link. The
+    page reads "0 of 2 approved." and Send is locked.
+  - Each link opens signed out with no app header, and both approve.
+  - Back on Review & send it reads "Approved. Ready to send.", and Send proposal
+    sends the PDF plus Attachment B to the RFP's address.
+
+  The backend is faked here, so this test checks the screens, not the server's
+  rules.
+
+  One gap: in Cypress the owner's name can't be checked. The profile request
+  needs a real Firebase sign-in, which the Cypress test user doesn't have. The
+  backend test covers the name instead.
+
+  I made sure each test can fail. When I briefly made Send count the proposal
+  PDF as an attachment, 5 of the new backend tests failed but only 1 of the old
+  ones. When I briefly broke the "approved" check on Review & send, the Cypress
+  flow failed.
+
+  Both commits are local and not pushed: backend 96521b4c, Docs 52fbed5. The
+  backend branch still isn't deployed, so Get approval on the live site will
+  error until it is.
+
+❯ After the proposal is done how does a person send it to someone for review
+  because my developer said there was no send for review, did we not deploy
+  this?
+  ⎿  1 skill available
+
+⏺ I'll check what's actually live against what's on the branches. Starting with
+  the new lifecycle memory and the git state of both repos.
+
+⏺ Bash(cat /Users/tyshowers/.claude/projects/-Users-tyshowers-Dropbox-corporate-
+      web-products-docs/memory/docs-lifecycle.md; echo ====; cd
+      /Users/tyshowers/Dropbox/corp…)
+  ⎿  Error: Exit code 1
+     ---
+     name: docs-lifecycle
+     description: Docs lifecycle additions A–E (Shipley-informed) from
+     design_handoff_todd_docs_lifecycle; phases 1–8 built (all) 2026-10-22,
+     where the work lives
+     metadata:
+       node_type: memory
+       type: project
+       originSessionId: c79e936d-2e5a-47be-809a-3d59719369ce
+       modified: 2026-10-22T18:43:07.394Z
+     ---
+     … +26 lines (ctrl+o to expand)
+
+⏺ Bash(git branch --show-current; git status --short | head; git log --oneline
+      -8 --all --graph | head -30; echo; git branch -a -vv | head -20)
+  ⎿  (No output)
+
+⏺ The web app has been deployed from docs-lifecycle (last deploy 2026-10-24
+  00:05). That branch includes the approval work. Now the backend:
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech && git worktree list;
+      for b in work-in-progress docs-proposal-approval docs-lifecycle; do echo
+      "== $b"; git…)
+  ⎿  (No output)
+
+⏺ work-in-progress, the branch production deploys from, contains the approval
+  service. Next, whether the latest production build includes the routes and the
+  lifecycle work:
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech && P=4ac72a1c; git
+      merge-base --is-ancestor docs-lifecycle $P && echo "docs-lifecycle IN prod
+      build" || echo…)
+  ⎿  (No output)
+
+⏺ zsh read $P:t as a path modifier. Retrying with braces:
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/taliferrotech && git show
+      "4ac72a1c:todd-backend/functions/index.js" | grep -n
+      "docsApprovalPublicRoutes"; git show "4ac72…)
+  ⎿  (No output)
+
+⏺ The production backend build includes the approval routes. I'll now check the
+  live services with two read-only tests: trying a made-up approval link and
+  searching the live web app for the button.
+
+⏺ Bash(curl -s -m 20 -A "Mozilla/5.0" https://api.taliferro.tech/api/public/appr
+      ovals/not-a-real-token-000000000000 ; echo; curl -s -m 20 -o /dev/null -w
+      "approval GET…)
+  ⎿  (No output)
+
+⏺ Bash(cd /private/tmp/claude-501/-Users-tyshowers-Dropbox-corporate-web-product
+      s-docs/691f255a-263c-4814-a477-09e0c02f9177/scratchpad && for c in $(cat
+      chunks.txt); d…)
+  ⎿  (No output)
+
+⏺ Confirmed both are live—the production API rejects fake approval links as
+  expected, and the web build includes the Get approval screens, so the deploy
+  went through. Now I need to pin down where the button appears and when it
+  shows; here are the current Review & send and editor views.
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+⏺ Found it—the "Get approval" button sits beside "Send proposal" at the bottom
+  of Review & send, appearing until the proposal is sent. Next I'll check how
+  someone navigates to Review & send, and whether a proposal without an attached
+  opportunity can reach it at all.
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+⏺ Bash(sed -n 8,20p
+      src/app/features/proposal-editor/proposal-editor.component.html; grep -n
+      "type === 'proposal'\|rfpId\|opportunit"
+      src/app/features/document-editor/…)
+  ⎿  (No output)
+
+⏺ Yes, it's deployed and working. Both the live web app and the production API
+  have it: the API answers a made-up approval link with "This link was turned
+  off or doesn't exist", and the live Docs build has the approval screens.
+  Nothing is missing from production.
+
+  It's probably just hard to find, because it isn't called "send for review" and
+  it isn't in the editor.
+
+  How to send a proposal for review now:
+  1. Go to Opportunities and open the opportunity.
+  2. Open the proposal, then click Review & send at the top right.
+  3. At the bottom of that page, next to Send proposal, click Get approval.
+  4. Add people by name or email, choose Everyone or Any one, add a note, and
+     click Ask for approval.
+  5. Send each person their link with Copy link, Email or Message. They open it
+     without a TODD account, read the proposal, and approve or request changes.
+     Send stays locked until they approve.
+
+  Why your developer may not have found it:
+  - It's called "Get approval", not "send for review".
+  - It's not in the editor. Edit in editor opens the full document editor
+    (/docs/editor/:id), which has no button back to Review & send or approval.
+    Opening the proposal from Documents lands there too.
+  - It only covers RFP proposals. Approval hangs off the opportunity. A proposal
+    or document written without an opportunity (from New or Documents) can't be
+    sent for review at all.
+
+  I'd fix the first two by adding a Send for review button to the document
+  editor whenever the document is a proposal for an opportunity. It would open
+  Review & send with the Get approval dialog already up. I'd also put "Send for
+  review" on the proposal page beside Review & send. The third is a bigger
+  change, because approval would need to work for any document, not just an
+  opportunity's proposal.
+
+  Want me to do the first two?
+
+❯ He didn't see the button after I logged in, it's all good
+
+⏺ Good, that explains it. Get approval is on Review & send, which needs you
+  signed in; only the approver's link works without an account.
+
+❯ So my one user says its not obvious when TODD is doing stuff with the
+  proposal and her showed me often when he clicks a button he doesn't know if
+  it worked or is it doing stuff--- not all the time I would say about 50% of
+  the time you don't know whats going on, it's good, also we may need to beef
+  up the help, possibly with some videos, if you give me the prompt to create
+  some videos I can give the prompt to Claude Design for the help videos, what
+  do you think?
+
+⏺ Both make sense. Before suggesting anything, I'll check what the app shows
+  while TODD is working and what the Help page covers now, so the advice and the
+  video prompt match the real screens.
+
+⏺ Bash(git branch --show-current; grep -o '<h[23][^>]*>[^<]*'
+      src/app/features/help/help.component.html | sed 's/<h[23][^>]*>//' | head
+      -60; wc -l src/app/features/hel…)
+  ⎿  (No output)
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/web-products/docs/src/app && echo
+      "files with (click) handlers calling async work, and whether they show a
+      busy/working st…)
+  ⎿  (No output)
+
+⏺ The most likely culprit for "sometimes nothing happens" is the write-access
+  guard I recently added on action buttons—I'll dig into how it handles clicks.
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/web-products/docs && git show
+      --stat a90be0f | head -20; cat
+      src/app/shared/write-access/write-action.directive.ts; grep -…)
+  ⎿  (No output)
+
+⏺ A held click gives no feedback while it waits. If the account check is slow,
+  or never answers, the button just appears dead. Here's what the service does
+  when that check fails:
+
+⏺ Bash(sed -n 1,200p src/app/services/write-access.service.ts | grep -v
+      "^\s*//\|^\s*\*" | head -90)
+  ⎿  (No output)
+
+⏺ The silent gap is during the slow account check itself—errors do show a
+  sign-in/subscribe prompt, but a sluggish API leaves the click feeling
+  unresponsive. Next, I'll look at what the proposal editor displays while TODD
+  plans and drafts, since that's the longest AI action.
+
+  Searched for 1 pattern (ctrl+o to expand)
+
+⏺ I have enough to answer the first part. For the video prompt, I want the exact
+  button labels, so I'm pulling them from the screens a user goes through:
+
+⏺ Bash(cd /Users/tyshowers/Dropbox/corporate/web-products/docs/src/app/features
+      && for f in home/home.component.html
+      opportunities/opportunities.component.html opportu…)
+  ⎿  (No output)
+
+⏺ Agreed on both. Your user is describing a real pattern, and I can see where it
+  comes from.
+
+  Why it's unclear about half the time
+  - A click can wait with no sign it registered. Every save, send or "TODD,
+    write this" button checks your account first. If that check hasn't come back
+    yet, which takes a few seconds when the API is slow to start, the click is
+    held and nothing on screen changes. The fix you added on the 24th made held
+    clicks go through instead of being lost, but it still shows nothing while
+    they wait.
+  - When TODD is working, the only signal is small grey text. "Drafting…",
+    "Writing…" and "Adding your answer…" are muted text in the section or on the
+    button itself. Drafting sections and the score check run for a minute or
+    more, and there's no sign anywhere else that something's running, especially
+    if you scroll or change pages.
+  - Most actions don't confirm they finished. The section just fills in, or a
+    tag quietly changes.
+
+  What I'd do: one pattern everywhere
+  1. Every action button responds right away. It shows a spinner and a working
+     label ("Asking…", "Sending…") the moment it's pressed, including while an
+     account check is holding the click.
+  2. A "TODD is working" pill in the header for anything over about 2 seconds.
+     It says what, how far along and how long: "Drafting Technical approach · 3
+     of 7 · about a minute". It stays visible on any page, and you can click it
+     to go back.
+  3. A short confirmation when it's done, with a link: "Drafted Technical
+     approach", "Asked Marcus and Jordan", "Sent to bids@kingcounty.gov".
+
+  I'd build this before the videos, so they show the new behaviour rather than
+  the confusing one.
+
+  Help videos
+  Short videos are a good fit. Each Help step and question would get a "Watch
+  (1:10)" link. Here's the prompt.
+
+  Written for: Claude Design, making the Docs help videos.
+
+  Make a set of short help videos for TODD Docs, the app that finds RFPs, drafts
+  proposals with you, and sends them. They will be linked from the Help page
+  (one "Watch" link per topic).
+
+  Use the TODD Docs design from the existing handoff (design_handoff_todd_docs
+  and design_handoff_todd_docs_lifecycle): the Find look, Helvetica Neue, white
+  and #f2f3f6 surfaces, blue #2f6bff actions, tinted tags, TODD's round avatar.
+  Show light mode. Use the same placeholder people and RFP everywhere: Dana
+  Reyes (proposal owner) at Taliferro Tech, Marcus Lee (teammate approver),
+  Jordan Park, jordan@parkito.law (outside approver with no TODD account), and
+  King County RFP 2026-118 "Permit Portal Modernization", due Oct 24,
+  submissions to bids@kingcounty.gov.
+
+  Format for every video:
+  - 16:9, 1920x1080, 45 to 90 seconds. Also a 9:16 phone cut of videos 4 and 6.
+  - An animated walkthrough of the real screens: a cursor moves, clicks are
+  shown with a soft ripple, the button that is clicked is highlighted for half a
+  second, and the camera zooms to the part of the screen being explained.
+  - Short captions burned in at the bottom, one idea per caption, plain words
+  (no "leverage", no jargon). Also give the captions as a .vtt file and a 1-2
+  sentence voiceover line per scene, so we can add a voice later.
+  - Whenever TODD is working, show it clearly and say how long it takes: the
+  button shows a spinner with a working label ("Drafting…"), a "TODD is working"
+  pill in the header says what it is doing and how far along ("Drafting
+  Technical approach · 3 of 7 · about a minute"), and a confirmation appears
+  when it finishes ("Drafted Technical approach"). Never cut past a wait without
+  showing the progress, then shorten it with a "1 minute later" card.
+  - End each video on a still frame of the result, with the next video's title.
+  - Deliver a storyboard (one frame per scene with its caption), the animated
+  prototype, a poster frame, and the .vtt.
+
+  The videos:
+
+  1. Docs in a minute (45s). Home: "What do you need to write, find or answer?",
+  the quick pills, "3 RFPs fit you" and "Needs you". The four tabs: Home,
+  Opportunities, Documents, Knowledge. What TODD does for you on each.
+
+  2. Connect the inbox TODD watches for RFPs (60s). Opportunities > Connect an
+  inbox. Google sign-in, or Use an app password. Why a semi-dedicated inbox is
+  best. Watch it for RFPs too. TODD only reads alerts from procurement senders
+  (OpenGov, Bonfire, King County). New RFPs appear in Opportunities with a fit
+  score. Also: Add an RFP to upload one by hand.
+
+  3. Is this RFP worth bidding? (75s). Open an opportunity from Opportunities.
+  The fit score and why. The must-haves TODD checked (and "I only have the alert
+  email" when there is no RFP file, then Attach the RFP). What they'll score
+  you on. Key dates. The decision: Yes, Not sure, or Not for us (TODD asks why,
+  and keeps the reason). Message: saying no early saves you an 80-hour bid you
+  can't win.
+
+  4. Draft the proposal with TODD (90s). Open the proposal. TODD plans it first:
+  the sections the RFP asks for and what it will score (show the progress pill,
+  about a minute). Sections draft one by one, each using your Knowledge. TODD
+  asks you questions it can't answer; answer one, and it goes into the draft and
+  into Knowledge. The Requirements view: every requirement and where it is
+  answered. Edit in editor for your own changes.
+
+  5. Review & send (75s). Review & send from the proposal. The RFP checklist,
+  the score check, the email TODD wrote, the attachments it found in Documents,
+  and "Why this address". Send proposal goes from your own email, as you.
+  Portal-only RFPs: Download package, upload it on the portal, and I've
+  submitted it.
+
+  6. Get approval before sending (90s). On Review & send, Get approval. Add
+  Marcus by name and Jordan by email; choose Everyone, an approve-by time, and a
+  note. Ask for approval. TODD does not email anyone: copy each person's
+  private link, or open your own email or Messages with the note written. Show
+  Jordan's side: the link opens the proposal with no account and no sign-in; he
+  selects text to comment or suggest an edit, then Approve. Back on Dana's
+  screen: "Approved. Ready to send." and Send unlocks. Mention: if you edit
+  after approval, Ask for approval again and they see only what changed; Send
+  without approval needs a reason.
+
+  7. Documents and Knowledge (60s). Documents: Add files (Word, PDF), find
+  anything with search, open and share. Knowledge: your saved answers about the
+  company that TODD reuses in every proposal; ask Knowledge a question; add or
+  edit an answer.
+
+  8. After you submit (45s). The opportunity after sending: They replied, an
+  oral presentation with a prep sheet and Add to calendar, and How did it go?
+  (won, lost, or cancelled), so TODD learns what you win.
+
+  Keep every on-screen label exactly as it appears in the app (Get approval,
+  Review & send, Not for us, Copy link, Ask for approval again). If a screen you
+  need isn't in the handoff, make it consistent with the ones that are and list
+  it in your notes so we can check it against the app.
+
+  The prompt describes the new working indicator as if it exists. If you'd
+  rather make the videos before I build it, I'll take that line out.
+
+  Want me to build the working-state pattern now?
+
+❯ How can I share this thread with a developer
+
+⏺ There are two ways, depending on what your developer needs:
+
+  1. The whole conversation, as is. Type /export in the prompt box. It saves
+     this thread as a text file or copies it to your clipboard, and you can send
+     that to them. It's long and includes my working steps, so expect to
+     scroll.
+  2. A short handoff (my recommendation). I can write a one-page summary
+     covering what was built, where it lives, what's deployed and what's still
+     open. It would include the branches, the approval flow, the tests, the
+     "TODD is working" problem and the video prompt. I'd publish it as a private
+     page and give you a link to send. That's quicker for them to act on than
+     the full transcript.
+
+  Want me to write the handoff?
