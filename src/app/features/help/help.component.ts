@@ -73,8 +73,7 @@ export class HelpComponent implements OnInit {
     { n: 1, title: 'Docs in a minute', summary: 'Home, the four tabs, and what TODD does on each.', length: '0:45', ready: true },
     { n: 2, title: 'Connect the inbox TODD watches for RFPs', summary: 'TODD finds RFPs in your email and scores each one.', length: '1:02', ready: true },
     { n: 3, title: 'Is this RFP worth bidding?', summary: 'Fit, must-haves, scoring and key dates, then decide.', length: '1:16', ready: true },
-    // help-video-4.mp4 is currently a copy of video 3. Set ready once the real one is in public/video.
-    { n: 4, title: 'Draft the proposal with TODD', summary: 'TODD plans it, drafts each section, and asks what it doesn’t know.', length: '', ready: false },
+    { n: 4, title: 'Draft the proposal with TODD', summary: 'TODD plans it, drafts each section, and asks what it doesn’t know.', length: '1:20', ready: true },
     { n: 5, title: 'Review & send', summary: 'The checklist, the score check, and sending from your own email.', length: '1:07', ready: true },
     { n: 6, title: 'Get approval before sending', summary: 'A private link for each approver, no account needed.', length: '1:30', ready: true },
     { n: 7, title: 'Documents and Knowledge', summary: 'Your files, and the answers TODD reuses.', length: '0:56', ready: true },

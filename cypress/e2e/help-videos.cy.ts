@@ -6,10 +6,9 @@ describe( 'Help videos', () => {
   beforeEach( () => cy.visit( '/help' ) );
 
   it( 'lists the ready videos and plays one in the player', () => {
-    cy.get( '[data-cy="help-videos"] .help__video' ).should( 'have.length', 7 );
+    cy.get( '[data-cy="help-videos"] .help__video' ).should( 'have.length', 8 );
     cy.get( '[data-cy="help-videos"] .help__video' ).first().should( 'contain.text', 'Docs in a minute' ).and( 'contain.text', '0:45' );
-    // Video 4 waits for its real file.
-    cy.get( '[data-cy="help-videos"]' ).should( 'not.contain.text', 'Draft the proposal with TODD' );
+    cy.get( '[data-cy="help-videos"] .help__video' ).eq( 3 ).should( 'contain.text', 'Draft the proposal with TODD' ).and( 'contain.text', '1:20' );
 
     cy.contains( '[data-cy="help-videos"] .help__video', 'Get approval before sending' ).click();
     cy.get( '.help__player video' ).should( 'have.attr', 'src', '/video/help-video-6.mp4' ).and( 'have.attr', 'controls' );
@@ -22,7 +21,7 @@ describe( 'Help videos', () => {
     cy.get( '#step-06' ).should( 'contain.text', 'Get approval before sending' ).contains( 'button', 'Watch (1:30)' ).click();
     cy.get( '.help__player video' ).should( 'have.attr', 'src', '/video/help-video-6.mp4' );
     cy.get( '.help__player' ).contains( 'button', '×' ).click();
-    cy.get( '#step-04' ).find( '.help__watch' ).should( 'not.exist' );
+    cy.get( '#step-04' ).contains( 'button', 'Watch (1:20)' );
     cy.get( '#step-09' ).find( '.help__watch' ).should( 'not.exist' );
   } );
 } );
