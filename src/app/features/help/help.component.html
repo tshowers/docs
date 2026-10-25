@@ -30,6 +30,22 @@
     </label>
   </section>
 
+  <section class="help__videos" aria-labelledby="help-videos-title" data-cy="help-videos">
+    <p class="dk-kicker">Watch how it works</p>
+    <h2 id="help-videos-title">Short videos, about a minute each</h2>
+    <div class="help__video-grid">
+      <button type="button" class="help__video" *ngFor="let v of readyVideos" (click)="play(v)" [attr.aria-label]="'Play ' + v.title + ', ' + v.length">
+        <span class="help__thumb">
+          <img [src]="posterSrc(v)" alt="" loading="lazy" />
+          <span class="help__play" aria-hidden="true"><span></span></span>
+          <span class="help__len">{{ v.length }}</span>
+        </span>
+        <strong>{{ v.title }}</strong>
+        <span class="dk-muted">{{ v.summary }}</span>
+      </button>
+    </div>
+  </section>
+
   <section class="help__steps-wrap" aria-labelledby="help-start-title">
     <nav class="help__nav" aria-label="Your first session">
       <p class="dk-kicker" id="help-start-title">Your first session</p>
@@ -44,7 +60,10 @@
           <h3>{{ step.title }}</h3>
           <p class="help__copy">{{ step.copy }}</p>
           <ul><li *ngFor="let detail of step.details">{{ detail }}</li></ul>
-          <a class="dk-btn dk-btn--bg dk-btn--sm" [routerLink]="step.route">{{ step.action }} →</a>
+          <div class="help__actions">
+            <a class="dk-btn dk-btn--bg dk-btn--sm" [routerLink]="step.route">{{ step.action }} →</a>
+            <button type="button" class="dk-btn dk-btn--sm help__watch" *ngIf="videoFor(step.video) as v" (click)="play(v)"><span class="help__watch-ic" aria-hidden="true"></span>Watch ({{ v.length }})</button>
+          </div>
         </div>
       </article>
     </div>
@@ -60,6 +79,16 @@
       </article>
     </div>
   </section>
+
+  <div class="help__player-backdrop" *ngIf="playing as v" (click)="$event.target === $event.currentTarget && closePlayer()">
+    <div class="help__player" role="dialog" aria-modal="true" [attr.aria-label]="v.title">
+      <header>
+        <h2>{{ v.title }}</h2>
+        <button type="button" class="dk-circle" (click)="closePlayer()" aria-label="Close video">×</button>
+      </header>
+      <video [src]="videoSrc(v)" [poster]="posterSrc(v)" controls autoplay playsinline preload="metadata"></video>
+    </div>
+  </div>
 
   <footer class="help__foot">
     <a routerLink="/">← Back to Docs</a>
