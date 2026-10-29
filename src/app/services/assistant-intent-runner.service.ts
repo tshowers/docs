@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 /**
- * Trimmed port of TODD's AssistantIntentRunnerService. Unlike Network/
+ * Trimmed port of 16Ahead's AssistantIntentRunnerService. Unlike Network/
  * Pulse/Moves' ports, Docs keeps isKnowledgeTopicQuestion() - it's the one
  * pre-check that actually applies here, since Docs owns both the Document
  * and Knowledge domains. decideEarlyIntercept (Catalyst/composer/

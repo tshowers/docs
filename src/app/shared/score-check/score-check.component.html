@@ -1,16 +1,16 @@
 <section class="sc" [class.sc--editor]="mode === 'editor'">
   @if (!check || check.status === 'none') {
-    <div class="dk-todd__head sc__head"><img src="assets/avatar-todd-sm.png" alt="" />Score-check</div>
+    <div class="dk-assistant__head sc__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Score-check</div>
     <p class="dk-muted sc__p">I'll score this draft the way the evaluators would, against the RFP's own points, and say what would earn more. It's an estimate, not a promise.</p>
     <button type="button" class="dk-btn dk-btn--primary" (click)="run.emit()" [disabled]="running" appWriteAction="score this draft">{{ running ? 'Scoring…' : 'Score this draft' }}</button>
   } @else if (check.status === 'no_criteria') {
-    <div class="dk-todd__head sc__head"><img src="assets/avatar-todd-sm.png" alt="" />Score-check</div>
+    <div class="dk-assistant__head sc__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Score-check</div>
     <p class="dk-muted sc__p">The RFP doesn't give scoring points, so there's nothing to score against. Attach the full RFP if the alert left them out.</p>
     <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="run.emit()" [disabled]="running">Try again</button>
   } @else {
     @if (mode === 'review') {
       <header class="sc__top">
-        <div class="dk-todd__head sc__head"><img src="assets/avatar-todd-sm.png" alt="" />Score-check</div>
+        <div class="dk-assistant__head sc__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Score-check</div>
         <button type="button" class="dk-btn dk-btn--sm sc__again" (click)="run.emit()" [disabled]="running" appWriteAction="score this draft"><dk-icon name="refresh" [size]="15" />{{ running ? 'Scoring…' : 'Run again' }}</button>
       </header>
       <p class="sc__total"><strong>About {{ check.total }}</strong> of {{ check.max }}</p>

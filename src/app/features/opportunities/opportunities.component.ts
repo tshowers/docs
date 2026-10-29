@@ -37,7 +37,7 @@ export function checkedAgo ( iso: string, now = new Date() ): string {
 }
 
 /**
- * Opportunities (design_handoff_todd_docs 1a): the RFPs TODD found in the
+ * Opportunities (design_handoff_todd_docs 1a): the RFPs 16Ahead found in the
  * inbox it watches (or that were added by hand), the ones that fit first,
  * each with why it fits and what's missing; the proposals made from them;
  * and the inbox Docs is watching. Replaces RFP list, RFP upload and
@@ -79,7 +79,7 @@ export class OpportunitiesComponent implements OnInit {
     return `${ n === 1 ? 'One new RFP fits' : `${ n } new RFPs fit` } what you do.`;
   } );
 
-  readonly toddLine = computed( () => {
+  readonly assistantLine = computed( () => {
     const read = this.open().length;
     const aside = this.setAside().length;
     if ( !this.watched().length && !read ) return 'Connect the inbox where your RFP alerts arrive and I\'ll read each one, score it against your profile and tell you which are worth answering.';

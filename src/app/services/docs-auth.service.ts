@@ -14,9 +14,9 @@ import { hostedLoginUrl } from '@taliferro/ui/platform/hosted-login.model';
 /**
  * Auth service for the standalone Docs app (Docs + Knowledge, both under
  * one deployment). Sign-in itself doesn't happen here - it redirects to
- * TODD's hosted login (todd.taliferro.tech/login), the same page every
- * other TODD client (network-web, network-ios/pulse-ios via TODDAuthKit's
- * HostedLogin) opens, so every TODD client presents the identical sign-in
+ * 16Ahead's hosted login (app.16ahead.com/login), the same page every
+ * other 16Ahead client (network-web, network-ios/pulse-ios via TODDAuthKit's
+ * HostedLogin) opens, so every 16Ahead client presents the identical sign-in
  * screen instead of each maintaining its own copy of Google/Apple/
  * email-link/phone code that can drift out of sync. This service only
  * holds the two things every client still needs locally: completing the
@@ -29,7 +29,7 @@ import { hostedLoginUrl } from '@taliferro/ui/platform/hosted-login.model';
  *
  * Ported line-for-line from web-products/network's NetworkAuthService,
  * with only the pending-login storage key and hosted-login `client` param
- * changed. Mirrors the exact same tenant resolution TODD's own
+ * changed. Mirrors the exact same tenant resolution 16Ahead's own
  * AuthService uses (`resolveAssignedTenantId`): `users/{uid}.companyId`
  * if set, else the uid itself is the tenant.
  */
@@ -43,7 +43,7 @@ export class DocsAuthService {
   private tenantId$?: Observable<string>;
 
   /**
-   * Mirrors TODD's own AuthService.getTenant() (a sync read backed by a
+   * Mirrors 16Ahead's own AuthService.getTenant() (a sync read backed by a
    * cached tenantId), needed here because DocService/ResponseFlowService
    * are plain HttpClient calls with no per-request header building of
    * their own - unlike web-products/network, which only ever talks to
@@ -73,7 +73,7 @@ export class DocsAuthService {
     } );
   }
 
-  /** Matches TODD's own AuthService.getUserId() shape - components ported
+  /** Matches 16Ahead's own AuthService.getUserId() shape - components ported
    * from features/document/* and features/knowledge/* call this by name,
    * so keeping the signature identical means the rest of a component's
    * logic ports unchanged. */
@@ -106,7 +106,7 @@ export class DocsAuthService {
   /**
    * Sync counterpart to getTenantId(), for the HTTP interceptor - see the
    * field comment above. Falls back to the signed-in uid (same default
-   * TODD's own AuthService.getTenant() sync path uses before its
+   * 16Ahead's own AuthService.getTenant() sync path uses before its
    * companyId lookup resolves) rather than returning nothing, since for
    * the common case - no companyId override - that fallback IS the
    * correct tenantId, not just a placeholder.
@@ -132,9 +132,9 @@ export class DocsAuthService {
   }
 
   /**
-   * Leaves the app entirely for TODD's hosted login
-   * (todd.taliferro.tech/login?client=docs-web&state=...), the same page
-   * every TODD client signs in through. `state` is a random value stashed
+   * Leaves the app entirely for 16Ahead's hosted login
+   * (app.16ahead.com/login?client=docs-web&state=...), the same page
+   * every 16Ahead client signs in through. `state` is a random value stashed
    * alongside `returnUrl` in sessionStorage before leaving, and checked
    * again in AuthCallbackComponent when the page sends the user back - a
    * CSRF guard against a forged callback.

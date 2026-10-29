@@ -55,8 +55,8 @@ const STOP_WORDS = new Set( ['what', 'do', 'you', 'your', 'how', 'does', 'it', '
  * The pre-sign-in /get-started wizard's draft - the web twin of docs-ios's
  * FirstAnswerDraft: a first Q&A answer (a Knowledge Base response flow),
  * then name and company. Kept in localStorage because sign-in leaves the
- * site for todd.taliferro.tech and comes back to /auth/callback. After
- * sign-in, submitIfPending() saves name, company, role and description to the TODD profile
+ * site for app.16ahead.com and comes back to /auth/callback. After
+ * sign-in, submitIfPending() saves name, company, role and description to the 16Ahead profile
  * (POST /api/onboarding/profile, blank fields only) and creates the answer
  * (POST /api/mobile/docs/knowledge-base - ID-token auth, works for web too).
  */
@@ -94,7 +94,7 @@ export class DocsSignupDraftService {
     return STARTER_QUESTIONS.find( ( starter ) => starter.key === draft.starterKey ) || STARTER_QUESTIONS[STARTER_QUESTIONS.length - 1];
   }
 
-  /** Search keywords from the question's meaningful words, so TODD and Maya
+  /** Search keywords from the question's meaningful words, so 16Ahead and the Marketing Assistant
    * can find the answer later without the user typing tags. */
   keywords ( draft: DocsSignupDraft ): string[] {
     const words = draft.question.toLowerCase().split( /[^a-z0-9]+/ ).filter( ( word ) => word.length > 2 && !STOP_WORDS.has( word ) );

@@ -6,8 +6,8 @@ import { firstValueFrom } from 'rxjs';
 
 /**
  * Ported from web-products/network's SignInComponent (itself ported from
- * TODD's own sign-in page). Sign-in doesn't happen natively in this app -
- * it redirects to TODD's hosted login (todd.taliferro.tech/login) instead
+ * 16Ahead's own sign-in page). Sign-in doesn't happen natively in this app -
+ * it redirects to 16Ahead's hosted login (app.16ahead.com/login) instead
  * of rendering its own Google/Apple/email-link buttons. See
  * DocsAuthService.signIn() for the handoff. Shared by both the Docs and
  * Knowledge route trees.

@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { PageActionsConfig } from '../models/page-actions.models';
 
 /**
- * No-op stand-in for TODD's PageActionsService. The real one feeds a
- * shared header/toolbar's contextual action buttons across TODD's whole
- * app shell (and pulls in NavConfigService, TODD-wide nav chrome this app
+ * No-op stand-in for 16Ahead's PageActionsService. The real one feeds a
+ * shared header/toolbar's contextual action buttons across 16Ahead's whole
+ * app shell (and pulls in NavConfigService, 16Ahead-wide nav chrome this app
  * doesn't have). Kept as a same-shaped no-op so ported components' call
  * sites don't need to be hunted down and removed. Ported from
  * web-products/network's NetworkPageActionsService.

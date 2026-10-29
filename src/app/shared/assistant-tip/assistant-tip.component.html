@@ -1,0 +1,17 @@
+<div class="assistant-tip" [class.assistant-tip--subtle]="subtle" [class.hidden]="closed">
+
+
+  <span class="assistant-tip__icon"  *ngIf="icon">
+    <i [ngClass]="iconClass" aria-hidden="true"></i>
+  </span>
+  <div class="assistant-tip__content">
+    <div class="assistant-tip__label" *ngIf="label">{{ label }}</div>
+    <div class="assistant-tip__text">
+      <ng-content></ng-content>
+    </div>
+  </div>
+  <button class="assistant-tip__close" (click)="close()" aria-label="Close" style="font-size: small;">
+  &times;
+</button>
+</div>
+

@@ -6,7 +6,7 @@ import { DkIconComponent } from '../dk-icon/dk-icon.component';
 import { WriteActionDirective } from '../write-access/write-action.directive';
 
 /**
- * TODD's score-check card (design_handoff_todd_docs_lifecycle 1i, 1j, 1r):
+ * 16Ahead's score-check card (design_handoff_todd_docs_lifecycle 1i, 1j, 1r):
  * "About 71 of 100", an estimate against the RFP's own points. On Review &
  * send each criterion shows its bar, why and the fix; in the editor the
  * fixes are ranked by points gained with the projected total. Fix this and
@@ -27,7 +27,7 @@ export class ScoreCheckComponent {
   @Input() mode: 'review' | 'editor' = 'review';
   /** Scoring now. */
   @Input() running = false;
-  /** The fix TODD is writing, or whose revision is open in the editor. */
+  /** The fix 16Ahead is writing, or whose revision is open in the editor. */
   @Input() activeFix = '';
   @Output() readonly run = new EventEmitter<void>();
   @Output() readonly fix = new EventEmitter<string>();

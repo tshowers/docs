@@ -2,11 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ToddWorkService } from '../shared/working/todd-work.service';
+import { AssistantWorkService } from '../shared/working/assistant-work.service';
 
 /**
  * Trimmed from services/open-ai.service.ts (a large service backing many
- * of TODD's AI features) to just the two calls DocumentEditorComponent
+ * of 16Ahead's AI features) to just the two calls DocumentEditorComponent
  * needs - both against the same `${backendURL}/document-helper` endpoint
  * the monorepo hits, so no backend changes are needed. Drops the
  * DataService.logEvent() analytics call each method made (fire-and-forget
@@ -18,7 +18,7 @@ import { ToddWorkService } from '../shared/working/todd-work.service';
   providedIn: 'root'
 } )
 export class DocsOpenAiService {
-  private readonly work = inject( ToddWorkService );
+  private readonly work = inject( AssistantWorkService );
 
   constructor ( private http: HttpClient ) { }
 

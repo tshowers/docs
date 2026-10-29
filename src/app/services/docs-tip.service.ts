@@ -10,7 +10,7 @@ export interface DocsTip {
 }
 
 /**
- * Trimmed from services/tip.service.ts (422 lines, tips for every TODD
+ * Trimmed from services/tip.service.ts (422 lines, tips for every 16Ahead
  * module - projects, tasks, contacts, email, surveys, documents) - only
  * the 'documents' category entries are kept, since Docs/Knowledge are the
  * only modules this app's tip boxes appear in. Same `getRandomTipText`

@@ -72,7 +72,7 @@
             <div class="od__gate">
               @switch (gate()) {
                 @case ('checking') {
-                  <div class="dk-todd__head od__todd"><img src="assets/avatar-todd-sm.png" alt="" />Reading the RFP</div>
+                  <div class="dk-assistant__head od__assistant"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Reading the RFP</div>
                   <p class="dk-muted">Looking for must-haves: the requirements that would disqualify you whatever the score. This takes about a minute.</p>
                   <div class="od__bar" role="progressbar" aria-label="Reading the RFP"><span></span></div>
                 }
@@ -89,7 +89,7 @@
                   <p class="dk-muted">I didn't find any pass/fail requirements, so nothing here would disqualify you.</p>
                 }
                 @case ('list') {
-                  <div class="dk-todd__head od__todd"><img src="assets/avatar-todd-sm.png" alt="" />Before I draft: must-haves
+                  <div class="dk-assistant__head od__assistant"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Before I draft: must-haves
                     @if (mustHaves()!.summary.notMet) { <span class="dk-tag dk-tinted od__found" data-tint="pink">{{ mustHaves()!.summary.notMet }} missing</span> }
                     @else { <span class="od__found">{{ mustHaves()!.items.length }} found</span> }
                   </div>
@@ -132,7 +132,7 @@
               @switch (panel()) {
                 @case ('draft_anyway') {
                   <div class="od__reason">
-                    <label class="dk-todd__head od__todd" for="od-why"><img src="assets/avatar-todd-sm.png" alt="" />Why draft anyway?</label>
+                    <label class="dk-assistant__head od__assistant" for="od-why"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Why draft anyway?</label>
                     @if (missingLine()) { <p class="dk-muted">Missing: {{ missingLine() }}.</p> }
                     <textarea id="od-why" rows="3" [(ngModel)]="draftReason" placeholder="e.g. We're teaming with a prime who has the references"></textarea>
                     <p class="dk-muted od__note">I'll keep this with the opportunity and show it in the history.</p>

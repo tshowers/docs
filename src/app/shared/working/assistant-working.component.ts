@@ -1,24 +1,24 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { SHOW_AFTER_MS, ToddWorkService, describeTask } from './todd-work.service';
+import { SHOW_AFTER_MS, AssistantWorkService, describeTask } from './assistant-work.service';
 
 /**
- * "TODD is drafting Technical approach · 3 of 7 · about a minute": in the
- * bottom-left corner while TODD works on something slow, on any page
+ * "16Ahead is drafting Technical approach · 3 of 7 · about a minute": in the
+ * bottom-left corner while 16Ahead works on something slow, on any page
  * (toasts are top right, the assistant bottom right, and the header has no
  * room for it). Click it to go back to where it was started. On a phone it
  * floats above the tab bar.
  * Quick jobs never show it; their button's spinner is enough.
  */
 @Component( {
-  selector: 'app-todd-working',
+  selector: 'app-assistant-working',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (shown(); as task) {
       <button type="button" class="tw" (click)="goBack()" [attr.title]="text()" [attr.aria-label]="text() + (onItsPage() ? '' : '. Go back to it.')">
-        <img class="tw__av" src="assets/avatar-todd-sm.png" alt="" />
+        <img class="tw__av brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="tw__av brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />
         <span class="tw__spin" aria-hidden="true"></span>
         <span class="tw__text">{{ text() }}</span>
         @if (others()) { <span class="tw__more">+{{ others() }}</span> }
@@ -52,8 +52,8 @@ import { SHOW_AFTER_MS, ToddWorkService, describeTask } from './todd-work.servic
     }
   `],
 } )
-export class ToddWorkingComponent {
-  private readonly work = inject( ToddWorkService );
+export class AssistantWorkingComponent {
+  private readonly work = inject( AssistantWorkService );
   private readonly router = inject( Router );
   /** Ticks while something runs, so the elapsed time and "about a minute" stay current. */
   private readonly now = signal( Date.now() );

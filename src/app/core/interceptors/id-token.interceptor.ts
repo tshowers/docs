@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { from, switchMap } from 'rxjs';
 
 /**
- * Proves who is calling the TODD backend: adds the signed-in person's
+ * Proves who is calling the 16Ahead backend: adds the signed-in person's
  * Firebase ID token (`Authorization: Bearer ...`) to every /api/ request
  * that doesn't already set its own Authorization header. The backend
  * verifies it - /send-email refuses unverified calls
@@ -13,7 +13,7 @@ import { from, switchMap } from 'rxjs';
  * refreshes near expiry.
  */
 /** Only our own backend ever sees the token - never a third-party API. */
-function isToddBackend ( url: string ): boolean {
+function isApiBackend ( url: string ): boolean {
   if ( !url.includes( '/api/' ) ) return false;
   if ( url.startsWith( '/' ) ) return true;
   try {
@@ -28,7 +28,7 @@ function isToddBackend ( url: string ): boolean {
 }
 
 export const idTokenInterceptor: HttpInterceptorFn = ( req, next ) => {
-  if ( typeof window === 'undefined' || req.headers.has( 'Authorization' ) || !isToddBackend( req.url ) ) {
+  if ( typeof window === 'undefined' || req.headers.has( 'Authorization' ) || !isApiBackend( req.url ) ) {
     return next( req );
   }
 

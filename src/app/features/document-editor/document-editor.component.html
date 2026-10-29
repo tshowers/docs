@@ -38,19 +38,19 @@
     </main>
 
     <aside class="de__side">
-      <section class="de__todd">
-        <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />General Assistant @if (selectionLabel) { <span class="de__sel">· {{ selectionLabel }}</span> }</div>
-        <textarea data-demo="document-instructions" rows="3" [(ngModel)]="instructionText" [disabled]="!canCrudDocuments || isToddWorking" [placeholder]="isEmpty ? 'Ask the General Assistant to start it for you…' : 'Tell 16Ahead what to change…'" aria-label="Instructions for 16Ahead"></textarea>
+      <section class="de__assistant">
+        <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />General Assistant @if (selectionLabel) { <span class="de__sel">· {{ selectionLabel }}</span> }</div>
+        <textarea data-demo="document-instructions" rows="3" [(ngModel)]="instructionText" [disabled]="!canCrudDocuments || isAssistantWorking" [placeholder]="isEmpty ? 'Ask the General Assistant to start it for you…' : 'Tell 16Ahead what to change…'" aria-label="Instructions for 16Ahead"></textarea>
         <div class="de__presets" data-demo="document-presets" [class.is-quiet]="isEmpty">
           @for (preset of presets; track preset.id) {
-            <button type="button" class="de__chip" [class.is-on]="lastPreset === preset.id && (isToddWorking || toddPreview)" [attr.data-cy]="'editor-action-' + preset.id" [disabled]="!canCrudDocuments || isToddWorking" (click)="runPreset(preset)">{{ preset.label }}</button>
+            <button type="button" class="de__chip" [class.is-on]="lastPreset === preset.id && (isAssistantWorking || assistantPreview)" [attr.data-cy]="'editor-action-' + preset.id" [disabled]="!canCrudDocuments || isAssistantWorking" (click)="runPreset(preset)">{{ preset.label }}</button>
           }
         </div>
         <p class="de__hint">{{ isEmpty ? 'These work once there\'s text on the page.' : selection ? '16Ahead works on the selection.' : '16Ahead works on the whole document. Select a passage to work on just that.' }}</p>
-        <button class="dk-btn dk-btn--primary" data-cy="editor-action-preview" [disabled]="!canCrudDocuments || isToddWorking || !instructionText.trim()" (click)="runToddInstruction()">{{ isToddWorking ? 'Working…' : 'General Assistant' }}</button>
+        <button class="dk-btn dk-btn--primary" data-cy="editor-action-preview" [disabled]="!canCrudDocuments || isAssistantWorking || !instructionText.trim()" (click)="runAssistantInstruction()">{{ isAssistantWorking ? 'Working…' : 'General Assistant' }}</button>
       </section>
 
-      @if (toddPreview) {
+      @if (assistantPreview) {
         <section class="de__preview">
           <header class="de__preview-head"><strong>16Ahead's revision</strong><span class="dk-tag dk-tinted" data-tint="yellow">Preview</span></header>
           @if (previewBefore) {
@@ -58,12 +58,12 @@
           }
           <div>
             @if (previewBefore) { <p class="de__label">After</p> }
-            <div class="de__preview-box" [innerHTML]="toddPreview"></div>
+            <div class="de__preview-box" [innerHTML]="assistantPreview"></div>
           </div>
           <div class="de__row">
-            <button class="dk-btn dk-btn--primary de__grow" data-cy="editor-action-apply-preview" [disabled]="!canCrudDocuments" (click)="applyToddPreview()">Apply</button>
-            <button class="dk-btn dk-btn--bg" data-cy="editor-action-retry-preview" [disabled]="!canCrudDocuments || isToddWorking" (click)="retryToddPreview()">Try again</button>
-            <button class="dk-btn dk-btn--bg" data-cy="editor-action-discard-preview" (click)="discardToddPreview()">Discard</button>
+            <button class="dk-btn dk-btn--primary de__grow" data-cy="editor-action-apply-preview" [disabled]="!canCrudDocuments" (click)="applyAssistantPreview()">Apply</button>
+            <button class="dk-btn dk-btn--bg" data-cy="editor-action-retry-preview" [disabled]="!canCrudDocuments || isAssistantWorking" (click)="retryAssistantPreview()">Try again</button>
+            <button class="dk-btn dk-btn--bg" data-cy="editor-action-discard-preview" (click)="discardAssistantPreview()">Discard</button>
           </div>
           <p class="de__hint">{{ previewTarget === 'selection' ? 'Apply replaces the selected passage.' : 'Apply replaces the whole document.' }} Try again and Discard leave it as it is.</p>
         </section>

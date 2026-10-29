@@ -78,13 +78,13 @@ button.pe__link {
 
 .pe__side { position: sticky; top: 16px; display: grid; gap: 14px; max-height: calc(100vh - 32px); overflow-y: auto; }
 
-/* TODD · Requirements · Checklist (lifecycle 1d). */
+/* 16Ahead · Requirements · Checklist (lifecycle 1d). */
 .pe__tabs { display: grid; grid-template-columns: repeat(4, auto); gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface); }
 .pe__tabs button { height: 36px; padding: 0 8px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 700 13px var(--font); cursor: pointer; }
 .pe__tabs button.is-on { background: var(--bg); color: var(--text); }
 .pe__nochecks { padding: 0 8px; font-size: 14px; }
 
-/* A requirement the draft doesn't answer, and TODD's paragraph for it. */
+/* A requirement the draft doesn't answer, and 16Ahead's paragraph for it. */
 .pe__unanswered, .pe__suggest { display: grid; gap: 6px; margin: 0 0 16px; padding: 14px 18px; border-radius: 18px; font-size: 15px; line-height: 1.55; scroll-margin: 120px; }
 .pe__unanswered { background: var(--t-pink); color: var(--t-pink-fg); }
 .pe__unanswered .dk-kicker { color: var(--t-pink-fg); }
@@ -100,7 +100,7 @@ button.pe__link {
 .pe__from.is-flash { box-shadow: inset 3px 0 0 var(--blue); }
 
 .pe__ask { display: grid; gap: 12px; padding: 20px; border-radius: 28px; background: var(--t-blue); }
-.pe__ask .dk-todd__head { margin: 0; }
+.pe__ask .dk-assistant__head { margin: 0; }
 .pe__ask h2 { font-size: 16px; font-weight: 700; line-height: 1.4; }
 .pe__why { font-size: 13px; }
 

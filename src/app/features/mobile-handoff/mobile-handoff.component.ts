@@ -5,10 +5,10 @@ import { filter, firstValueFrom, take } from 'rxjs';
 import { DocsAuthService } from '../../services/docs-auth.service';
 
 /**
- * Lands here when a native TODD app (via TODDAuthKit's WebHandoff) hands
+ * Lands here when a native 16Ahead app (via TODDAuthKit's WebHandoff) hands
  * off to a page on this app, already signed in - the "Real Token Handoff"
  * feature. Unlike AuthCallbackComponent (which completes this app's own
- * hosted-login redirect to todd.taliferro.tech/login and checks a
+ * hosted-login redirect to app.16ahead.com/login and checks a
  * pre-stashed `state` value as a CSRF guard against a forged callback), a
  * native app opens this URL directly with no prior visit to this origin,
  * so there's no pending sessionStorage entry to check the token against -

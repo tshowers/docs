@@ -22,8 +22,8 @@ export function questionsForPortal ( questions: Pick<BuyerQuestion, 'text' | 're
  * Key dates and the buyer's Q&A on an opportunity (design_handoff_todd_docs_
  * lifecycle 1f/1g): an addendum that just arrived and what it changed, the
  * next deadline with Add to calendar, the dates in order, and the questions
- * TODD would ask, sent from the person's own inbox or copied for the portal.
- * TODD reads the RFP for them the first time the page opens.
+ * 16Ahead would ask, sent from the person's own inbox or copied for the portal.
+ * 16Ahead reads the RFP for them the first time the page opens.
  */
 @Component( {
   selector: 'app-opportunity-dates',

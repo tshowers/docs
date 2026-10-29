@@ -25,7 +25,7 @@ export type RunDocumentArgs = {
 };
 
 /**
- * Port of TODD's DocumentLLMService, unchanged - it only ever depended on
+ * Port of 16Ahead's DocumentLLMService, unchanged - it only ever depended on
  * OpenAIService/AssistantBoxHelperService/LoggerService, so it was already
  * scoped to just the Document domain.
  */

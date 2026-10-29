@@ -2,7 +2,7 @@
  * pill buttons, search pill, filter pills, tags, tinted type plates, cards
  * and the single-item result nav. Colors come from tokens.css; screen
  * layouts live in each component. Prefix dk- so nothing collides with
- * Bootstrap's d-* utilities or the older todd-* styles. */
+ * Bootstrap's d-* utilities or the older 16ahead-* styles. */
 
 .dk-page {
   max-width: 1200px;
@@ -189,15 +189,15 @@ button.dk-filter {
   padding: 22px;
 }
 
-/* TODD's tinted card (summary, alt text, "Where this came from"). */
-.dk-todd {
+/* 16Ahead's tinted card (summary, alt text, "Where this came from"). */
+.dk-assistant {
   border-radius: 24px;
   background: var(--t-blue);
   padding: 18px 20px;
   color: var(--text);
 }
 
-.dk-todd__head {
+.dk-assistant__head {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -207,8 +207,8 @@ button.dk-filter {
   color: var(--t-blue-fg);
 }
 
-.dk-todd__head img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
-.dk-todd p { font-size: 14px; line-height: 1.55; }
+.dk-assistant__head img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+.dk-assistant p { font-size: 14px; line-height: 1.55; }
 
 /* Metadata list: 96px label column (2e). */
 .dk-meta {

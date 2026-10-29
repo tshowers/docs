@@ -10,7 +10,7 @@ export const SHOW_AFTER_MS = 1200;
 
 export interface WorkTask {
   id: number;
-  /** What TODD is doing, as a sentence fragment: "Drafting Technical approach". */
+  /** What 16Ahead is doing, as a sentence fragment: "Drafting Technical approach". */
   label: string;
   /** Steps done and total, for "3 of 7". */
   done?: number;
@@ -38,14 +38,14 @@ export interface WorkHandle {
 }
 
 /**
- * What TODD is working on right now, for the "TODD is working" pill in the
+ * What 16Ahead is working on right now, for the "16Ahead is working" pill in the
  * header. Slow jobs (reading an RFP, planning and drafting, the score
  * check) register here, from the service call or the component running
  * them, so people can see that something is happening, how far along it
  * is, and when it's done, even after leaving the page.
  */
 @Injectable( { providedIn: 'root' } )
-export class ToddWorkService {
+export class AssistantWorkService {
   private readonly router = inject( Router );
   private readonly notifications = inject( DocsNotificationService );
   private nextId = 1;
@@ -114,7 +114,7 @@ export function timeLeft ( task: Pick<WorkTask, 'etaSeconds' | 'startedAt'>, now
   return `about ${ Math.round( left / 60 ) } minutes`;
 }
 
-/** "TODD is drafting Technical approach · 3 of 7 · about a minute". */
+/** "16Ahead is drafting Technical approach · 3 of 7 · about a minute". */
 export function describeTask ( task: WorkTask, now = Date.now() ): string {
   const what = task.label ? task.label.charAt( 0 ).toLowerCase() + task.label.slice( 1 ) : 'working';
   const parts = [`16Ahead is ${ what }`];

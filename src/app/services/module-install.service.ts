@@ -7,7 +7,7 @@ import { ModuleInstallConfig } from '../shared/utils/module-install-config.util'
 /**
  * Ported near-verbatim from taliferrotech's services/module-install.service.ts
  * - generic `beforeinstallprompt`/iOS-Safari "Add to Home Screen" handling,
- * no TODD-specific dependencies beyond ModuleInstallConfig (already
+ * no 16Ahead-specific dependencies beyond ModuleInstallConfig (already
  * trimmed to this app's own docs/knowledge entries). The one change: the
  * monorepo's `environment.enableCustomInstallPrompt` feature flag is
  * dropped - this app doesn't need a kill-switch for it - so the custom
@@ -37,7 +37,7 @@ export interface ModuleInstallState {
 } )
 export class ModuleInstallService {
   private readonly defaultManifestPath = '/manifest.webmanifest';
-  private readonly defaultIconPath = '/assets/todd-docs-icon.png';
+  private readonly defaultIconPath = '/assets/brand/products/png/light/07-docs.png';
   private readonly defaultThemeColor = '#1976d2';
   private readonly defaultAppTitle = 'Docs';
 

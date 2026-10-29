@@ -117,7 +117,7 @@
             <button type="button" class="dk-btn dk-btn--bg ap__pdf" (click)="downloadPdf()" [disabled]="pdfBusy()"><dk-icon name="download" [size]="16" />{{ pdfBusy() ? 'Making the PDF…' : 'Download PDF' }}</button>
             @if (d.scoreCheck; as sc) {
               <section class="ap__card ap__score">
-                <h2><img src="assets/avatar-todd-sm.png" alt="" />16Ahead's score-check<span>About {{ sc.total }} / {{ sc.max }}</span></h2>
+                <h2><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />16Ahead's score-check<span>About {{ sc.total }} / {{ sc.max }}</span></h2>
                 <p class="dk-muted">An estimate against {{ d.opportunity.agency || 'the buyer' }}'s scoring criteria. Run {{ shortDay(sc.ranAt) }}.</p>
                 <ul>
                   @for (c of sc.criteria; track c.name) { <li><span>{{ c.name }}</span><strong>{{ c.points }} / {{ c.max }}</strong></li> }

@@ -14,7 +14,7 @@ interface Composer { mode: 'comment' | 'suggest'; quote: string; sectionTitle: s
 
 /**
  * An approver's review (design_handoff_todd_docs 4e, 4f on a phone). The
- * private link is the only access: no TODD account, no sign-in. They read
+ * private link is the only access: no 16Ahead account, no sign-in. They read
  * the proposal exactly as the buyer will get it, comment or suggest edits
  * on selected text, and approve or request changes. After an edit, someone
  * who already approved sees what changed; the rest is marked reviewed.

@@ -20,7 +20,7 @@ function words ( value: string ): string[] {
 }
 
 /**
- * What TODD will write from, shown before it starts: the Knowledge answers
+ * What 16Ahead will write from, shown before it starts: the Knowledge answers
  * that share words with the brief (or the most recent ones when none do),
  * and an open opportunity the brief names by agency or title.
  */
@@ -40,7 +40,7 @@ export function pickSources ( brief: string, knowledge: KnowledgeItem[], opportu
 }
 
 /**
- * New (design_handoff_todd_docs 1j): "What are you writing?" TODD shows the
+ * New (design_handoff_todd_docs 1j): "What are you writing?" 16Ahead shows the
  * sources it will use (profile, matching Knowledge answers, an opportunity
  * the brief names), writes a first draft and opens it in the editor. Or
  * start from Answer an RFP, a cover letter, a Word file, or a blank page.

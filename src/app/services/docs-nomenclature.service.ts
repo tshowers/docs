@@ -3,7 +3,7 @@ import { Observable, of } from 'rxjs';
 import { Nomenclature } from '../models/nomenclature.model';
 
 /**
- * TODD's real NomenclatureService (193 lines) lets a tenant relabel terms
+ * 16Ahead's real NomenclatureService (193 lines) lets a tenant relabel terms
  * across the whole app for different business verticals - CRM, LMS, LIS,
  * etc. Docs/Knowledge only ever present as generic document/proposal
  * tooling, so rather than port the vertical-switching machinery, this just

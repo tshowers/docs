@@ -26,7 +26,7 @@ function toLocalInput ( d: Date ): string {
  * Get approval before sending (design_handoff_todd_docs 4a). Opened from
  * Review & send, and again for Change approvers. Approvers are anyone: a
  * name or an email. Once asked, the dialog turns into each person's link
- * to send them, since TODD doesn't email them itself.
+ * to send them, since 16Ahead doesn't email them itself.
  */
 @Component( {
   selector: 'app-get-approval-dialog',

@@ -7,7 +7,7 @@ export type ShareVia = 'copy' | 'email' | 'message' | 'share';
 
 /**
  * An approver's private link and the ways to send it: copy it, or open the
- * owner's own mail app or Messages with a short note filled in. TODD sends
+ * owner's own mail app or Messages with a short note filled in. 16Ahead sends
  * nothing itself.
  */
 @Component( {

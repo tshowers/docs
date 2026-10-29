@@ -6,12 +6,12 @@ import { environment } from '../../environments/environment';
 import { LoggerService } from './logger.service';
 
 /**
- * Trimmed port of TODD's open-ai.service.ts, scoped to the one endpoint the
+ * Trimmed port of 16Ahead's open-ai.service.ts, scoped to the one endpoint the
  * assistant-box pilot needs: the shared `/app-assistant` endpoint the whole
  * suite already calls, parameterized by domain. Docs asks for the
  * 'document' domain slice for document work, and 'general' for knowledge
  * questions (KnowlegeLLMService calls getAssistance(..., 'general', ...)
- * directly in TODD's original too - Knowledge was never its own backend
+ * directly in 16Ahead's original too - Knowledge was never its own backend
  * domain, it's general-purpose Q&A with client-side draft extraction on
  * top). This is a separate, new service from the existing
  * DocsOpenAiService (proposalAssistant/documentEditorAssistant) - that one

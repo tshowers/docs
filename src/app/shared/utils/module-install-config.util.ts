@@ -27,7 +27,7 @@ const MODULE_INSTALL_CONFIGS: Record<ModuleInstallKey, ModuleInstallConfig> = {
     marketingEntryPath: '/',
     launchRoute: '/',
     manifestPath: '/manifest.webmanifest',
-    iconPath: '/assets/docs/docs.png',
+    iconPath: '/assets/brand/products/png/light/07-docs.png',
     themeColor: '#0b0b0f',
     iosInstructionTitle: 'Install Docs on your iPhone or iPad',
     iosInstructionSteps: [
@@ -44,7 +44,7 @@ const MODULE_INSTALL_CONFIGS: Record<ModuleInstallKey, ModuleInstallConfig> = {
     marketingEntryPath: '/knowledge',
     launchRoute: '/knowledge',
     manifestPath: '/manifest.webmanifest',
-    iconPath: '/assets/knowledge/knowledge.png',
+    iconPath: '/assets/brand/products/png/light/07-docs.png',
     themeColor: '#0b0b0f',
     iosInstructionTitle: 'Install Knowledge on your iPhone or iPad',
     iosInstructionSteps: [

@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { ToddWorkService } from '../shared/working/todd-work.service';
+import { AssistantWorkService } from '../shared/working/assistant-work.service';
 
 export interface DocumentLimits {
   isPaidUser: boolean;
@@ -21,7 +21,7 @@ export interface DocumentLimits {
 export class DocService {
   private readonly baseUrl = `${environment.backendURL}/docs`;
 
-  private readonly work = inject( ToddWorkService );
+  private readonly work = inject( AssistantWorkService );
 
   constructor ( private http: HttpClient ) { }
 
@@ -53,7 +53,7 @@ export class DocService {
     return this.http.delete<any>( `${this.baseUrl}/${id}` );
   }
 
-  /** New (1j): TODD writes a first draft from a brief and the chosen sources. */
+  /** New (1j): 16Ahead writes a first draft from a brief and the chosen sources. */
   compose ( brief: string, knowledgeIds: string[], opportunityId = '' ): Observable<{ documentId: string; title: string; blocks?: DraftBlock[]; sources?: DocSource[] }> {
     return this.http.post<any>( `${this.baseUrl}/compose`, { brief, knowledgeIds, opportunityId: opportunityId || undefined } ).pipe(
       this.work.track( 'Writing your first draft', { etaSeconds: 45, confirm: 'Your first draft is ready' } ),

@@ -27,8 +27,8 @@ type AttachTarget = { kind: 'answer' | 'recommendation'; index: number };
  * /knowledge/response-flow (?id= or /:id to edit): one page in place of
  * the step-by-step wizard. Question, category, one or more answers with an
  * optional link or document each, and optional recommendations, resources
- * and keywords. TODD picks the category and suggests keywords. Status is
- * derived: no question or no answer text saves a draft, which TODD won't
+ * and keywords. 16Ahead picks the category and suggests keywords. Status is
+ * derived: no question or no answer text saves a draft, which 16Ahead won't
  * use in proposals. Delete stays on the answer page (2d).
  */
 @Component( {
@@ -50,16 +50,16 @@ export class AnswerFormComponent implements OnInit {
   private readonly documentsStore = inject( DocumentsStoreService );
 
   form: AnswerForm = { question: '', category: '', answers: [{ answer: '', source: '', document: null }], recommendations: [], resources: [], keywords: [] };
-  /** Kept as it was (Maya's internal-reference flag isn't on this page). */
-  private mayaReference = false;
+  /** Kept as it was (the Marketing Assistant's internal-reference flag isn't on this page). */
+  private marketingReference = false;
 
   readonly id = signal( '' );
   readonly loading = signal( false );
   readonly saving = signal( false );
   readonly categories = signal<string[]>( [] );
   readonly suggestedKeywords = signal<string[]>( [] );
-  /** "I picked the category from your question" once TODD has. */
-  readonly toddPickedCategory = signal( false );
+  /** "I picked the category from your question" once 16Ahead has. */
+  readonly assistantPickedCategory = signal( false );
   private newCategory = '';
 
   /** Inline editors: which answer is adding a link, and the attach picker. */
@@ -110,7 +110,7 @@ export class AnswerFormComponent implements OnInit {
       this.api.getResponseFlow( id ).subscribe( {
         next: ( raw ) => {
           this.form = fromRecord( raw );
-          this.mayaReference = raw?.mayaReference === true;
+          this.marketingReference = raw?.mayaReference === true;
           this.loading.set( false );
         },
         error: () => {
@@ -121,7 +121,7 @@ export class AnswerFormComponent implements OnInit {
     }
   }
 
-  // ── TODD's suggestions ─────────────────────────────────────────
+  // ── 16Ahead's suggestions ─────────────────────────────────────────
   async suggest (): Promise<void> {
     if ( !this.form.question.trim() || ( this.form.category && this.suggestedKeywords().length ) ) return;
     try {
@@ -133,7 +133,7 @@ export class AnswerFormComponent implements OnInit {
       if ( !s ) return;
       if ( !this.form.category && s.category ) {
         this.form.category = s.category;
-        this.toddPickedCategory.set( true );
+        this.assistantPickedCategory.set( true );
         if ( s.isNewCategory ) {
           this.newCategory = s.category;
           this.categories.update( ( list ) => [...list, s.category] );
@@ -226,7 +226,7 @@ export class AnswerFormComponent implements OnInit {
       return;
     }
     this.saving.set( true );
-    const payload = toPayload( this.form, { mayaReference: this.mayaReference } );
+    const payload = toPayload( this.form, { mayaReference: this.marketingReference } );
     try {
       if ( this.newCategory && this.form.category === this.newCategory && this.tenantId ) {
         await this.dropdowns.addItem( this.tenantId, CATEGORY_LIST, this.newCategory ).catch( () => null );

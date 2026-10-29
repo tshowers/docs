@@ -26,7 +26,7 @@ interface UploadRow {
   progress: number;
   state: RowState;
   title: string;
-  /** TODD's line under the title. */
+  /** 16Ahead's line under the title. */
   note: string;
   folder: string;
   tint: string;
@@ -52,7 +52,7 @@ export function looksLikeRfp ( name: string ): boolean {
 /**
  * Add files (design_handoff_todd_docs 1i): drop or browse, and each file
  * uploads straight away with a readable title and a folder. An RFP (opened
- * from "Add an RFP", or named like one) is read by TODD and added to
+ * from "Add an RFP", or named like one) is read by 16Ahead and added to
  * Opportunities with its fit score; any other row can be marked as an RFP.
  * Storage path `${tenantId}/documents/${file.name}` is unchanged - it must
  * match the bucket's security rules.
@@ -97,9 +97,9 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   readonly rfpMode = this.route.snapshot.queryParamMap.get( 'rfp' ) === '1';
   /** "Attach the RFP" from the proposal editor: the file is that opportunity's RFP. */
   readonly attachTo = this.route.snapshot.queryParamMap.get( 'opportunity' ) || '';
-  /** Attached from the Bid / No-Bid gate: back to the opportunity, where TODD checks the must-haves. */
+  /** Attached from the Bid / No-Bid gate: back to the opportunity, where 16Ahead checks the must-haves. */
   readonly backToOpportunity = this.route.snapshot.queryParamMap.get( 'back' ) === 'opportunity';
-  /** A portal link pasted on Home: TODD can't sign in to portals, so it asks for the file. */
+  /** A portal link pasted on Home: 16Ahead can't sign in to portals, so it asks for the file. */
   readonly link = this.route.snapshot.queryParamMap.get( 'link' ) || '';
 
   private tenantId = '';
@@ -264,7 +264,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
     this.publishContext();
   }
 
-  /** Sends an uploaded file to TODD to read as an RFP; it lands on Opportunities, scored. */
+  /** Sends an uploaded file to 16Ahead to read as an RFP; it lands on Opportunities, scored. */
   async readAsRfp ( key: string ): Promise<void> {
     const row = this.row( key );
     if ( !row?.documentId ) return;
@@ -291,7 +291,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Links the uploaded file as the opportunity's RFP, so TODD can draft from the real document. */
+  /** Links the uploaded file as the opportunity's RFP, so 16Ahead can draft from the real document. */
   private async attachToOpportunity ( key: string ): Promise<void> {
     const row = this.row( key );
     if ( !row?.documentId ) return;
@@ -319,7 +319,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
     else if ( row.documentId ) void this.router.navigate( ['/documents', row.documentId] );
   }
 
-  /** PDFs go to TODD as files; Word and text files as their text. */
+  /** PDFs go to 16Ahead as files; Word and text files as their text. */
   private async textFor ( file: File ): Promise<string> {
     const name = file.name.toLowerCase();
     if ( name.endsWith( '.pdf' ) || file.type.includes( 'pdf' ) ) return '';

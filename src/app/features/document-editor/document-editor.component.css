@@ -1,7 +1,7 @@
 :host { display: block; }
 
 /* Studio in the proposal editor's layout (design_handoff_todd_docs 1e):
-   title row, the page on a surface card, TODD's tools on the right. */
+   title row, the page on a surface card, 16Ahead's tools on the right. */
 .de { max-width: 1440px; margin: 0 auto; padding: 4px 40px 56px; font-family: var(--font); color: var(--text); }
 .de *, .de *::before, .de *::after { box-sizing: border-box; }
 .de p { margin: 0; }
@@ -38,10 +38,10 @@
 .de__paper-wrap { padding: 12px; border-radius: 28px; background: var(--surface); }
 
 .de__side { position: sticky; top: 16px; display: grid; gap: 14px; }
-.de__todd { display: grid; gap: 12px; padding: 20px; border-radius: 28px; background: var(--t-blue); }
-.de__todd .dk-todd__head { margin: 0; }
+.de__assistant { display: grid; gap: 12px; padding: 20px; border-radius: 28px; background: var(--t-blue); }
+.de__assistant .dk-assistant__head { margin: 0; }
 
-.de__todd textarea {
+.de__assistant textarea {
   width: 100%;
   padding: 14px 16px;
   border: 0;
@@ -52,7 +52,7 @@
   resize: vertical;
 }
 
-.de__todd textarea:focus { outline: 2px solid var(--blue); outline-offset: 0; }
+.de__assistant textarea:focus { outline: 2px solid var(--blue); outline-offset: 0; }
 .de__presets { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .de__chip,

@@ -37,7 +37,7 @@ function daysUntil ( date: Date, now: Date ): number {
 }
 
 /**
- * "Needs you" on Home (1b, reusing 1c's rows): proposals coming due, TODD's
+ * "Needs you" on Home (1b, reusing 1c's rows): proposals coming due, 16Ahead's
  * open questions, compliance files about to expire, answers that need a
  * check, and an inbox Docs can't reach. Soonest first.
  */
@@ -163,7 +163,7 @@ export class HomeComponent implements OnInit {
     this.documents.load().subscribe();
     this.opportunities.listInboxes().subscribe( { next: ( list ) => this.inboxes.set( list ), error: () => this.inboxes.set( [] ) } );
     const list = await firstValueFrom( this.opportunities.load( true ) );
-    // TODD's open questions, for the drafts most likely to need them.
+    // 16Ahead's open questions, for the drafts most likely to need them.
     const drafting = list.filter( ( o ) => o.status === 'drafting' ).slice( 0, 4 );
     const counts: Record<string, number> = {};
     await Promise.all( drafting.map( async ( o ) => {

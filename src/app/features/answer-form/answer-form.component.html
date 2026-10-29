@@ -107,9 +107,9 @@
           <p><span class="af__check" [class.is-ok]="status.hasAnswer"><dk-icon [name]="status.hasAnswer ? 'check' : 'x'" [size]="12" /></span>Has at least one answer</p>
           <small class="dk-muted">If either is missing, Save still works and the answer is saved as a <strong>Draft</strong>. 16Ahead won't use drafts in proposals.</small>
         </section>
-        <section class="dk-todd">
-          <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />16Ahead</div>
-          <p>{{ toddPickedCategory() ? 'I picked the category from your question. ' : '' }}Leave the optional sections empty if you like; I'll suggest keywords once you've written the question and an answer.</p>
+        <section class="dk-assistant">
+          <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />16Ahead</div>
+          <p>{{ assistantPickedCategory() ? 'I picked the category from your question. ' : '' }}Leave the optional sections empty if you like; I'll suggest keywords once you've written the question and an answer.</p>
         </section>
       </aside>
     </div>

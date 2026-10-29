@@ -24,7 +24,7 @@ describe( 'approval helpers', () => {
     expect( suggestedApproveBy( due, new Date( 2026, 9, 24, 16, 0 ) ) ).toEqual( [] );
   } );
 
-  it( 'writes the note the owner sends with a link, with no TODD sender involved', () => {
+  it( 'writes the note the owner sends with a link, with no 16Ahead sender involved', () => {
     const link = approvalLink( 'tok123', 'https://docs.16ahead.com' );
     expect( link ).toBe( 'https://docs.16ahead.com/approve/tok123' );
     const m = shareMessage( { ownerName: 'Dana Reyes', buyer: 'King County', dueAt: '', note: 'Check section 5.' }, { name: 'Jordan Park', email: '' }, link );

@@ -22,7 +22,7 @@ const PROVIDERS: { id: ProviderId; label: string; imap: { host: string; port: nu
   { id: 'other_imap', label: 'Another provider (IMAP)', imap: { host: '', port: 993, secure: true }, smtp: { host: '', port: 465, secure: true } },
 ];
 
-/** A sender TODD should watch: a full address or a whole @domain, like the server accepts. */
+/** A sender 16Ahead should watch: a full address or a whole @domain, like the server accepts. */
 export function normalizeSender ( value: string ): string {
   let sender = String( value || '' ).trim().toLowerCase().replace( /^mailto:/, '' );
   if ( sender && !sender.includes( '@' ) ) sender = `@${ sender }`;
@@ -30,7 +30,7 @@ export function normalizeSender ( value: string ): string {
 }
 
 /**
- * The inbox TODD watches for RFP alerts. Connect one with Google or an app
+ * The inbox 16Ahead watches for RFP alerts. Connect one with Google or an app
  * password, choose which senders count as alerts, check it now, or stop
  * watching. An inbox Outreach already uses can be watched too; stopping
  * here never disconnects it from Outreach.
@@ -108,7 +108,7 @@ export class RfpInboxComponent implements OnInit {
     } );
   }
 
-  /** A failure TODD's server caused (offline, missing route, crash) - not the user's address or password, so don't send them to recheck those. */
+  /** A failure 16Ahead's server caused (offline, missing route, crash) - not the user's address or password, so don't send them to recheck those. */
   private unreachable ( error: any ): string {
     const status = Number( error?.status ) || 0;
     return status === 0 || status === 404 || status >= 500 ? '16Ahead\'s inbox service isn\'t answering right now, so your details weren\'t checked. Please try again later.' : '';

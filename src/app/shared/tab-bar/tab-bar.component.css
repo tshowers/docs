@@ -3,28 +3,28 @@
   max-width: 100%;
   /* Self-contained theme, not borrowed from an ancestor: this component
      gets reused on plain pages (contact-edit, pipeline, list, ...) that
-     don't define TODD's cockpit --todd-* tokens, which in fact are never
+     don't define 16Ahead's cockpit --brand-* tokens, which in fact are never
      defined anywhere in this app - see the git history note on this file
      for how that went unnoticed (an undefined var() on an inherited
      property like `color` silently falls back to inherit, so this looked
      fine by accident inside contact-home's cockpit-shell but rendered no
      background/border at all). */
-  --todd-surface-1: rgba(15, 23, 42, 0.05);
-  --todd-surface-2: #f1f5f9;
-  --todd-border: rgba(15, 23, 42, 0.10);
-  --todd-text: #0d1117;
-  --todd-subtext: #68727d;
+  --brand-surface-1: rgba(15, 23, 42, 0.05);
+  --brand-surface-2: #f1f5f9;
+  --brand-border: rgba(15, 23, 42, 0.10);
+  --brand-text: #0d1117;
+  --brand-subtext: #68727d;
   --tl-blue-deep: #006a99;
   --tl-blue-glow: rgba(0, 149, 204, 0.35);
 }
 
 @media (prefers-color-scheme: dark) {
   :host {
-    --todd-surface-1: rgba(255, 255, 255, 0.06);
-    --todd-surface-2: rgba(255, 255, 255, 0.05);
-    --todd-border: rgba(151, 198, 220, 0.16);
-    --todd-text: #edf6fb;
-    --todd-subtext: #9aafbc;
+    --brand-surface-1: rgba(255, 255, 255, 0.06);
+    --brand-surface-2: rgba(255, 255, 255, 0.05);
+    --brand-border: rgba(151, 198, 220, 0.16);
+    --brand-text: #edf6fb;
+    --brand-subtext: #9aafbc;
     --tl-blue-deep: #0095cc;
     --tl-blue-glow: rgba(0, 191, 255, 0.30);
   }
@@ -39,8 +39,8 @@
   max-width: 100%;
   padding: 0.32rem;
   border-radius: 999px;
-  background: var(--todd-surface-2);
-  border: 1px solid var(--todd-border);
+  background: var(--brand-surface-2);
+  border: 1px solid var(--brand-border);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26);
   overflow-x: auto;
 }
@@ -53,7 +53,7 @@
   gap: 0.5rem;
   border: 1px solid transparent;
   background: transparent;
-  color: var(--todd-subtext);
+  color: var(--brand-subtext);
   border-radius: 999px;
   padding: 0.78rem 1.18rem;
   font-size: 0.95rem;
@@ -69,9 +69,9 @@
 
 .tab-bar__tab:hover {
   transform: translateY(-1px);
-  background: var(--todd-surface-1);
-  border-color: var(--todd-border);
-  color: var(--todd-text);
+  background: var(--brand-surface-1);
+  border-color: var(--brand-border);
+  color: var(--brand-text);
 }
 
 .tab-bar__tab.active {

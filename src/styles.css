@@ -9,11 +9,11 @@
 /* You can add global styles to this file, and also import other style files */
 
 /*
- * TODD's brand blue, from frontend/src/styles.css :root. Several ported
+ * 16Ahead's brand blue, from frontend/src/styles.css :root. Several ported
  * components' own CSS references these two by name (--tl-blue,
  * --tl-blue-mid) without redeclaring them locally - mirrors
  * web-products/network's src/styles.css, which is the only piece of
- * TODD's full 7000+ line global stylesheet actually needed so far.
+ * 16Ahead's full 7000+ line global stylesheet actually needed so far.
  */
 :root {
   --tl-blue: #00bfff;
@@ -40,7 +40,7 @@
   animation: btn-glow-pulse 1.8s ease-in-out infinite;
 }
 
-/* Shared TODD action button. Keep this global because the same treatment is
+/* Shared 16Ahead action button. Keep this global because the same treatment is
  * used by the Docs, Knowledge, response-flow, and proposal surfaces. */
 .btn-todd {
   margin-top: 5px;
@@ -193,3 +193,58 @@ body {
   :root:not(.light):not([data-theme="light"]) .brand-mark--light { display: none !important; }
 }
 :root.dark .brand-mark--light, :root[data-theme="dark"] .brand-mark--light { display: none !important; }
+
+/* The shared menu's product logos (.um-logo, keyed by the shared app keys)
+ * show the same dials, light and dark like .brand-mark. The colour logos stay
+ * in @taliferro/ui/menu-logos; music has no dial and keeps its own. */
+.um-logo[data-app]:not([data-app="music"]) { border-radius: 0; }
+.um-logo[data-app="todd"] { --um-logo: url("/assets/brand/products/png/light/01-16ahead-64.png"); }
+.um-logo[data-app="ask-todd"] { --um-logo: url("/assets/brand/products/png/light/02-general-assistant-64.png"); }
+.um-logo[data-app="maya"] { --um-logo: url("/assets/brand/products/png/light/03-marketing-assistant-64.png"); }
+.um-logo[data-app="network"] { --um-logo: url("/assets/brand/products/png/light/04-network-64.png"); }
+.um-logo[data-app="outreach"] { --um-logo: url("/assets/brand/products/png/light/05-outreach-64.png"); }
+.um-logo[data-app="moves"] { --um-logo: url("/assets/brand/products/png/light/06-moves-64.png"); }
+.um-logo[data-app="docs"] { --um-logo: url("/assets/brand/products/png/light/07-docs-64.png"); }
+.um-logo[data-app="pulse"] { --um-logo: url("/assets/brand/products/png/light/08-pulse-64.png"); }
+.um-logo[data-app="social"] { --um-logo: url("/assets/brand/products/png/light/09-social-64.png"); }
+.um-logo[data-app="lead-vault"] { --um-logo: url("/assets/brand/products/png/light/10-lead-vault-64.png"); }
+.um-logo[data-app="find"] { --um-logo: url("/assets/brand/products/png/light/11-find-64.png"); }
+.um-logo[data-app="sayit"] { --um-logo: url("/assets/brand/products/png/light/12-sayit-64.png"); }
+.um-logo[data-app="email-creator"] { --um-logo: url("/assets/brand/products/png/light/13-email-creator-64.png"); }
+.um-logo[data-app="image-creator"] { --um-logo: url("/assets/brand/products/png/light/14-image-creator-64.png"); }
+.um-logo[data-app="email-signature"] { --um-logo: url("/assets/brand/products/png/light/15-email-signature-64.png"); }
+.um-logo[data-app="market"] { --um-logo: url("/assets/brand/products/png/light/16-store-64.png"); }
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="todd"] { --um-logo: url("/assets/brand/products/png/dark/01-16ahead-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="ask-todd"] { --um-logo: url("/assets/brand/products/png/dark/02-general-assistant-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="maya"] { --um-logo: url("/assets/brand/products/png/dark/03-marketing-assistant-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="network"] { --um-logo: url("/assets/brand/products/png/dark/04-network-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="outreach"] { --um-logo: url("/assets/brand/products/png/dark/05-outreach-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="moves"] { --um-logo: url("/assets/brand/products/png/dark/06-moves-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="docs"] { --um-logo: url("/assets/brand/products/png/dark/07-docs-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="pulse"] { --um-logo: url("/assets/brand/products/png/dark/08-pulse-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="social"] { --um-logo: url("/assets/brand/products/png/dark/09-social-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="lead-vault"] { --um-logo: url("/assets/brand/products/png/dark/10-lead-vault-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="find"] { --um-logo: url("/assets/brand/products/png/dark/11-find-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="sayit"] { --um-logo: url("/assets/brand/products/png/dark/12-sayit-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="email-creator"] { --um-logo: url("/assets/brand/products/png/dark/13-email-creator-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="image-creator"] { --um-logo: url("/assets/brand/products/png/dark/14-image-creator-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="email-signature"] { --um-logo: url("/assets/brand/products/png/dark/15-email-signature-64.png"); }
+  :root:not(.light):not([data-theme="light"]) .um-logo[data-app="market"] { --um-logo: url("/assets/brand/products/png/dark/16-store-64.png"); }
+}
+:root.dark .um-logo[data-app="todd"], :root[data-theme="dark"] .um-logo[data-app="todd"] { --um-logo: url("/assets/brand/products/png/dark/01-16ahead-64.png"); }
+:root.dark .um-logo[data-app="ask-todd"], :root[data-theme="dark"] .um-logo[data-app="ask-todd"] { --um-logo: url("/assets/brand/products/png/dark/02-general-assistant-64.png"); }
+:root.dark .um-logo[data-app="maya"], :root[data-theme="dark"] .um-logo[data-app="maya"] { --um-logo: url("/assets/brand/products/png/dark/03-marketing-assistant-64.png"); }
+:root.dark .um-logo[data-app="network"], :root[data-theme="dark"] .um-logo[data-app="network"] { --um-logo: url("/assets/brand/products/png/dark/04-network-64.png"); }
+:root.dark .um-logo[data-app="outreach"], :root[data-theme="dark"] .um-logo[data-app="outreach"] { --um-logo: url("/assets/brand/products/png/dark/05-outreach-64.png"); }
+:root.dark .um-logo[data-app="moves"], :root[data-theme="dark"] .um-logo[data-app="moves"] { --um-logo: url("/assets/brand/products/png/dark/06-moves-64.png"); }
+:root.dark .um-logo[data-app="docs"], :root[data-theme="dark"] .um-logo[data-app="docs"] { --um-logo: url("/assets/brand/products/png/dark/07-docs-64.png"); }
+:root.dark .um-logo[data-app="pulse"], :root[data-theme="dark"] .um-logo[data-app="pulse"] { --um-logo: url("/assets/brand/products/png/dark/08-pulse-64.png"); }
+:root.dark .um-logo[data-app="social"], :root[data-theme="dark"] .um-logo[data-app="social"] { --um-logo: url("/assets/brand/products/png/dark/09-social-64.png"); }
+:root.dark .um-logo[data-app="lead-vault"], :root[data-theme="dark"] .um-logo[data-app="lead-vault"] { --um-logo: url("/assets/brand/products/png/dark/10-lead-vault-64.png"); }
+:root.dark .um-logo[data-app="find"], :root[data-theme="dark"] .um-logo[data-app="find"] { --um-logo: url("/assets/brand/products/png/dark/11-find-64.png"); }
+:root.dark .um-logo[data-app="sayit"], :root[data-theme="dark"] .um-logo[data-app="sayit"] { --um-logo: url("/assets/brand/products/png/dark/12-sayit-64.png"); }
+:root.dark .um-logo[data-app="email-creator"], :root[data-theme="dark"] .um-logo[data-app="email-creator"] { --um-logo: url("/assets/brand/products/png/dark/13-email-creator-64.png"); }
+:root.dark .um-logo[data-app="image-creator"], :root[data-theme="dark"] .um-logo[data-app="image-creator"] { --um-logo: url("/assets/brand/products/png/dark/14-image-creator-64.png"); }
+:root.dark .um-logo[data-app="email-signature"], :root[data-theme="dark"] .um-logo[data-app="email-signature"] { --um-logo: url("/assets/brand/products/png/dark/15-email-signature-64.png"); }
+:root.dark .um-logo[data-app="market"], :root[data-theme="dark"] .um-logo[data-app="market"] { --um-logo: url("/assets/brand/products/png/dark/16-store-64.png"); }

@@ -9,9 +9,9 @@
 
   <p class="dk-kicker">{{ today | date:'EEEE, MMMM d' }}</p>
   <h1 class="opp-headline">{{ signedIn() === false ? 'RFPs that fit what you do.' : headline() }}</h1>
-  <p class="opp-todd">
-    <img src="assets/avatar-todd-sm.png" alt="" />
-    <span>{{ toddLine() }}
+  <p class="opp-assistant">
+    <img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />
+    <span>{{ assistantLine() }}
       @if (setAside().length) {
         <button type="button" class="opp-link" (click)="showSetAside.set(!showSetAside())">{{ showSetAside() ? 'Hide them' : 'See the ' + setAside().length }}</button>
       }

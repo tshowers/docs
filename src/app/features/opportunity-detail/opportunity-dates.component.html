@@ -41,7 +41,7 @@
 
 <section class="kd-line" aria-label="Key dates">
   @if (dates().status === 'checking') {
-    <p class="kd-line__note"><img src="assets/avatar-todd-sm.png" alt="" />Reading the RFP for its dates and the questions worth asking…</p>
+    <p class="kd-line__note"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Reading the RFP for its dates and the questions worth asking…</p>
   }
   @if (line().length) {
     <ol class="kd-steps">
@@ -84,7 +84,7 @@
 @if (questions().items.length) {
   <section class="kd-questions">
     <header>
-      <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Questions I'd ask {{ opportunity.agency || 'the buyer' }}</div>
+      <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Questions I'd ask {{ opportunity.agency || 'the buyer' }}</div>
       @if (!questions().sent) { <span class="dk-muted">{{ picked().length }} of {{ questions().items.length }} picked</span> }
     </header>
     @if (questions().sent; as sent) {

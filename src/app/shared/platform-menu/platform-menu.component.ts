@@ -76,7 +76,7 @@ export class PlatformMenuComponent {
   readonly products: MenuProduct[] = menuProductsFor( this.config.app );
   readonly accountLinks: MenuLink[] = menuAccountLinks( this.config.app );
   readonly company = MENU_COMPANY;
-  readonly toddProfileUrl = MENU_TODD_PROFILE_URL;
+  readonly hubProfileUrl = MENU_TODD_PROFILE_URL;
   readonly version = String( ( packageJson as { version?: string } ).version || '' ).trim();
 
   isOpen = false;

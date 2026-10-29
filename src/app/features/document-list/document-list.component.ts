@@ -67,7 +67,7 @@ export class DocumentListComponent implements OnInit, OnDestroy {
     const cards = this.cards();
     return cards.find( ( c ) => c.id === this.selectedId() ) || cards[0] || null;
   } );
-  /** The opportunity an RFP document belongs to, for TODD's read and Draft proposal. */
+  /** The opportunity an RFP document belongs to, for 16Ahead's read and Draft proposal. */
   readonly selectedOpportunity = computed<Opportunity | null>( () => {
     const card = this.selected();
     if ( !card || card.kind !== 'rfp' ) return null;

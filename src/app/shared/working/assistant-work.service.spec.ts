@@ -3,9 +3,9 @@ import { provideRouter } from '@angular/router';
 import { Subject, throwError } from 'rxjs';
 
 import { DocsNotificationService } from '../../services/docs-notification.service';
-import { ToddWorkService, describeTask, timeLeft } from './todd-work.service';
+import { AssistantWorkService, describeTask, timeLeft } from './assistant-work.service';
 
-describe( 'TODD is working', () => {
+describe( '16Ahead is working', () => {
   const start = 1_000_000;
 
   it( 'says how long is left in plain words', () => {
@@ -25,14 +25,14 @@ describe( 'TODD is working', () => {
   } );
 
   describe( 'tracking a call', () => {
-    let work: ToddWorkService;
+    let work: AssistantWorkService;
     let shown: jasmine.Spy;
 
     beforeEach( () => {
       jasmine.clock().install();
       jasmine.clock().mockDate( new Date( start ) );
       TestBed.configureTestingModule( { providers: [provideRouter( [] ), { provide: DocsNotificationService, useValue: { show: jasmine.createSpy( 'show' ) } }] } );
-      work = TestBed.inject( ToddWorkService );
+      work = TestBed.inject( AssistantWorkService );
       shown = TestBed.inject( DocsNotificationService ).show as jasmine.Spy;
     } );
 

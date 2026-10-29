@@ -1,5 +1,5 @@
 // The Bid / No-Bid gate (design_handoff_todd_docs_lifecycle 1a/1c/1h)
-// through the app: TODD reads the RFP for must-haves on the first visit,
+// through the app: 16Ahead reads the RFP for must-haves on the first visit,
 // a not-sure one is answered inline, a missing one turns Draft proposal into
 // "We can't meet this", Draft anyway asks why, and Not for us takes one tap.
 // The API is stubbed; the server's rules are tested in todd-backend

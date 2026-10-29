@@ -65,7 +65,7 @@
 
         <section class="pf__card pf__account">
           <h2>Account</h2>
-          <p class="dk-muted">Products, email signature and billing live on <a [href]="toddProfileUrl" target="_blank" rel="noopener noreferrer">your 16Ahead profile ↗</a>.</p>
+          <p class="dk-muted">Products, email signature and billing live on <a [href]="hubProfileUrl" target="_blank" rel="noopener noreferrer">your 16Ahead profile ↗</a>.</p>
           @if (!isConfirmingDelete) {
             <button type="button" class="dk-btn dk-btn--bg dk-btn--danger" (click)="isConfirmingDelete = true" data-cy="profile-delete">Delete account</button>
           } @else {
@@ -83,8 +83,8 @@
 
     @if (profile) {
       <aside class="pf__side">
-        <section class="dk-todd">
-          <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />How I use this</div>
+        <section class="dk-assistant">
+          <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />How I use this</div>
           <p>I compare every RFP with the fields in the first box. When you save changes there, I re-score your open opportunities.</p>
         </section>
         @if (openOpportunities.length) {

@@ -65,10 +65,10 @@ button.kd-link {
   cursor: pointer;
 }
 
-/* 1f: TODD's questions for the buyer. */
+/* 1f: 16Ahead's questions for the buyer. */
 .kd-questions { display: grid; gap: 14px; padding: 24px; border-radius: 28px; background: var(--surface); }
 .kd-questions header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.kd-questions .dk-todd__head { margin: 0; color: var(--text); font-size: 17px; font-weight: 700; }
+.kd-questions .dk-assistant__head { margin: 0; color: var(--text); font-size: 17px; font-weight: 700; }
 .kd-questions header span { font-size: 13px; font-weight: 700; }
 .kd-sub { font-size: 14px; }
 .kd-sent { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.5; }

@@ -8,7 +8,7 @@ type Filter = 'all' | 'mine' | 'others';
 
 /**
  * Missions as Moves rows (design 5a): each row carries a compact plan strip
- * that says who holds it now, in place of the old "Maya" / "Person" pill.
+ * that says who holds it now, in place of the old assistant / "Person" pill.
  * Filters: all, waiting on you, waiting on others. Synced from taliferro-ui/missions.
  */
 @Component( {

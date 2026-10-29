@@ -83,8 +83,8 @@ app-doc-rich-text-editor { display: block; }
 .doc-editor-shell .doc-editor-canvas .dk-src[data-src="opportunity"] { background: var(--t-violet); }
 .doc-editor-shell .doc-editor-canvas .dk-src[data-src="opportunity"]::before { color: var(--t-violet-fg); }
 
-/* 3b: the passage TODD is revising. */
-::highlight(dk-todd-selection) { background-color: var(--t-blue); }
+/* 3b: the passage 16Ahead is revising. */
+::highlight(dk-assistant-selection) { background-color: var(--t-blue); }
 
 .doc-editor-shell .doc-editor-source-textarea {
   min-height: 520px;

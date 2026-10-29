@@ -1,5 +1,5 @@
 // Key dates and addenda (design_handoff_todd_docs_lifecycle 1f/1g/1h)
-// through the app: TODD reads the RFP for its dates and questions on the
+// through the app: 16Ahead reads the RFP for its dates and questions on the
 // first visit, the next deadline gets the banner and Add to calendar, the
 // owner picks, edits and sends the questions from their own inbox, adds a
 // date, and an addendum that moved the due date shows what changed with

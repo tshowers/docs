@@ -45,7 +45,7 @@ import { BrowseNoticeComponent } from '../../shared/write-access/browse-notice.c
  *
  * This is the second of the direct-to-Firebase-Storage upload components -
  * path `documents/${userId}/${file.name}` preserved exactly.
- * ToddAssistantBusService's signalState$ subscription is dropped, same as
+ * AssistantBusService's signalState$ subscription is dropped, same as
  * every other cockpit page ported from Network.
  */
 @Component( {
@@ -79,8 +79,8 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   isProcessing: boolean = true;
 
   instructionText: string = '';
-  toddPreview: string | null = null;
-  isToddWorking: boolean = false;
+  assistantPreview: string | null = null;
+  isAssistantWorking: boolean = false;
   currentDocument: Document | null = null;
 
   @ViewChild( DocRichTextEditorComponent ) private editor?: DocRichTextEditorComponent;
@@ -102,7 +102,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   firstDraft = false;
   selection: EditorSelection | null = null;
   lastPreset = '';
-  /** What TODD's revision replaces: the selected passage or the whole page. */
+  /** What 16Ahead's revision replaces: the selected passage or the whole page. */
   previewTarget: 'selection' | 'document' = 'document';
   previewBefore = '';
   /** Compose's tinted blocks, handed over by New in the navigation state. */
@@ -133,7 +133,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
 
   /**
    * Viewing needs only a sign-in; creating, changing and deleting need the
-   * Docs app (Ty, 2026-09-27 and 2026-10-05). Documents Maya or TODD made
+   * Docs app (Ty, 2026-09-27 and 2026-10-05). Documents the Marketing Assistant or 16Ahead made
    * for the workspace open here read-only for everyone signed in.
    */
   get canCrudDocuments (): boolean {
@@ -174,8 +174,8 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
         'upload_document',
         'export_pdf',
         'export_doc',
-        'run_todd_instruction',
-        'apply_todd_preview'
+        'run_assistant_instruction',
+        'apply_assistant_preview'
       ],
       selectedEntityType: 'document',
       selectedEntityId: this.docid || '',
@@ -185,8 +185,8 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
         hasTitle: !!this.documentName,
         hasHtmlContent: !!this.htmlContent,
         hasDownloadUrl: !!this.downloadURL,
-        hasToddPreview: !!this.toddPreview,
-        isToddWorking: this.isToddWorking,
+        hasAssistantPreview: !!this.assistantPreview,
+        isAssistantWorking: this.isAssistantWorking,
         isProcessing: this.isProcessing,
         hasInstructionText: !!this.instructionText,
         isEditing: !!this.docid
@@ -260,7 +260,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   private getLocalStorageKey (): string {
     const id = this.docid || 'new';
     const uid = this.userId || 'anon';
-    return `todd.doc.${uid}.${id}`;
+    return `docs.doc.${uid}.${id}`;
   }
 
   private persistLocalDraft (): void {
@@ -749,13 +749,13 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
   runPreset ( preset: { id: string; instruction: string } ): void {
     this.setInstruction( preset.instruction );
     this.lastPreset = preset.id;
-    if ( !this.isEmpty && this.canCrudDocuments && !this.isToddWorking ) this.runToddInstruction();
+    if ( !this.isEmpty && this.canCrudDocuments && !this.isAssistantWorking ) this.runAssistantInstruction();
   }
 
-  runToddInstruction () {
+  runAssistantInstruction () {
     this.publishPageContext();
     if ( !this.instructionText.trim() ) return;
-    this.isToddWorking = true;
+    this.isAssistantWorking = true;
     const selected = this.editor?.selectionHtml() || '';
     this.previewTarget = selected ? 'selection' : 'document';
     this.previewBefore = selected ? ( this.selection?.text || '' ) : '';
@@ -773,40 +773,40 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
           const payload = ( res && res.response ) ? res.response : res;
           const outHtml = payload?.html ?? payload?.content ?? payload?.result ?? ( typeof payload === 'string' ? payload : '' );
 
-          this.toddPreview = typeof outHtml === 'string' ? outHtml : '';
-          this.isToddWorking = false;
+          this.assistantPreview = typeof outHtml === 'string' ? outHtml : '';
+          this.isAssistantWorking = false;
 
           // Optional helper note from backend
           if ( payload?.notes ) {
             this.notificationService.show( '16Ahead', payload.notes, 'success' );
           }
 
-          if ( !this.toddPreview ) {
+          if ( !this.assistantPreview ) {
             this.notificationService.show( 'No Changes', '16Ahead did not return content.', 'warning' );
           }
           this.publishPageContext();
         },
         error: ( err ) => {
-          this.isToddWorking = false;
-          this.logger.error( 'TODD document transform failed', err );
+          this.isAssistantWorking = false;
+          this.logger.error( '16Ahead document transform failed', err );
           this.notificationService.show( 'Unable to Transform', 'There was a problem applying your instruction.', 'error' );
           this.publishPageContext();
         }
       } );
   }
 
-  applyToddPreview () {
-    if ( !this.toddPreview ) return;
+  applyAssistantPreview () {
+    if ( !this.assistantPreview ) return;
     if ( this.previewTarget === 'selection' ) {
-      if ( !this.editor?.replaceSelection( this.toddPreview ) ) {
+      if ( !this.editor?.replaceSelection( this.assistantPreview ) ) {
         this.notificationService.show( 'Selection lost', 'Select the passage again and ask 16Ahead once more.', 'warning' );
         return;
       }
     } else {
-      this.htmlContent = this.toddPreview;
+      this.htmlContent = this.assistantPreview;
       this.firstDraft = false;
     }
-    this.toddPreview = null;
+    this.assistantPreview = null;
     this.previewBefore = '';
     this.lastPreset = '';
     this.instructionText = '';
@@ -816,13 +816,13 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
 
   }
 
-  retryToddPreview () {
-    this.toddPreview = null;
-    this.runToddInstruction();
+  retryAssistantPreview () {
+    this.assistantPreview = null;
+    this.runAssistantInstruction();
   }
 
-  discardToddPreview () {
-    this.toddPreview = null;
+  discardAssistantPreview () {
+    this.assistantPreview = null;
     this.previewBefore = '';
     this.editor?.clearHighlight();
     this.publishPageContext();

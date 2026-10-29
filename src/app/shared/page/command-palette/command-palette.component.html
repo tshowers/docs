@@ -24,7 +24,7 @@
         (mouseenter)="activeIndex = i"
         (click)="select(entry)"
       >
-        <img *ngIf="entry.icon" [src]="entry.icon" alt="" class="cmdk-result-icon" />
+        <ng-container *ngIf="entry.icon"><img [src]="entry.icon" alt="" class="cmdk-result-icon brand-mark--light" /><img [src]="entry.icon.replace('/light/', '/dark/')" alt="" class="cmdk-result-icon brand-mark--dark" /></ng-container>
         <span class="cmdk-result-label">{{ entry.label }}</span>
         <span class="cmdk-result-group">{{ entry.group }}</span>
       </li>

@@ -21,8 +21,8 @@
     @case ('loading') { <div class="pe__state" aria-busy="true"><div class="pe__pulse"></div></div> }
     @case ('planning') {
       <div class="pe__state">
-        <div class="dk-todd pe__planning">
-          <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Reading the RFP</div>
+        <div class="dk-assistant pe__planning">
+          <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Reading the RFP</div>
           <p>I'm working out the sections it asks for, what it will score, and what I'll need to ask you. This takes about a minute.</p>
         </div>
       </div>
@@ -133,7 +133,7 @@
 
           <aside class="pe__side">
             <div class="pe__tabs" role="tablist" aria-label="Beside the draft">
-              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'todd'" [class.is-on]="sideTab() === 'todd'" (click)="showTab('todd')">16Ahead</button>
+              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'assistant'" [class.is-on]="sideTab() === 'assistant'" (click)="showTab('assistant')">16Ahead</button>
               <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'requirements'" [class.is-on]="sideTab() === 'requirements'" (click)="showTab('requirements')">Requirements</button>
               <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'checklist'" [class.is-on]="sideTab() === 'checklist'" (click)="showTab('checklist')">Checklist</button>
               <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'score'" [class.is-on]="sideTab() === 'score'" (click)="showTab('score')">Score</button>
@@ -146,10 +146,10 @@
             @if (sideTab() === 'score') {
               <app-score-check mode="editor" [check]="scoreCheck()" [running]="scoring()" [activeFix]="activeFix()" (run)="runScore()" (fix)="openFix($event)" />
             }
-            @if (sideTab() === 'todd') {
+            @if (sideTab() === 'assistant') {
             @if (question(); as q) {
               <section class="pe__ask">
-                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />16Ahead · question {{ questionNumber().n }} of {{ questionNumber().of }}</div>
+                <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />16Ahead · question {{ questionNumber().n }} of {{ questionNumber().of }}</div>
                 <h2>{{ q.question }}</h2>
                 @if (q.why) { <p class="dk-muted pe__why">{{ q.why }}</p> }
                 <textarea [(ngModel)]="answer" rows="5" placeholder="Answer in your own words…" aria-label="Your answer" [disabled]="answering()"></textarea>
@@ -161,7 +161,7 @@
               </section>
             } @else {
               <section class="pe__ask pe__ask--done">
-                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />That's everything</div>
+                <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />That's everything</div>
                 <p>{{ d.questions.length ? "You've answered all " + d.questions.length + " of 16Ahead's questions." : "16Ahead has no questions for you on this one." }}</p>
               </section>
             }
@@ -201,7 +201,7 @@
   <div class="pe__revise" [id]="'fix-' + r.fixId">
     @if (r.revision.oldText) { <p class="pe__old">{{ r.revision.oldText }}</p> }
     <div class="pe__suggest">
-      <span class="dk-kicker"><img src="assets/avatar-todd-sm.png" alt="" />Suggested revision{{ r.revision.gain ? ' · +' + r.revision.gain + ' points' : '' }}</span>
+      <span class="dk-kicker"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Suggested revision{{ r.revision.gain ? ' · +' + r.revision.gain + ' points' : '' }}</span>
       @if (editingFix === r.fixId) {
         <textarea rows="5" [(ngModel)]="fixText" aria-label="Suggested revision"></textarea>
       } @else {

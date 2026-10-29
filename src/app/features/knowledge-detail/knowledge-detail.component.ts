@@ -22,7 +22,7 @@ export function formatCitation ( answer: KnowledgeAnswer, accessed = new Date() 
  * One Knowledge answer (design_handoff_todd_docs 2d), mapped onto the
  * response-flow record: category and confirmed date as tags, the question,
  * numbered evidence with source chips, recommendations, resources and
- * keywords. Edit opens Response Flow; "Send to Maya for a post" hands the
+ * keywords. Edit opens Response Flow; "Send to the Marketing Assistant for a post" hands the
  * answer to Social like the old card's # button. "Used in N proposals" and
  * which draft prompted the question appear once the editor records them.
  */
@@ -132,7 +132,7 @@ export class KnowledgeDetailComponent implements OnInit {
     void this.router.navigate( ['/knowledge/response-flow'], { queryParams: { id: this.id() } } );
   }
 
-  sendToMaya (): void {
+  sendToMarketingAssistant (): void {
     const item = this.item();
     if ( !item?.id || !this.isBrowser ) return;
     const params = new URLSearchParams( { sourceType: 'response-flow', sourceId: item.id, title: item.question || '' } );

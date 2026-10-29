@@ -166,7 +166,7 @@ button.docs-libitem {
 .docs-inspector__plate strong { font-size: 22px; }
 .docs-inspector__actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .docs-inspector__read { display: grid; gap: 10px; padding: 18px 20px; border-radius: 24px; background: var(--bg); }
-.docs-inspector__read .dk-todd__head { margin: 0; color: var(--text); }
+.docs-inspector__read .dk-assistant__head { margin: 0; color: var(--text); }
 .docs-inspector__read ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
 .docs-inspector__read li { display: grid; grid-template-columns: 15px 1fr; gap: 10px; }
 .docs-inspector__read li dk-icon { margin-top: 2px; color: var(--t-green-fg); }

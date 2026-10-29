@@ -109,7 +109,7 @@ export class ReviewSendComponent implements OnInit {
   private pdfBytes: Uint8Array | null = null;
   /** The compliance matrix, when the RFP asks for it with the proposal (lifecycle 1e). */
   private matrixBytes: Uint8Array | null = null;
-  /** TODD's score-check (lifecycle 1i): advice only, it never blocks Send. */
+  /** 16Ahead's score-check (lifecycle 1i): advice only, it never blocks Send. */
   readonly scoreCheck = signal<ScoreCheck | null>( null );
   readonly scoring = signal( false );
   private proposalTitle = '';
@@ -300,7 +300,7 @@ export class ReviewSendComponent implements OnInit {
     }
   }
 
-  /** Fix this opens the section in the editor with TODD's revision. */
+  /** Fix this opens the section in the editor with 16Ahead's revision. */
   openFix ( fixId: string ): void {
     const o = this.opportunity();
     if ( o ) void this.router.navigate( ['/opportunities', o.id, 'proposal'], { queryParams: { fix: fixId } } );
@@ -451,7 +451,7 @@ export class ReviewSendComponent implements OnInit {
     };
   }
 
-  /** 4a: ask, or change approvers. Auto-send needs the PDF saved now, since TODD sends it later. */
+  /** 4a: ask, or change approvers. Auto-send needs the PDF saved now, since 16Ahead sends it later. */
   async submitApproval ( form: ApprovalForm ): Promise<void> {
     const o = this.opportunity();
     if ( !o || this.dialogBusy() ) return;

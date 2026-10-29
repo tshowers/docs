@@ -4,7 +4,7 @@
   width: 100%;
 }
 
-/* btn-todd / ios-input stand-ins: TODD's real design system isn't ported
+/* btn-todd / ios-input stand-ins: 16Ahead's real design system isn't ported
    here - same pattern already used in contact-edit.component.css and
    csv-import.component.css for this class name. */
 .btn-todd {
@@ -14,16 +14,16 @@
   gap: 6px;
   padding: 0.5rem 1.1rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--todd-link, #2563eb) 30%, transparent);
-  background: var(--todd-card-bg, #fff);
-  color: var(--todd-link, #2563eb);
+  border: 1px solid color-mix(in srgb, var(--brand-link, #2563eb) 30%, transparent);
+  background: var(--brand-card-bg, #fff);
+  color: var(--brand-link, #2563eb);
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
 }
 
 .btn-todd:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--todd-link, #2563eb) 8%, var(--todd-card-bg, #fff));
+  background: color-mix(in srgb, var(--brand-link, #2563eb) 8%, var(--brand-card-bg, #fff));
 }
 
 .btn-todd:disabled {
@@ -33,8 +33,8 @@
 
 .btn-todd.ghost {
   background: transparent;
-  border-color: color-mix(in srgb, var(--todd-text, #172033) 18%, transparent);
-  color: var(--todd-text, #172033);
+  border-color: color-mix(in srgb, var(--brand-text, #172033) 18%, transparent);
+  color: var(--brand-text, #172033);
 }
 
 .assistant-btn-delete {
@@ -44,7 +44,7 @@
 .ios-input {
   padding: 0.6rem 0.85rem;
   border-radius: 999px;
-  border: 1px solid var(--todd-border, rgba(0, 0, 0, .12));
+  border: 1px solid var(--brand-border, rgba(0, 0, 0, .12));
   background: #fff;
   color: #172033;
   font-size: 0.9rem;
@@ -52,7 +52,7 @@
 
 .ios-input:focus {
   outline: none;
-  border-color: var(--todd-link, #2563eb);
+  border-color: var(--brand-link, #2563eb);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -70,15 +70,15 @@
   gap: 12px;
   margin: 8px 0;
   padding: 10px 12px;
-  border: 1px solid color-mix(in srgb, var(--todd-link, #2563eb) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-link, #2563eb) 35%, transparent);
   border-radius: 12px;
-  background: color-mix(in srgb, var(--todd-link, #2563eb) 9%, var(--todd-surface-2, #f8fafc));
+  background: color-mix(in srgb, var(--brand-link, #2563eb) 9%, var(--brand-surface-2, #f8fafc));
 }
 
 .assistant-confirm__copy {
   display: grid;
   gap: 3px;
-  color: var(--todd-text, #172033);
+  color: var(--brand-text, #172033);
   font-size: 12px;
 }
 
@@ -105,8 +105,8 @@
   bottom: 0;
   width: 100%;
   padding-top: 8px;
-  background: color-mix(in srgb, var(--todd-surface-2, #f8fafc) 94%, transparent);
-  box-shadow: 0 -8px 18px color-mix(in srgb, var(--todd-surface-2, #f8fafc) 72%, transparent);
+  background: color-mix(in srgb, var(--brand-surface-2, #f8fafc) 94%, transparent);
+  box-shadow: 0 -8px 18px color-mix(in srgb, var(--brand-surface-2, #f8fafc) 72%, transparent);
 }
 
 .assistant-bar .ios-row {
@@ -167,7 +167,7 @@
   }
 }
 
-.todd-logo-container {
+.brand-logo-container {
   position: fixed;
   bottom: 15px;
   right: 5px;
@@ -365,7 +365,7 @@ body.dark .assistant-inline .chip {
 
 /* In the large centered assistant, the conversation isn't capped: the window
  * scrolls, so a Mission's whole plan shows instead of a small slice. */
-:host-context(.todd-assistant-window) .assistant-thread {
+:host-context(.docs-assistant-window) .assistant-thread {
   max-height: none;
   overflow: visible;
 }

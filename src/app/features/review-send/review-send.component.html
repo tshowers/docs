@@ -183,7 +183,7 @@
               }
               @if (approvalActive() && !approvalMet()) {
                 <section class="rs__card dk-tinted" data-tint="blue">
-                  <div class="dk-todd__head rs__todd"><img src="assets/avatar-todd-sm.png" alt="" />If you edit now</div>
+                  <div class="dk-assistant__head rs__assistant"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />If you edit now</div>
                   <p>{{ editNote() }}</p>
                 </section>
                 <section class="rs__card">
@@ -208,7 +208,7 @@
             }
             @if (!portalOnly() && !o.submissionRecord && !approvalActive()) {
               <section class="rs__card">
-                <div class="dk-todd__head rs__todd"><img src="assets/avatar-todd-sm.png" alt="" />Why this address</div>
+                <div class="dk-assistant__head rs__assistant"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Why this address</div>
                 <p>{{ why() }}</p>
               </section>
             }

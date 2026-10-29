@@ -33,7 +33,7 @@ export interface KnowledgeItem {
   resources: { link: string }[];
   relatedDocumentIds?: string[];
   summary?: string;
-  /** Set when TODD asked this while drafting a proposal. */
+  /** Set when 16Ahead asked this while drafting a proposal. */
   origin?: { kind: string; opportunityId?: string; proposalDocumentId?: string; proposalTitle?: string; agency?: string; askedAt?: string } | null;
   /** Proposal documents that used this answer. */
   usedInProposals?: string[];
@@ -43,7 +43,7 @@ export interface KnowledgeItem {
 
 const DAY = 24 * 60 * 60 * 1000;
 
-/** TODD asks again once an answer hasn't been confirmed for a year. */
+/** 16Ahead asks again once an answer hasn't been confirmed for a year. */
 export const STALE_AFTER_DAYS = 365;
 
 function toDate ( value: string | null | undefined ): Date | null {

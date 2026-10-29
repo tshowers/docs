@@ -83,7 +83,7 @@
             <button type="button" class="dk-btn doc-detail__iconable" (click)="startEdit()" appWriteAction="edit this document" aria-label="Edit"><dk-icon name="pen" /><span>Edit</span></button>
             <button type="button" class="dk-btn doc-detail__iconable" (click)="share()" aria-label="Share"><dk-icon name="send" /><span>Share</span></button>
             @if ((surface() === 'image' || surface() === 'video') && !d.eligibleForSocial) {
-              <button type="button" class="dk-btn doc-detail__iconable" (click)="sendToMaya()" appWriteAction="send this to the Marketing Assistant" aria-label="Post"><dk-icon name="megaphone" /><span>Post</span></button>
+              <button type="button" class="dk-btn doc-detail__iconable" (click)="sendToMarketingAssistant()" appWriteAction="send this to the Marketing Assistant" aria-label="Post"><dk-icon name="megaphone" /><span>Post</span></button>
             }
             <div class="doc-detail__more">
               <button type="button" class="dk-btn dk-btn--icon" (click)="moreOpen.set(!moreOpen())" [attr.aria-expanded]="moreOpen()" aria-label="More actions"><dk-icon name="more" /></button>
@@ -104,8 +104,8 @@
         }
 
         @if (summary()) {
-          <div class="dk-todd">
-            <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />{{ surface() === 'image' ? 'Alt text' : 'Summary' }}</div>
+          <div class="dk-assistant">
+            <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />{{ surface() === 'image' ? 'Alt text' : 'Summary' }}</div>
             <p>{{ summary() }}</p>
           </div>
         }

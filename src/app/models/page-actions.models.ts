@@ -2,7 +2,7 @@
 export type PageActionGroup = 'context' | 'feature' | 'global';
 
 export type PageActionKind = 'route' | 'callback' | 'separator' | 'heading';
-export type PageActionContextScope = 'all' | 'say-it' | 'todd';
+export type PageActionContextScope = 'all' | 'say-it' | 'assistant';
 export type PageActionFeature = 'global' | 'network' | 'outreach' | 'docs' | 'moves' | 'pulse' | 'social' | 'admin' | 'misc';
 
 export interface PageActionContext {

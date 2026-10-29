@@ -1,5 +1,5 @@
 // After submittal (design_handoff_todd_docs_lifecycle 1k/1l) through the
-// app: TODD's drafted answer to a clarification is edited and sent from the
+// app: 16Ahead's drafted answer to a clarification is edited and sent from the
 // owner's inbox, the orals get a date and a prep sheet, a loss gets its
 // reason and a debrief request, and a win saves sections to Knowledge. The
 // API is stubbed; the server's rules are in todd-backend
@@ -43,7 +43,7 @@ describe( 'After submittal', () => {
     cy.intercept( 'GET', /\/updates$/, ok( [] ) );
   } );
 
-  it( 'answers a clarification with TODD\'s draft, from your inbox', () => {
+  it( 'answers a clarification with 16Ahead\'s draft, from your inbox', () => {
     cy.intercept( 'POST', /\/clarifications$/, ( req ) => req.reply( ok( withPost( { clarifications: [{ id: 'c1', question: req.body.question, askedAt: new Date().toISOString(), source: 'you', answer: 'Yes. Year-2 support of $24,000 includes hosting.', draftedAt: new Date().toISOString(), sentAt: '', sentTo: '', sentFrom: '' }] } ) ) ) ).as( 'log' );
     cy.intercept( 'POST', /\/clarifications\/c1\/send$/, ( req ) => req.reply( ok( withPost( { clarifications: [{ ...current.post.clarifications[0], answer: req.body.answer, sentAt: new Date().toISOString(), sentTo: 'purchasing@everettwa.gov', sentFrom: 'tyrone@taliferro.com' }] } ) ) ) ).as( 'send' );
 
@@ -66,7 +66,7 @@ describe( 'After submittal', () => {
     cy.contains( '.as-history', 'Clarification' );
   } );
 
-  it( 'adds the oral presentation and TODD\'s prep sheet', () => {
+  it( 'adds the oral presentation and 16Ahead\'s prep sheet', () => {
     cy.intercept( 'POST', /\/orals$/, ( req ) => req.reply( ok( withPost( { orals: { date: req.body.date, attendees: req.body.attendees, place: req.body.place, minutes: req.body.minutes, prep: null } } ) ) ) ).as( 'orals' );
     cy.intercept( 'POST', /\/orals\/prep$/, ( req ) => req.reply( ok( withPost( { orals: { ...current.post.orals, prep: { questions: ['How will you move our existing reservations without downtime?', 'Who supports it after launch?', 'Can residents book without an account?'], themes: ['You talk to the engineers building it', 'Live in weeks, not months', 'A modern cloud stack'], numbers: ['$186K total, 2 years', '3 releases over 14 weeks', '40,000 visits on election night'] }, at: '' } } ) ) ) ).as( 'prep' );
 

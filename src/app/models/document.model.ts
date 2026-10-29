@@ -27,6 +27,6 @@ export interface Document {
   lastPostedAt?: string | null;
   lastPostedPlatforms?: string[];
   eligibleForSocial?: boolean;
-  /** "Written from" (design 3a): what TODD drew on for a first draft. */
+  /** "Written from" (design 3a): what 16Ahead drew on for a first draft. */
   sources?: { kind: string; label: string; detail: string }[];
 }

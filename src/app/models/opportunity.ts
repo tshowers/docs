@@ -1,13 +1,13 @@
 /**
  * A Docs opportunity as /api/docs/opportunities returns it (todd-backend
  * docs/opportunities/opportunities.service.js toOpportunity): an RFP found
- * in a watched inbox or added by hand, with TODD's fit score.
+ * in a watched inbox or added by hand, with 16Ahead's fit score.
  */
 export type OpportunityStatus = 'new' | 'drafting' | 'submitted' | 'won' | 'lost' | 'dismissed';
 
 /**
  * The lifecycle stage (design_handoff_todd_docs_lifecycle status model). The
- * API derives it from the stored status: new is found until TODD checks the
+ * API derives it from the stored status: new is found until 16Ahead checks the
  * must-haves, then qualifying; drafting is in review while approval is open;
  * dismissed is no bid.
  */
@@ -20,7 +20,7 @@ export interface MustHave {
   text: string;
   category: string;
   state: 'met' | 'not_met' | 'unknown';
-  /** Where TODD found it, what's there instead, or what it looked for. */
+  /** Where 16Ahead found it, what's there instead, or what it looked for. */
   proof: string;
   /** The yes/no question for a not-sure one. */
   question: string;
@@ -149,7 +149,7 @@ export interface Opportunity {
   decision?: OpportunityDecision | null;
   noBid?: { reason: string; detail: string; at: string } | null;
   history?: OpportunityDecision[];
-  /** Lifecycle C: key dates, TODD's questions for the buyer, unread addenda, the due date before an addendum moved it. */
+  /** Lifecycle C: key dates, 16Ahead's questions for the buyer, unread addenda, the due date before an addendum moved it. */
   keyDates?: KeyDates;
   buyerQuestions?: BuyerQuestions;
   unreadUpdates?: number;
@@ -342,10 +342,10 @@ export interface Requirement {
   sectionKey: string;
   status: 'answered' | 'not_answered';
   answeredIn: { sectionKey: string; blockIndex: number; label: string } | null;
-  /** The owner marked it themselves; TODD's matching leaves it alone. */
+  /** The owner marked it themselves; 16Ahead's matching leaves it alone. */
   manual: boolean;
   matchedAt: string;
-  /** TODD's paragraph from Write this, waiting to be accepted or discarded. */
+  /** 16Ahead's paragraph from Write this, waiting to be accepted or discarded. */
   suggestion: { sectionKey: string; text: string; at: string } | null;
   /** An addendum changed it, so it's back to not answered until it's matched again. */
   checkAgain?: boolean;
@@ -370,6 +370,6 @@ export interface ProposalDraft {
   checklist: ProposalCheck[];
   pages: number;
   updatedAt: string;
-  /** The document was edited in the editor, so TODD no longer writes into it. */
+  /** The document was edited in the editor, so 16Ahead no longer writes into it. */
   documentEdited?: boolean;
 }

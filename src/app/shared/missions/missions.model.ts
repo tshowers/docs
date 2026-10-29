@@ -405,7 +405,7 @@ export function doneCount ( columns: ColumnView[] ): number {
   return columns.filter( ( column ) => column.look === 'done' || column.look === 'skip' ).length;
 }
 
-/** Owner split for a plan, by display owner ("5 by TODD · 4 by Maya · 1 by you"). */
+/** Owner split for a plan, by display owner ("5 by 16Ahead · 4 by the Marketing Assistant · 1 by you"). */
 export function splitLine ( columns: ColumnView[] ): string {
   const counts = { todd: 0, maya: 0, you: 0, teammates: 0 };
   columns.forEach( ( column ) => {
@@ -430,7 +430,7 @@ export const PRODUCT_LABEL: Record<string, string> = {
   moves: 'Moves', sayit: 'SayIt', 'email-signature': 'Email Signature', events: 'Events', todd: '16Ahead',
 };
 
-/** The app filter on Playbooks (14a): Maya covers her tools' products. */
+/** The app filter on Playbooks (14a): the Marketing Assistant covers its tools' products. */
 export function appOf ( product: string ): string {
   return ['image-creator', 'email-creator', 'social', 'sayit', 'maya'].includes( product ) ? 'maya' : product;
 }

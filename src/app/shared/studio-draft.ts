@@ -1,5 +1,5 @@
 /**
- * Studio's first draft (design_handoff_todd_docs 3a): the passages TODD wrote
+ * Studio's first draft (design_handoff_todd_docs 3a): the passages 16Ahead wrote
  * from New, tinted by where their facts came from until the first save, and
  * the "Written from" list kept with the document.
  */

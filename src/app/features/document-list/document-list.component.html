@@ -66,7 +66,7 @@
           </div>
           @if (selectedOpportunity(); as o) {
             <div class="docs-inspector__read">
-              <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />16Ahead's read · {{ o.fit.score }} match</div>
+              <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />16Ahead's read · {{ o.fit.score }} match</div>
               <ul>
                 @for (r of o.fit.reasons; track $index) { <li><dk-icon name="check" [size]="15" />{{ r }}</li> }
                 @for (g of o.fit.gaps; track $index) { <li class="is-gap"><dk-icon name="alert-circle" [size]="15" />{{ g }}</li> }
@@ -80,7 +80,7 @@
           } @else {
             @if (card.summary) {
               <div class="docs-inspector__read">
-                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />16Ahead's read</div>
+                <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />16Ahead's read</div>
                 <p>{{ card.summary }}</p>
               </div>
             }

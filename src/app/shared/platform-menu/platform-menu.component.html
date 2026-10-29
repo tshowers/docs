@@ -61,17 +61,17 @@
           <p class="um-empty" *ngIf="noResults">Nothing matches “{{ query }}”.</p>
         </section>
 
-        <!-- 3 · Account: global, on todd.taliferro.tech -->
+        <!-- 3 · Account: global, on app.16ahead.com -->
         <section class="um-account" aria-label="Account">
           <span class="um-eyebrow">Account</span>
           <div class="um-card">
             <ng-container *ngIf="isLoggedIn; else signedOut">
               <ng-container *ngIf="userName || userEmail">
-                <a *ngIf="config.profileRoute; else toddProfile" class="um-person" [routerLink]="config.profileRoute" title="Your profile" (click)="close()">
+                <a *ngIf="config.profileRoute; else hubProfile" class="um-person" [routerLink]="config.profileRoute" title="Your profile" (click)="close()">
                   <ng-container *ngTemplateOutlet="person"></ng-container>
                 </a>
-                <ng-template #toddProfile>
-                  <a class="um-person" [href]="toddProfileUrl" title="Your profile" (click)="close()">
+                <ng-template #hubProfile>
+                  <a class="um-person" [href]="hubProfileUrl" title="Your profile" (click)="close()">
                     <ng-container *ngTemplateOutlet="person"></ng-container>
                   </a>
                 </ng-template>

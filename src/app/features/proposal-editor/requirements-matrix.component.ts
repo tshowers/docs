@@ -25,7 +25,7 @@ export function recentlyMatched ( items: Requirement[], count = 2 ): Requirement
  * table, 1q iPhone): "41 of 44 requirements answered", filters, and a row per
  * shall/must/will. Unanswered rows offer Write this; answered rows link to
  * the paragraph. In the table a selected row shows the RFP's words and
- * TODD's draft. The editor owns the data and the calls.
+ * 16Ahead's draft. The editor owns the data and the calls.
  */
 @Component( {
   selector: 'app-requirements-matrix',
@@ -40,7 +40,7 @@ export class RequirementsMatrixComponent {
   @Input( { required: true } ) set requirements ( value: Requirements | null ) { this.data.set( value ); }
   get requirements (): Requirements | null { return this.data(); }
   @Input() mode: 'panel' | 'table' = 'panel';
-  /** The requirement TODD is writing for, or whose suggestion is being saved. */
+  /** The requirement 16Ahead is writing for, or whose suggestion is being saved. */
   @Input() busyId = '';
   @Input() sectionTitle: ( key: string ) => string = () => '';
 

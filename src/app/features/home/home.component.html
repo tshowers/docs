@@ -21,8 +21,8 @@
       }
     </nav>
     @if (guestAsked()) {
-      <div class="dk-todd home__guest">
-        <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />“{{ guestAsked() }}”</div>
+      <div class="dk-assistant home__guest">
+        <div class="dk-assistant__head"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />“{{ guestAsked() }}”</div>
         <p>Signed in, I'd search your documents and Knowledge for this, or answer it from what your team has saved. Sign in to try it on your own work.</p>
         <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/get-started">Sign in</a>
       </div>
@@ -53,7 +53,7 @@
 
       @if (needs().length) {
         <button type="button" class="home__needs-row" (click)="needsOpen.set(!needsOpen())" [attr.aria-expanded]="needsOpen()">
-          <img src="assets/avatar-todd-sm.png" alt="" />
+          <img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />
           <strong>{{ needs().length }} {{ needs().length === 1 ? 'thing needs' : 'things need' }} you</strong>
           <dk-icon [name]="needsOpen() ? 'x' : 'chevron-right'" />
         </button>

@@ -25,7 +25,7 @@ const DEFAULT_NOTES = [
 
 /**
  * Ported from features/knowledge/knowledge-pricing/knowledge-pricing.component.ts,
- * trimmed the same way as DocsPricingComponent - ToddAssistantBusService's
+ * trimmed the same way as DocsPricingComponent - AssistantBusService's
  * signal-state subscription dropped, checkout flow unchanged.
  */
 @Component( {

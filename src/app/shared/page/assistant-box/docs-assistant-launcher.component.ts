@@ -26,8 +26,8 @@ interface DocsGuidanceCard {
 type RenderedGuidanceCard = DocsGuidanceCard & { toneClass: string };
 
 /**
- * Docs' launcher shell - same from-scratch equivalent of TODD's
- * todd-assistant.component.ts as web-products/network, web-products/pulse,
+ * Docs' launcher shell - same from-scratch equivalent of 16Ahead's
+ * docs-assistant.component.ts as web-products/network, web-products/pulse,
  * and web-products/moves' launcher components. Covers the four pages that
  * already publish rich page context under feature 'documents':
  * document-home, document-editor, knowledge-base (repository.component.ts),
@@ -87,7 +87,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
    */
   private isOverOtherInteractiveElement ( target: EventTarget | null ): boolean {
     if ( !( target instanceof Element ) ) return false;
-    if ( target.closest( '.todd-assistant-root' ) ) return false;
+    if ( target.closest( '.docs-assistant-root' ) ) return false;
     return !!target.closest( 'button, a, input, select, textarea, [role="button"]' );
   }
 
@@ -161,7 +161,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
 
   private refreshGuidanceCard (): void {
     const card = this.isLoggedIn ? this.computeGuidanceCard( this.pageContext ) : this.guestOrientationCard;
-    this.guidanceCard = card ? { ...card, toneClass: `todd-activation-card--${card.tone}` } : null;
+    this.guidanceCard = card ? { ...card, toneClass: `activation-card--${card.tone}` } : null;
   }
 
   private get guestOrientationCard (): DocsGuidanceCard {
@@ -257,11 +257,11 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
     const summary = ctx.summary || {};
     const hasTitle = summary['hasTitle'] === true;
     const hasHtmlContent = summary['hasHtmlContent'] === true;
-    const isToddWorking = summary['isToddWorking'] === true;
-    const hasToddPreview = summary['hasToddPreview'] === true;
+    const isAssistantWorking = summary['isAssistantWorking'] === true;
+    const hasAssistantPreview = summary['hasAssistantPreview'] === true;
     const isEditing = summary['isEditing'] === true;
 
-    if ( isToddWorking ) {
+    if ( isAssistantWorking ) {
       return {
         eyebrow: isEditing ? 'EDIT DOCUMENT' : 'CREATE DOCUMENT',
         stageLabel: 'Working',
@@ -274,7 +274,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
       };
     }
 
-    if ( hasToddPreview ) {
+    if ( hasAssistantPreview ) {
       return {
         eyebrow: isEditing ? 'EDIT DOCUMENT' : 'CREATE DOCUMENT',
         stageLabel: 'Preview ready',

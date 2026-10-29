@@ -1,7 +1,7 @@
 /** Ported unchanged from web-products/network's models/business-symptom.model.ts. */
 export type ReliefStatus =
   | 'needs-relief'
-  | 'todd-working'
+  | 'assistant-working'
   | 'improving'
   | 'relief-delivered'
   | 'watching'
@@ -26,7 +26,7 @@ export interface SymptomEvidence {
   gaugeTone?: 'info' | 'positive' | 'attention' | 'warn';
 }
 
-export interface ToddReliefAction {
+export interface AssistantReliefAction {
   label: string;
   detail: string;
 }
@@ -50,7 +50,7 @@ export interface BusinessSymptom {
   severity: SeverityLevel;
   reliefStatus: ReliefStatus;
   evidence: SymptomEvidence[];
-  toddActions: ToddReliefAction[];
+  assistantActions: AssistantReliefAction[];
   progress?: ReliefProgress;
   outcome?: BusinessOutcome;
   trend?: SymptomTrend;

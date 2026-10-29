@@ -20,7 +20,7 @@ export interface GettingStarted {
 
 /**
  * Docs' Getting Started checklist (`GET /api/getting-started/docs`) -
- * profile, a first Q&A answer, a document, an answer Maya can use - the
+ * profile, a first Q&A answer, a document, an answer the Marketing Assistant can use - the
  * same data docs-ios shows. On the Help page, and opened after sign-in
  * while steps remain. Mirrors Pulse web's getting-started.service.ts.
  */

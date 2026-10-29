@@ -19,12 +19,12 @@ import { AssistantMissionComponent, AssistantMissionsService } from '../../missi
 type ChatMsg = { role: 'user' | 'assistant' | 'mission'; content: string; missionId?: string; };
 
 /**
- * Docs' own assistant-box - trimmed port of TODD's
+ * Docs' own assistant-box - trimmed port of 16Ahead's
  * shared/page/assistant-box/assistant-box.component.ts, same scoping
  * decision as web-products/network, web-products/pulse, and
  * web-products/moves' ports. Unlike those three, Docs keeps TWO domain LLM
  * services (Document + Knowledge) and the Knowledge-intents pre-check step,
- * since Docs genuinely owns both domains in TODD's original.
+ * since Docs genuinely owns both domains in 16Ahead's original.
  */
 @Component( {
     selector: 'app-assistant-box',
@@ -555,7 +555,7 @@ export class AssistantBoxComponent implements OnInit, OnChanges, OnDestroy {
                         }
                         emitAssistant( out );
                     },
-                    error: ( err: any ) => { onError( { ...err, toddUserMessage: this.formatAssistantError( err, 'general' ) } ); }
+                    error: ( err: any ) => { onError( { ...err, assistantUserMessage: this.formatAssistantError( err, 'general' ) } ); }
                 } );
                 this.openAISubscription = sub;
                 return sub;

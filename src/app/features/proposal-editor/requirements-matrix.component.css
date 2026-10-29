@@ -3,7 +3,7 @@
 .rm { display: grid; gap: 12px; padding: 18px; border-radius: 28px; background: var(--surface); }
 .rm--table { padding: 0; background: none; }
 .rm--note { gap: 10px; }
-.rm--note .dk-todd__head { margin: 0; }
+.rm--note .dk-assistant__head { margin: 0; }
 .rm--note p { font-size: 14px; line-height: 1.5; }
 .rm h2, .rm h3, .rm p { margin: 0; }
 
@@ -86,7 +86,7 @@ button.rm__link {
 .rm__detail { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 4px 20px 20px; }
 .rm__quote, .rm__draft { display: grid; align-content: start; gap: 10px; padding: 16px 18px; border-radius: 20px; background: var(--bg); }
 .rm__quote p, .rm__draft p { font-size: 15px; line-height: 1.6; }
-.rm__draft .dk-todd__head { margin: 0; color: var(--blue-ink); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.rm__draft .dk-assistant__head { margin: 0; color: var(--blue-ink); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .rm__draft textarea {
   width: 100%;
   box-sizing: border-box;

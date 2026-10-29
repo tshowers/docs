@@ -9,7 +9,7 @@
 
   @if (brief().trim() && signedIn()) {
     <section class="nd__sources">
-      <p class="nd__from"><img src="assets/avatar-todd-sm.png" alt="" />{{ writing() ? 'Writing it now from' : 'I’ll write it from' }}</p>
+      <p class="nd__from"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />{{ writing() ? 'Writing it now from' : 'I’ll write it from' }}</p>
       <div class="nd__chips">
         <span class="nd__chip dk-tinted" data-tint="blue"><dk-icon name="check" [size]="13" />Your profile</span>
         @if (sources().knowledge.length) {

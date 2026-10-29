@@ -1,6 +1,6 @@
 /**
  * Docs' pre-sign-in wizard at /get-started: write a first Q&A answer, then
- * name and company, then hand off to TODD's hosted login. The draft is kept
+ * name and company, then hand off to 16Ahead's hosted login. The draft is kept
  * in localStorage so it survives that redirect (it's saved after sign-in by
  * DocsSignupDraftService.submitIfPending in AuthCallbackComponent).
  */
@@ -48,7 +48,7 @@ describe( 'Docs get started wizard', () => {
     } );
 
     cy.get( '[data-cy="get-started-sign-in"]' ).click();
-    cy.location( 'href', { timeout: 10000 } ).should( 'include', 'todd.taliferro.tech/login' );
+    cy.location( 'href', { timeout: 10000 } ).should( 'match', /\/login\?client=docs-web/ );
   } );
 
   it( '"Other" asks for the question and needs an answer', () => {

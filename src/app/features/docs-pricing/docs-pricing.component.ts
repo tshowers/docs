@@ -27,7 +27,7 @@ const DEFAULT_NOTES = [
 /**
  * Ported from features/document/docs-pricing/docs-pricing.component.ts, the
  * same way web-products/network's PricingComponent trims
- * features/contact/network-pricing: ToddAssistantBusService's signal-state
+ * features/contact/network-pricing: AssistantBusService's signal-state
  * subscription is dropped, and AffiliateTrackingService is swapped for the
  * minimal AffiliateReferrerService stub. The checkout flow itself is
  * unchanged.

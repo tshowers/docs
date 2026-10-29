@@ -2,7 +2,7 @@
 
 .kb-search { margin-bottom: 16px; }
 
-.kb-todd {
+.kb-assistant {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -11,8 +11,8 @@
   padding: 14px 14px 14px 18px;
 }
 
-.kb-todd__avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex: none; }
-.kb-todd p { flex: 1; min-width: 220px; font-size: 15px; }
+.kb-assistant__avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex: none; }
+.kb-assistant p { flex: 1; min-width: 220px; font-size: 15px; }
 
 .kb-count { margin-bottom: 14px; font-size: 14px; }
 .kb-count span { color: var(--muted); }

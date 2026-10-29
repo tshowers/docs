@@ -8,7 +8,7 @@ import { DocsAuthService } from './docs-auth.service';
 /**
  * Ported from services/entitlement.service.ts - logic unchanged, only the
  * auth dependency is swapped for DocsAuthService. This is generic
- * infrastructure (used by all 6 of TODD's paid modules, not Docs-
+ * infrastructure (used by all 6 of 16Ahead's paid modules, not Docs-
  * specific), so it's a near-verbatim port rather than a trimmed
  * reimplementation. Mirrors web-products/network's NetworkEntitlementService.
  *

@@ -4,21 +4,21 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, NgZone, OnCh
 
 import { DkIconComponent } from '../dk-icon/dk-icon.component';
 
-/** What's selected in the page, for "Ask TODD · 1 paragraph selected" (3b). */
+/** What's selected in the page, for "General Assistant · 1 paragraph selected" (3b). */
 export interface EditorSelection {
   text: string;
   paragraphs: number;
 }
 
-/** Highlight name for the selection TODD is revising (CSS Custom Highlight API). */
-const HIGHLIGHT = 'dk-todd-selection';
+/** Highlight name for the selection 16Ahead is revising (CSS Custom Highlight API). */
+const HIGHLIGHT = 'dk-assistant-selection';
 
 /**
  * The page inside Studio (design_handoff_todd_docs 3a-3c): a toolbar (B, I,
  * U, H1, H2, list, link, then Visual / HTML) above a contenteditable page.
  * Keeps the contract DocumentEditorComponent depends on - [htmlContent] in,
- * (htmlContentChange) out - and adds what the TODD card needs: the current
- * selection, its HTML, and replacing just that passage with TODD's
+ * (htmlContentChange) out - and adds what the 16Ahead card needs: the current
+ * selection, its HTML, and replacing just that passage with 16Ahead's
  * revision. Content between <… docEditorEmpty> tags shows inside the page
  * while it's empty (the Word drop zone in 3c).
  *
@@ -46,7 +46,7 @@ export class DocRichTextEditorComponent implements OnChanges, AfterViewInit, OnD
   private readonly zone = inject( NgZone );
   showSource = false;
   sourceDraft = '';
-  /** The last non-empty selection inside the page, kept while you use the TODD card. */
+  /** The last non-empty selection inside the page, kept while you use the 16Ahead card. */
   private savedRange: Range | null = null;
 
   get isEmpty (): boolean {
@@ -125,7 +125,7 @@ export class DocRichTextEditorComponent implements OnChanges, AfterViewInit, OnD
     return !!this.savedRange;
   }
 
-  /** Tints the passage TODD is revising, so it stays visible while you read the preview. */
+  /** Tints the passage 16Ahead is revising, so it stays visible while you read the preview. */
   highlightSelection (): void {
     const registry = ( globalThis as any ).CSS?.highlights;
     const HighlightCtor = ( globalThis as any ).Highlight;
@@ -137,7 +137,7 @@ export class DocRichTextEditorComponent implements OnChanges, AfterViewInit, OnD
     ( globalThis as any ).CSS?.highlights?.delete( HIGHLIGHT );
   }
 
-  /** Puts TODD's revision where the selection was; returns false if there's no selection. */
+  /** Puts 16Ahead's revision where the selection was; returns false if there's no selection. */
   replaceSelection ( html: string ): boolean {
     const range = this.savedRange;
     const canvas = this.editableCanvasRef?.nativeElement;

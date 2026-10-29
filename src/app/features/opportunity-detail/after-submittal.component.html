@@ -28,7 +28,7 @@
         <button type="button" class="dk-btn dk-btn--bg" (click)="prep()" [disabled]="!!busy()" appWriteAction="make the prep sheet">{{ busy() === 'prep' ? 'Making it…' : 'Make it again' }}</button>
       </div>
     } @else if (oralsAhead()) {
-      <div class="dk-todd__head as-todd"><img src="assets/avatar-todd-sm.png" alt="" />I'll make your prep sheet</div>
+      <div class="dk-assistant__head as-assistant"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />I'll make your prep sheet</div>
       <p class="dk-muted">The questions they're likely to ask, your three win themes and the numbers to know, from the proposal and the score-check.</p>
       <div class="as-actions"><button type="button" class="dk-btn dk-btn--primary" (click)="prep()" [disabled]="!!busy()" appWriteAction="make the prep sheet">{{ busy() === 'prep' ? 'Making it…' : 'Make the prep sheet' }}</button></div>
     }
@@ -79,7 +79,7 @@
       <p class="dk-muted as-why">Win and loss reasons go into how I score new RFPs for you.</p>
       @if (askDebrief()) {
         <div class="as-debrief">
-          <div class="dk-todd__head as-todd"><img src="assets/avatar-todd-sm.png" alt="" />Ask for a debrief <span class="dk-muted">Buyers usually say yes. It's the best way to learn why.</span></div>
+          <div class="dk-assistant__head as-assistant"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />Ask for a debrief <span class="dk-muted">Buyers usually say yes. It's the best way to learn why.</span></div>
           <div class="as-mail">
             <label><span>From</span>@if (sender) { <strong>{{ sender.emailAddress }}</strong> } @else { <a routerLink="/opportunities/inbox">Connect your email to send from it</a> }</label>
             <label><span>To</span><input type="email" [(ngModel)]="debriefTo" placeholder="The procurement contact" /></label>

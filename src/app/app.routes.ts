@@ -105,7 +105,7 @@ export const routes: Routes = [
       import( './features/approve/approve.component' ).then( ( m ) => m.ApproveComponent ),
   },
   {
-    // The short form from the lifecycle handoff (1m). Links TODD makes stay /approve/.
+    // The short form from the lifecycle handoff (1m). Links 16Ahead makes stay /approve/.
     path: 'a/:token',
     // A function, so server-side routing fills in the token too.
     redirectTo: ( { params } ) => `/approve/${ encodeURIComponent( params['token'] || '' ) }`,
@@ -132,7 +132,7 @@ export const routes: Routes = [
       import( './features/review-send/review-send.component' ).then( ( m ) => m.ReviewSendComponent ),
   },
   {
-    // The proposal editor: TODD drafts, asks, and checks against the RFP.
+    // The proposal editor: 16Ahead drafts, asks, and checks against the RFP.
     path: 'opportunities/:id/proposal',
     data: { pageTitle: 'Proposal' },
     loadComponent: () =>
@@ -171,7 +171,7 @@ export const routes: Routes = [
     redirectTo: '/upload',
   },
   {
-    // The header's New button (1j): TODD writes a first draft, then the
+    // The header's New button (1j): 16Ahead writes a first draft, then the
     // editor - where every document opens - takes over.
     path: 'new',
     data: { pageTitle: 'New' },
@@ -243,7 +243,7 @@ export const routes: Routes = [
   },
   {
     // In-app profile (shared fields/API with the iOS apps' TODDProfileKit),
-    // replacing the menu's link out to TODD's /update-profile.
+    // replacing the menu's link out to 16Ahead's /update-profile.
     path: 'profile',
     loadComponent: () =>
       import( './features/profile/profile.component' ).then( ( m ) => m.ProfileComponent ),

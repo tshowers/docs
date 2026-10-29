@@ -29,7 +29,7 @@ const countWord = ( n: number ) => COUNT_WORDS[n] || String( n );
 /** What the must-haves card shows (lifecycle 1a and 1c's states). */
 export type GateView = 'checking' | 'no_rfp' | 'failed' | 'none' | 'list';
 
-/** TODD's line over the must-haves: what would disqualify you, and what it can't tell yet. */
+/** 16Ahead's line over the must-haves: what would disqualify you, and what it can't tell yet. */
 export function gateIntro ( summary: { total: number; notMet: number; unknown: number } ): string {
   const { total, notMet, unknown } = summary;
   const unsure = unknown ? ` ${ countWord( unknown ) } I can't tell yet.` : '';

@@ -1,6 +1,6 @@
 // The evaluator score-check (design_handoff_todd_docs_lifecycle 1i/1j/1n)
 // through the app: Review & send runs it the first time and shows each
-// criterion with its fix; Fix this opens the editor's Score tab with TODD's
+// criterion with its fix; Fix this opens the editor's Score tab with 16Ahead's
 // revision in the draft; accepting it rewrites the paragraph and scores
 // again; approvers see the totals on their link. The API is stubbed; the
 // server's rules are in todd-backend __tests__/scoreCheck.test.js.

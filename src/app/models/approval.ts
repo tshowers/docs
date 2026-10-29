@@ -2,7 +2,7 @@
  * Approval before sending (design_handoff_todd_docs round 4), as
  * todd-backend docs/approvals/approval.service.js returns it. Approvers
  * review through a private link the owner shares however they like; no
- * TODD account or sign-in.
+ * 16Ahead account or sign-in.
  */
 export type ApprovalRule = 'all' | 'any';
 export type ApprovalStatus = 'waiting' | 'changes' | 'approved' | 'bypassed' | 'sent';
@@ -96,7 +96,7 @@ export interface GuestApproval {
   email: { to: string; subject: string; body: string };
   attachments: { name: string; detail: string }[];
   checklist: { ok: number; total: number };
-  /** TODD's latest score-check (lifecycle 1n): totals only. Null before one ran. */
+  /** 16Ahead's latest score-check (lifecycle 1n): totals only. Null before one ran. */
   scoreCheck?: { total: number; max: number; ranAt: string; criteria: { name: string; points: number; max: number }[] } | null;
   html: string;
   previousHtml: string;
@@ -267,7 +267,7 @@ export function blockKey ( text: string ): string {
 
 /**
  * What the owner sends with each link, from their own mail app or Messages.
- * TODD sends nothing itself.
+ * 16Ahead sends nothing itself.
  */
 export function shareMessage ( ctx: { ownerName: string; buyer: string; dueAt: string; note: string }, approver: { name: string; email: string }, link: string ): { subject: string; body: string; sms: string } {
   const owner = ctx.ownerName || 'I';

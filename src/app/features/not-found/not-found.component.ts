@@ -10,7 +10,7 @@ import { routeAsk } from '../home/home-ask';
  * with 200 and the app shell, so this page is what Google sees there. It
  * marks itself noindex (restoring index.html's robots tag on the way out) so
  * unknown URLs are dropped as "Excluded by noindex" instead of being reported
- * as soft 404s or duplicates of the home page. Design 3g: TODD's avatar,
+ * as soft 404s or duplicates of the home page. Design 3g: 16Ahead's avatar,
  * one line of explanation, and Home's search box.
  */
 @Component( {

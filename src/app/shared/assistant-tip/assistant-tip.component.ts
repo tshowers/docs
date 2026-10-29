@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 
 /** Ported unchanged from taliferrotech's shared/page/todd-tip/todd-tip.component.ts. */
 @Component( {
-  selector: 'app-todd-tip',
+  selector: 'app-assistant-tip',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './todd-tip.component.html',
-  styleUrls: ['./todd-tip.component.css']
+  templateUrl: './assistant-tip.component.html',
+  styleUrls: ['./assistant-tip.component.css']
 } )
-export class ToddTipComponent {
+export class AssistantTipComponent {
   /**
    * Font Awesome icon name (without the `fa-` prefix).
    * Example: "lightbulb", "circle-info", "triangle-exclamation".

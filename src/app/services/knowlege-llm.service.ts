@@ -29,8 +29,8 @@ export type KnowledgeLLMRunArgs = {
 };
 
 /**
- * Port of TODD's KnowlegeLLMService, unchanged. Knowledge was never its own
- * backend domain in TODD's original either - this calls
+ * Port of 16Ahead's KnowlegeLLMService, unchanged. Knowledge was never its own
+ * backend domain in 16Ahead's original either - this calls
  * OpenAIService.getAssistance(..., 'general', ...) and extracts a
  * structured Q&A draft (ResponseFlow-shaped) from the general response on
  * the client side. Saving only happens after the user confirms.
@@ -66,12 +66,12 @@ export class KnowlegeLLMService {
 
     const answersRaw =
       Array.isArray( draft.answers ) ? draft.answers :
-        ( draft.answer ? [{ answer: draft.answer, source: 'TODD' }] : [] );
+        ( draft.answer ? [{ answer: draft.answer, source: '16Ahead' }] : [] );
 
     const answers = answersRaw
       .map( ( a: any ) => ( {
         answer: ( a?.answer || a?.text || '' ).toString().trim(),
-        source: ( a?.source || 'TODD' ).toString().trim(),
+        source: ( a?.source || '16Ahead' ).toString().trim(),
         document: a?.document
       } ) )
       .filter( ( a: any ) => !!a.answer );
@@ -174,7 +174,7 @@ export class KnowlegeLLMService {
           if ( answerText ) {
             draft = {
               ...draft,
-              answers: [{ answer: answerText, source: 'TODD' }]
+              answers: [{ answer: answerText, source: '16Ahead' }]
             };
           }
         }

@@ -16,15 +16,15 @@
 .tt-orbit-three { width:260px; height:410px; transform:rotate(68deg); border-color:rgba(80,255,194,.18); }
 .tt-signal-ring { width:314px; height:314px; background:conic-gradient(from 30deg,transparent 0 10%,#00bfff 13% 18%,transparent 21% 56%,#ffb160 59% 64%,transparent 67% 100%); -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px)); mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2px)); filter:drop-shadow(0 0 11px rgba(0,191,255,.85)); animation:ttSignalSpin 7s linear infinite; }
 
-.tt-todd-core { position:relative; z-index:2; display:grid; width:240px; height:240px; place-items:center; border-radius:50%; background:conic-gradient(#00bfff,#7c61ff,#ffb160,#55f5c2,#00bfff); box-shadow:0 0 34px rgba(0,191,255,.32),0 0 80px rgba(255,177,96,.16); animation:ttCorePulse 2.8s ease-in-out infinite; }
-.tt-todd-core::after { position:absolute; inset:8px; border:1px solid rgba(255,255,255,.25); border-radius:inherit; content:''; }
-.tt-todd-core-inner { display:grid; width:calc(100% - 14px); height:calc(100% - 14px); place-content:center; border-radius:50%; color:#fff; background:radial-gradient(circle at 35% 25%,#263d53,#111b25 68%); }
-.tt-todd-word { font-size:2.5rem; font-weight:900; letter-spacing:-.08em; }
-.tt-todd-sub { margin-top:4px; color:#8edfff; font-size:.65rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
+.tt-brand-core { position:relative; z-index:2; display:grid; width:240px; height:240px; place-items:center; border-radius:50%; background:conic-gradient(#00bfff,#7c61ff,#ffb160,#55f5c2,#00bfff); box-shadow:0 0 34px rgba(0,191,255,.32),0 0 80px rgba(255,177,96,.16); animation:ttCorePulse 2.8s ease-in-out infinite; }
+.tt-brand-core::after { position:absolute; inset:8px; border:1px solid rgba(255,255,255,.25); border-radius:inherit; content:''; }
+.tt-brand-core-inner { display:grid; width:calc(100% - 14px); height:calc(100% - 14px); place-content:center; border-radius:50%; color:#fff; background:radial-gradient(circle at 35% 25%,#263d53,#111b25 68%); }
+.tt-brand-word { font-size:2.5rem; font-weight:900; letter-spacing:-.08em; }
+.tt-brand-sub { margin-top:4px; color:#8edfff; font-size:.65rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
 .preloader-message { position:relative; z-index:1; margin:-20px 0 0; color:#344d60; font-size:.9rem; font-weight:600; }
 
 @keyframes ttSignalSpin { to { transform:rotate(360deg); } }
 @keyframes ttCorePulse { 50% { transform:scale(1.035); } }
 @media (prefers-color-scheme:dark) { #preloader { background:radial-gradient(circle at 20% 20%,rgba(0,191,255,.13),transparent 27%),linear-gradient(180deg,rgba(14,24,33,.96),rgba(8,15,22,.98)); } #preloader::before { background:rgba(7,14,21,.2); } .preloader-message { color:#9aafbc; } }
 @media (max-width:768px) { .tt-center-stage { min-height:400px; transform:scale(.64); } }
-@media (prefers-reduced-motion:reduce) { .tt-signal-ring,.tt-todd-core,.preloader-inline-spinner { animation:none; } }
+@media (prefers-reduced-motion:reduce) { .tt-signal-ring,.tt-brand-core,.preloader-inline-spinner { animation:none; } }

@@ -13,19 +13,19 @@ import { WriteActionDirective } from '../../shared/write-access/write-action.dir
 import { ScoreCheck, ScoreRevision, pointsBySection } from '../../models/score-check';
 import { ScoreCheckComponent } from '../../shared/score-check/score-check.component';
 import { RequirementsMatrixComponent } from './requirements-matrix.component';
-import { ToddWorkService } from '../../shared/working/todd-work.service';
+import { AssistantWorkService } from '../../shared/working/assistant-work.service';
 
 /** After the draft changes, wait this long before checking it against the requirements again. */
 const RECHECK_DELAY_MS = 3000;
-/** While TODD is reading the RFP for requirements elsewhere, check back this often. */
+/** While 16Ahead is reading the RFP for requirements elsewhere, check back this often. */
 const REQUIREMENTS_POLL_MS = 5000;
 
-/** Sections TODD still has to write, in order: never drafted, or waiting on a fresh answer. */
+/** Sections 16Ahead still has to write, in order: never drafted, or waiting on a fresh answer. */
 export function sectionsToDraft ( draft: ProposalDraft | null ): ProposalSection[] {
   return ( draft?.sections || [] ).filter( ( s ) => !s.blocks.length || s.needsRedraft );
 }
 
-/** The question TODD asks next: the first open one, in section order. */
+/** The question 16Ahead asks next: the first open one, in section order. */
 export function nextQuestion ( draft: ProposalDraft | null ): ProposalQuestion | null {
   if ( !draft ) return null;
   const order = new Map( draft.sections.map( ( s, i ) => [s.key, i] ) );
@@ -45,16 +45,16 @@ export function openBySection ( requirements: Requirements | null ): Map<string,
 }
 
 /**
- * The proposal editor (design_handoff_todd_docs 1e). TODD plans the
+ * The proposal editor (design_handoff_todd_docs 1e). 16Ahead plans the
  * proposal from the RFP, then drafts it section by section; the page shows
  * what came from Knowledge and what's waiting on the user. On the right,
- * TODD asks one question at a time (saved to Knowledge by default) and the
+ * 16Ahead asks one question at a time (saved to Knowledge by default) and the
  * RFP checklist updates as the draft changes. Free editing and export stay
  * in the document editor, which always has the latest text.
  *
  * The compliance matrix (lifecycle 1d/1e): the right panel's Requirements
  * tab and the full Requirements view list every shall/must/will with where
- * the draft answers it. TODD checks again a few seconds after each change;
+ * the draft answers it. 16Ahead checks again a few seconds after each change;
  * unanswered ones show in their section, with Write this.
  */
 @Component( {
@@ -71,7 +71,7 @@ export class ProposalEditorComponent implements OnInit {
   private readonly service = inject( OpportunitiesService );
   private readonly notifications = inject( DocsNotificationService );
   private readonly destroyRef = inject( DestroyRef );
-  private readonly work = inject( ToddWorkService );
+  private readonly work = inject( AssistantWorkService );
 
   readonly opportunityId = signal( '' );
   readonly opportunity = signal<Opportunity | null>( null );
@@ -89,9 +89,9 @@ export class ProposalEditorComponent implements OnInit {
   private drafting = false;
 
   readonly requirements = signal<Requirements | null>( null );
-  /** The requirement TODD is writing for, or whose suggestion is being saved. */
+  /** The requirement 16Ahead is writing for, or whose suggestion is being saved. */
   readonly requirementBusy = signal( '' );
-  readonly sideTab = signal<'todd' | 'requirements' | 'checklist' | 'score'>( 'todd' );
+  readonly sideTab = signal<'assistant' | 'requirements' | 'checklist' | 'score'>( 'assistant' );
   /** Draft, or the full Requirements table (1e); ?view=requirements opens it. */
   readonly view = signal<'draft' | 'requirements'>( 'draft' );
   /** The paragraph just jumped to: "{sectionKey}-{blockIndex}", highlighted for 2s. */
@@ -108,7 +108,7 @@ export class ProposalEditorComponent implements OnInit {
   /** The score-check (lifecycle 1j): loaded when the Score tab opens, or ?fix= arrives from Review & send. */
   readonly scoreCheck = signal<ScoreCheck | null>( null );
   readonly scoring = signal( false );
-  /** The fix TODD is writing or whose revision is open; set while saving it too. */
+  /** The fix 16Ahead is writing or whose revision is open; set while saving it too. */
   readonly activeFix = signal( '' );
   readonly fixBusy = signal( false );
   editingFix = '';
@@ -169,7 +169,7 @@ export class ProposalEditorComponent implements OnInit {
       }
       this.draft.set( draft );
       this.currentKey.set( draft.sections[0]?.key || '' );
-      this.sideTab.set( draft.questions.some( ( q ) => q.status === 'open' ) ? 'todd' : 'requirements' );
+      this.sideTab.set( draft.questions.some( ( q ) => q.status === 'open' ) ? 'assistant' : 'requirements' );
       this.phase.set( 'ready' );
       if ( this.pendingFix ) void this.openFix( this.pendingFix );
       void this.loadRequirements();
@@ -206,7 +206,7 @@ export class ProposalEditorComponent implements OnInit {
   async draftRemaining (): Promise<void> {
     if ( this.drafting ) return;
     this.drafting = true;
-    // One "TODD is working" entry for the whole run: "Drafting Pricing · 3 of 7 · about a minute".
+    // One "16Ahead is working" entry for the whole run: "Drafting Pricing · 3 of 7 · about a minute".
     const total = sectionsToDraft( this.draft() ).filter( ( s ) => !this.failedKeys().includes( s.key ) ).length;
     const work = total ? this.work.start( 'Drafting the proposal', { total, done: 0, etaSeconds: total * 25 } ) : null;
     const startedAt = Date.now();
@@ -264,7 +264,7 @@ export class ProposalEditorComponent implements OnInit {
   }
 
   // ── Score-check ────────────────────────────────────────────────
-  showTab ( tab: 'todd' | 'requirements' | 'checklist' | 'score' ): void {
+  showTab ( tab: 'assistant' | 'requirements' | 'checklist' | 'score' ): void {
     this.sideTab.set( tab );
     if ( tab === 'score' ) void this.loadScore();
   }
@@ -468,7 +468,7 @@ export class ProposalEditorComponent implements OnInit {
     this.suggestionText = r.suggestion?.text || '';
   }
 
-  /** Scrolls the draft to the paragraph that answers it (or TODD's suggestion) and highlights it for 2s. */
+  /** Scrolls the draft to the paragraph that answers it (or 16Ahead's suggestion) and highlights it for 2s. */
   jumpTo ( r: Requirement ): void {
     const d = this.draft();
     if ( d?.documentEdited && d.proposalDocumentId && r.status === 'answered' ) {

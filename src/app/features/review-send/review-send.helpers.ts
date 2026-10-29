@@ -14,7 +14,7 @@ export function defaultSubject ( o: Pick<Opportunity, 'solicitationNumber' | 'ti
   return [o.solicitationNumber, o.title].filter( Boolean ).join( ' ' ) + ( company ? ` — ${ company }` : '' );
 }
 
-/** TODD's short cover email, signed by the person sending. */
+/** 16Ahead's short cover email, signed by the person sending. */
 export function defaultBody ( o: Pick<Opportunity, 'agency' | 'solicitationNumber' | 'title'>, sender: { name: string; company: string }, attachmentNames: string[] ): string {
   const what = [o.solicitationNumber, o.title].filter( Boolean ).join( ', ' );
   const others = attachmentNames.slice( 1 );
@@ -39,7 +39,7 @@ export function defaultSender ( inboxes: DocsInbox[] ): DocsInbox | null {
   return usable.find( ( i ) => i.purposes.includes( 'outreach' ) ) || usable[0] || null;
 }
 
-/** TODD's "Why this address" note. */
+/** 16Ahead's "Why this address" note. */
 export function whyThisAddress ( o: Pick<Opportunity, 'submission' | 'source'>, to: string ): string {
   const from = o.source.from;
   const rfpAddress = o.submission.email;

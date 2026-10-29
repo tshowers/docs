@@ -85,7 +85,7 @@
 .rs__card h2.dk-kicker { font-size: 12px; }
 .rs__card ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 .rs__card .dk-btn { justify-self: start; }
-.rs__todd { margin: 0 !important; }
+.rs__assistant { margin: 0 !important; }
 
 /* Approval (round 4) */
 .rs__lede { margin: -8px 0 20px !important; font-size: 16px; line-height: 1.5; }

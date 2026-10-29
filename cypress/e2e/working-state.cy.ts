@@ -1,4 +1,4 @@
-// "Is TODD doing anything?" The header pill says what TODD is working on,
+// "Is 16Ahead doing anything?" The header pill says what 16Ahead is working on,
 // how far along and how long; buttons show a spinner from the moment
 // they're pressed until their work is done; a slow job says when it's done.
 
@@ -29,7 +29,7 @@ function stubEditor () {
   cy.intercept( 'GET', /\/proposal\/scorecheck$/, ok( null ) );
 }
 
-describe( 'TODD is working', () => {
+describe( '16Ahead is working', () => {
   it( 'shows planning, then each section drafting with progress, then says it is done', () => {
     stubEditor();
     cy.intercept( 'GET', /\/api\/docs\/opportunities\/opp-working\/proposal$/, ok( null ) );
@@ -70,7 +70,7 @@ describe( 'TODD is working', () => {
     cy.get( '@use' ).should( 'have.class', 'dk-pending' ).and( 'have.attr', 'aria-busy', 'true' );
     cy.then( () => expect( answered ).to.equal( false ) );
 
-    // Once access is known the click goes through; the spinner stays while TODD works.
+    // Once access is known the click goes through; the spinner stays while 16Ahead works.
     cy.wait( '@account' );
     cy.get( '.tw' ).should( 'contain.text', '16Ahead is adding your answer to the draft' );
     cy.get( '.dk-pending' ).should( 'exist' );

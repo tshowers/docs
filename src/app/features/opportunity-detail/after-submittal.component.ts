@@ -26,7 +26,7 @@ function download ( blob: Blob, name: string ): void {
 /**
  * After submittal on the opportunity page (design_handoff_todd_docs_lifecycle
  * 1k/1l/1s): the stages with the current one open, the oral presentation
- * and TODD's prep sheet, the award (won, lost and why, cancelled), the
+ * and 16Ahead's prep sheet, the award (won, lost and why, cancelled), the
  * debrief request sent from the person's own inbox with a reminder, saving
  * the winning sections to Knowledge, and the history newest first.
  * Clarification questions are in the rail (clarifications.component).

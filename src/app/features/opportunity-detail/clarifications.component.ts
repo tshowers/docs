@@ -14,7 +14,7 @@ import { WriteActionDirective } from '../../shared/write-access/write-action.dir
 
 /**
  * The buyer's clarification questions after sending (design_handoff_todd_
- * docs_lifecycle 1k rail): each question with TODD's drafted answer to edit
+ * docs_lifecycle 1k rail): each question with 16Ahead's drafted answer to edit
  * and send from the person's own inbox, the ones already answered, and Log a
  * question for one that came another way.
  */

@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
 import { BuyerUpdate, DocsInbox, FIT_THRESHOLD, KeyDateKind, NoBidReason, Opportunity, OpportunityStatus, ProposalDraft, Requirements, isOpen } from '../models/opportunity';
 import { ScoreCheck } from '../models/score-check';
 import { DocService } from './doc.service';
-import { ToddWorkService } from '../shared/working/todd-work.service';
+import { AssistantWorkService } from '../shared/working/assistant-work.service';
 
 interface Envelope<T> { success: boolean; data: T; message?: string; }
 
@@ -20,7 +20,7 @@ interface Envelope<T> { success: boolean; data: T; message?: string; }
 export class OpportunitiesService {
   private readonly http = inject( HttpClient );
   private readonly docs = inject( DocService );
-  private readonly work = inject( ToddWorkService );
+  private readonly work = inject( AssistantWorkService );
   private readonly base = `${ environment.backendURL }/docs`;
 
   readonly opportunities = signal<Opportunity[]>( [] );
@@ -55,7 +55,7 @@ export class OpportunitiesService {
   }
 
   // ── Bid / No-Bid gate ──────────────────────────────────────────
-  /** TODD reads the RFP for its must-haves (about a minute); returns at once when already checked. */
+  /** 16Ahead reads the RFP for its must-haves (about a minute); returns at once when already checked. */
   checkMustHaves ( id: string, force = false ): Observable<Opportunity> {
     return this.http.post<Envelope<Opportunity>>( `${ this.base }/opportunities/${ encodeURIComponent( id ) }/musthaves/check`, { force } ).pipe(
       this.work.track( 'Checking the RFP\'s must-haves', { etaSeconds: 30 } ),
@@ -80,7 +80,7 @@ export class OpportunitiesService {
   }
 
   // ── Key dates, questions for the buyer, addenda ──────────────────
-  /** TODD reads the RFP for its dates and questions worth asking (once; returns at once after that). */
+  /** 16Ahead reads the RFP for its dates and questions worth asking (once; returns at once after that). */
   checkKeyDates ( id: string, force = false ): Observable<Opportunity> {
     return this.http.post<Envelope<Opportunity>>( `${ this.opportunityBase( id ) }/dates/check`, { force } ).pipe( this.work.track( 'Reading the key dates', { etaSeconds: 20 } ), map( ( r ) => r.data ), tap( ( o ) => this.replace( o ) ) );
   }
@@ -218,7 +218,7 @@ export class OpportunitiesService {
   }
 
   // ── Proposal editor ────────────────────────────────────────────
-  /** The draft, or null before TODD has planned it. */
+  /** The draft, or null before 16Ahead has planned it. */
   getProposal ( opportunityId: string ): Observable<ProposalDraft | null> {
     return this.http.get<Envelope<ProposalDraft | null>>( `${ this.base }/opportunities/${ encodeURIComponent( opportunityId ) }/proposal` ).pipe( map( ( r ) => r.data || null ) );
   }
@@ -249,7 +249,7 @@ export class OpportunitiesService {
     return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/write`, {} ).pipe( this.work.track( 'Writing that requirement', { etaSeconds: 30, confirm: '16Ahead wrote it. Review it before you accept.' } ), map( ( r ) => r.data ) );
   }
 
-  /** Accept (with the text as edited) or discard TODD's paragraph. */
+  /** Accept (with the text as edited) or discard 16Ahead's paragraph. */
   resolveRequirement ( opportunityId: string, requirementId: string, action: 'accept' | 'discard', text = '' ): Observable<{ requirements: Requirements; draft: ProposalDraft | null; copyToEditor: boolean }> {
     return this.http.post<Envelope<{ requirements: Requirements; draft: ProposalDraft | null; copyToEditor: boolean }>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/suggestion`, { action, text: text || undefined } ).pipe( map( ( r ) => r.data ) );
   }
@@ -263,12 +263,12 @@ export class OpportunitiesService {
     return this.http.get<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck` ).pipe( map( ( r ) => r.data ) );
   }
 
-  /** TODD scores the draft against the RFP's points (one model call). */
+  /** 16Ahead scores the draft against the RFP's points (one model call). */
   runScoreCheck ( opportunityId: string ): Observable<ScoreCheck> {
     return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck`, {} ).pipe( this.work.track( 'Scoring it the way an evaluator would', { etaSeconds: 60, confirm: 'The score check is ready' } ), map( ( r ) => r.data ) );
   }
 
-  /** Fix this: TODD writes the revision for one criterion, or "opening". */
+  /** Fix this: 16Ahead writes the revision for one criterion, or "opening". */
   writeScoreFix ( opportunityId: string, fixId: string ): Observable<ScoreCheck> {
     return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck/${ encodeURIComponent( fixId ) }/fix`, {} ).pipe( this.work.track( 'Writing that fix', { etaSeconds: 30, confirm: '16Ahead wrote the fix. Review it before you accept.' } ), map( ( r ) => r.data ) );
   }

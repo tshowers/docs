@@ -39,7 +39,7 @@ export function videoEmbedUrl ( url: string | null | undefined ): string | null 
  * through the list the Documents grid opened it from. The left column
  * previews by kind: a PDF page, the image, or a player that never
  * autoplays; anything else gets a tinted type plate. The right column has
- * the actions, metadata, TODD's summary and what it's connected to.
+ * the actions, metadata, 16Ahead's summary and what it's connected to.
  * Editing title/topic/description/social eligibility and deleting moved
  * here from the old vault carousel.
  */
@@ -72,7 +72,7 @@ export class DocumentDetailComponent implements OnInit {
   editForm = { title: '', topic: '', description: '', eligibleForSocial: false };
 
   readonly doc = computed<Document | null>( () => this.store.byId( this.id() ) || this.fetched() );
-  /** "Written from" (3a): what TODD drew on for a first draft from New. */
+  /** "Written from" (3a): what 16Ahead drew on for a first draft from New. */
   readonly sources = computed( () => normalizeSources( this.doc()?.sources ) );
   readonly sourceTint = SOURCE_TINT;
   readonly info = computed( () => documentKindInfo( this.doc() ) );
@@ -215,8 +215,8 @@ export class DocumentDetailComponent implements OnInit {
     } catch { /* share sheet dismissed */ }
   }
 
-  /** "Post": lets Maya pick this image or video for a social post. */
-  sendToMaya (): void {
+  /** "Post": lets the Marketing Assistant pick this image or video for a social post. */
+  sendToMarketingAssistant (): void {
     const doc = this.doc();
     if ( !doc?.id || !this.canEdit() ) return;
     this.save( { eligibleForSocial: true }, 'Sent to the Marketing Assistant', 'The Marketing Assistant can pick this for a post.' );

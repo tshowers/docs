@@ -20,7 +20,7 @@ const UNLOCK_GRACE_MS = 60 * 1000;
  * (Ty, 2026-10-11 - pay at the moment of intent, buy once, use everywhere).
  * Stripe opens in a new tab so the unsaved work stays on this page; once
  * the webhook unlocks the product, the stopped button is pressed again.
- * Every prompt also offers TODD Suite (every app, Ty 2026-10-21); opened
+ * Every prompt also offers 16Ahead Suite (every app, Ty 2026-10-21); opened
  * with plan 'suite' it leads with Suite. Put it once in the root component.
  */
 @Component( {

@@ -76,7 +76,7 @@
 .od__gate:empty { display: none; }
 .od__gate p { font-size: 15px; line-height: 1.55; }
 .od__gate p.dk-muted { font-size: 14px; line-height: 1.5; }
-.od__todd { margin-bottom: 0 !important; color: var(--text) !important; font-size: 15px; font-weight: 700; }
+.od__assistant { margin-bottom: 0 !important; color: var(--text) !important; font-size: 15px; font-weight: 700; }
 .od__found { margin-left: auto; color: var(--muted); font-size: 13px; }
 .od__found.dk-tag { color: var(--tint-fg); }
 .od__counts { display: none; flex-wrap: wrap; gap: 6px; }
@@ -151,7 +151,7 @@
 }
 
 @media (max-width: 760px) {
-  /* 1m / 1p: title, status line, chips, the must-haves, TODD's fit, then
+  /* 1m / 1p: title, status line, chips, the must-haves, 16Ahead's fit, then
      the RFP's detail; the next step sticks above the tab bar. The columns
      flow as one. */
   .od__grid { display: flex; flex-direction: column; align-items: stretch; gap: 14px; }

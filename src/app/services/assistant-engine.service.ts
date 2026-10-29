@@ -58,10 +58,10 @@ export interface AssistantEngineHelpers {
 }
 
 /**
- * Trimmed port of TODD's AssistantEngineService. Unlike Network/Pulse/
+ * Trimmed port of 16Ahead's AssistantEngineService. Unlike Network/Pulse/
  * Moves' ports (direct nav -> pre-checks -> domain routing -> general LLM),
  * Docs keeps the Knowledge-intents pre-check step (handleKnowledgeIntents)
- * TODD's original had before domain routing - it's the one pre-check that
+ * 16Ahead's original had before domain routing - it's the one pre-check that
  * actually applies here, since Docs owns both the Document and Knowledge
  * domains. Full order: direct nav -> pre-checks -> knowledge intents ->
  * domain routing (document only) -> system trouble -> general LLM fallback.
@@ -115,7 +115,7 @@ export class AssistantEngineService {
         patches.setLoading( true );
         patches.setAssistantResponse( '' );
 
-        const uiCue = /\b(icon|icons|menu|navbar|nav|screen|page|homepage|home page|home)\b|todd[- ]assistance|start[- ]page|what\s+does\s+.*\s+icon/i;
+        const uiCue = /\b(icon|icons|menu|navbar|nav|screen|page|homepage|home page|home)\b|16ahead[- ]assistance|start[- ]page|what\s+does\s+.*\s+icon/i;
         const isUiQuestion = uiCue.test( rawClean );
         const basePromptForLLM = isUiQuestion
             ? `${rawClean}\n\n[ui-hint]\n${helpers.buildUiHint()}`

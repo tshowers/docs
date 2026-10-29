@@ -14,9 +14,9 @@
   </label>
 
   @if (signedIn() && total()) {
-    <div class="dk-todd kb-todd">
-      <img class="kb-todd__avatar" src="assets/avatar-todd-sm.png" alt="" />
-      <p>{{ toddLine() }}</p>
+    <div class="dk-assistant kb-assistant">
+      <img class="kb-assistant__avatar brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="kb-assistant__avatar brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" />
+      <p>{{ assistantLine() }}</p>
       @if (staleCount()) {
         <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="toggleReview()">{{ staleOnly() ? 'Show all' : 'Review ' + (staleCount() === 1 ? 'it' : 'them') }}</button>
       }

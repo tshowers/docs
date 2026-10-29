@@ -15,7 +15,7 @@ describe( 'Document editor buttons', () => {
     cy.get( '[data-demo="document-instructions"]' ).should( 'be.visible' );
   } );
 
-  // Apply, Try again and Discard appear with TODD's revision (design 3b).
+  // Apply, Try again and Discard appear with 16Ahead's revision (design 3b).
   it( 'renders all eleven primary workflow buttons', () => {
     cy.get( '[data-cy^="editor-action-"]' ).should( 'have.length', 11 );
   } );

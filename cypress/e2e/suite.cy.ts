@@ -1,5 +1,5 @@
 /**
- * TODD Suite ($99/mo, every app - Ty 2026-10-21) from Docs's /pricing:
+ * 16Ahead Suite ($99/mo, every app - Ty 2026-10-21) from Docs's /pricing:
  * the Suite card, the shared write-access prompt, and Stripe checkout
  * through todd-backend /api/billing/checkout (product "suite"). Stripe and
  * the backend are stubbed here; cypress/e2e in taliferrotech/frontend has
@@ -7,7 +7,7 @@
  */
 const CHECKOUT_URL = 'https://checkout.stripe.com/c/pay/cs_test_suite';
 
-describe( 'TODD Suite on Docs /pricing', () => {
+describe( '16Ahead Suite on Docs /pricing', () => {
   it( 'offers Suite at $99/month next to the Docs plan', () => {
     cy.visit( '/pricing' );
     cy.get( '[data-cy="get-the-app"]' ).should( 'be.visible' );
@@ -34,7 +34,7 @@ const visitSignedIn = ( path: string ) => cy.visit( path, {
   onBeforeLoad: ( win ) => win.localStorage.setItem( '__docsCypressAuth', 'true' ),
 } );
 
-describe( 'TODD Suite: a signed-in Docs user buys it', () => {
+describe( '16Ahead Suite: a signed-in Docs user buys it', () => {
   /** Flips once "Stripe" takes the payment; /billing/status then reports Suite. */
   let paid = false;
   const tab = { closed: false, location: { href: '' }, close () { this.closed = true; } };

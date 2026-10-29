@@ -62,7 +62,7 @@
 .ap__ask { font-size: 22px !important; line-height: 1.2; letter-spacing: -0.02em; }
 .ap__exact { font-size: 14px; }
 .ap__pdf { width: 100%; }
-/* TODD's score-check, read-only for approvers (lifecycle 1n). */
+/* 16Ahead's score-check, read-only for approvers (lifecycle 1n). */
 .ap__score h2 { display: flex; align-items: center; gap: 8px; }
 .ap__score h2 img { width: 24px; height: 24px; border-radius: 50%; }
 .ap__score h2 span { margin-left: auto; }

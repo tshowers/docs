@@ -3,7 +3,7 @@ import { addDoc, collection, deleteDoc, doc, getDocs, getFirestore } from 'fireb
 import { Dropdown } from '../models/dropdown.model';
 
 /**
- * Trimmed, Firestore-direct replacement for the slice of TODD's DataService
+ * Trimmed, Firestore-direct replacement for the slice of 16Ahead's DataService
  * that InputTypeAheadComponent/DropDownEditButtonComponent use -
  * `getCollectionData(endpointKey, user)` / `addDocument` / `deleteDocument`
  * against `tenants/{tenantId}/{collection}`, same convention

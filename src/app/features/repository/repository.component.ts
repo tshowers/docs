@@ -20,11 +20,11 @@ interface KnowledgeCard {
 }
 
 /**
- * Knowledge (design_handoff_todd_docs 1g): a search pill, TODD's card with
+ * Knowledge (design_handoff_todd_docs 1g): a search pill, 16Ahead's card with
  * how many answers there are and which need checking, and a 3-column grid
  * of answer cards. A card opens /knowledge/:id (2d), which steps through
  * the same result set. Replaces the horizontal card scroller; editing still
- * goes through Response Flow until the editor's TODD questions land.
+ * goes through Response Flow until the editor's 16Ahead questions land.
  */
 @Component( {
   selector: 'app-repository',
@@ -70,8 +70,8 @@ export class RepositoryComponent implements OnInit, OnDestroy {
     freshness: [usedInLabel( item ), freshnessLabel( item )].filter( Boolean ).join( ' · ' ),
   } ) ) );
 
-  /** TODD's line above the grid. */
-  readonly toddLine = computed( () => {
+  /** 16Ahead's line above the grid. */
+  readonly assistantLine = computed( () => {
     const n = this.total();
     const stale = this.staleCount();
     const base = `${ n } ${ n === 1 ? 'answer' : 'answers' } so far.`;

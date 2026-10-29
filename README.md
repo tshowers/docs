@@ -1,12 +1,15 @@
 <p align="center">
-  <img src="public/assets/docs.png" alt="16Ahead Docs" width="100%">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/readme/docs-dial-dark.svg">
+    <img src="docs/readme/docs-dial-light.svg" alt="16Ahead Docs" width="160">
+  </picture>
 </p>
 
 # 16Ahead Docs
 
 16Ahead Docs is the document and knowledge workspace for Taliferro Tech. It is intended to keep proposals, RFPs, response flows, reusable answers, and supporting files close to the work they support so 16Ahead can help find and reuse them later.
 
-The app is an Angular 19 standalone application backed by Firebase Authentication and the Taliferro Tech API. It is configured for Firebase Hosting as the `todd-docs` site.
+The app is an Angular 19 standalone application backed by Firebase Authentication and the Taliferro Tech API. It is configured for Firebase Hosting as the `todd-docs` site (the site ID predates the 16Ahead name and can't be renamed in place).
 
 ## What it does
 
@@ -34,6 +37,10 @@ Most product surfaces are intentionally explorable without signing in. Guests se
 
 Signed-in sessions resolve a tenant from the Firebase user record and attach tenant/user headers to API requests. The hosted login callback completes authentication with a Firebase custom token.
 
+## Logos
+
+Every page uses the 16Ahead product dials from `taliferro-ui/brand/products` (copied into the build as `assets/brand/products`). Each one comes as a light and a dark file; the page renders both with `brand-mark--light` / `brand-mark--dark` and `src/styles.css` hides the one that doesn't match the theme. Don't CSS-invert the light set, because that turns the blue tick orange. Docs is `07-docs`; the in-app assistant uses `01-16ahead`. The colour logos (`public/assets/docs-color-icon.png`, `src/assets/find/entities/*`) are kept but no longer shown. This README's logo is a copy in `docs/readme/`.
+
 ## Prerequisites
 
 - **Node.js 22** (developed on 22.13; `.nvmrc` pins it, so `nvm use` works) and npm.
@@ -44,7 +51,7 @@ Signed-in sessions resolve a tenant from the Firebase user record and attach ten
 
   ```
   corporate/
-  ├── taliferro-ui/          ← shared TODD UI package
+  ├── taliferro-ui/          ← shared 16Ahead UI package
   └── web-products/
       └── docs/              ← this repo
   ```

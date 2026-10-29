@@ -6,7 +6,7 @@ import { DocsSignupDraftService } from '../../services/docs-signup-draft.service
 import { GettingStartedService } from '../../services/getting-started.service';
 
 /**
- * Lands here after TODD's hosted login (todd.taliferro.tech/login) hands
+ * Lands here after 16Ahead's hosted login (app.16ahead.com/login) hands
  * a signed-in session back to this app: ?token=<custom token>&state=<...>.
  * Verifies `state` against what signIn() stashed before leaving (a forged
  * or replayed callback won't have a matching sessionStorage entry),
