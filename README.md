@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="public/assets/docs.png" alt="TODD Docs" width="100%">
+  <img src="public/assets/docs.png" alt="16Ahead Docs" width="100%">
 </p>
 
-# TODD Docs
+# 16Ahead Docs
 
-TODD Docs is the document and knowledge workspace for Taliferro Tech. It is intended to keep proposals, RFPs, response flows, reusable answers, and supporting files close to the work they support so TODD can help find and reuse them later.
+16Ahead Docs is the document and knowledge workspace for Taliferro Tech. It is intended to keep proposals, RFPs, response flows, reusable answers, and supporting files close to the work they support so 16Ahead can help find and reuse them later.
 
 The app is an Angular 19 standalone application backed by Firebase Authentication and the Taliferro Tech API. It is configured for Firebase Hosting as the `todd-docs` site.
 
@@ -16,10 +16,10 @@ The header has four tabs: Home, Opportunities, Documents, and Knowledge. Signed 
 | --- | --- |
 | `/` | **Home.** Search box, quick actions, and a status overview. Signed out, it shows the public introduction. `/docs` and `/docs/landing` redirect here. |
 | `/about`, `/help`, `/ios`, `/pricing` | Public pages: About, Help, the iOS preview, and pricing (subscribe on the web through Stripe, or in the app). These are prerendered (see [SEO and public pages](#seo-and-public-pages)). |
-| `/opportunities` | RFPs TODD found or you added, scored against your profile. Sub-pages: `/opportunities/inbox` (connect an RFP intake inbox), `/opportunities/:id`, `/opportunities/:id/proposal` (the proposal editor), and `/opportunities/:id/send` (review and send). |
+| `/opportunities` | RFPs 16Ahead found or you added, scored against your profile. Sub-pages: `/opportunities/inbox` (connect an RFP intake inbox), `/opportunities/:id`, `/opportunities/:id/proposal` (the proposal editor), and `/opportunities/:id/send` (review and send). |
 | `/documents`, `/documents/:id` | The document vault and a single document. |
 | `/upload` | Add files: PDFs, images, video, audio, Word files. `/upload?rfp=1` adds an RFP. |
-| `/new`, `/docs/editor/:id` | TODD writes a first draft, which opens in the document editor (`.docx` import and export). |
+| `/new`, `/docs/editor/:id` | 16Ahead writes a first draft, which opens in the document editor (`.docx` import and export). |
 | `/knowledge`, `/knowledge/:id` | The Knowledge Base of reusable answers and their sources. |
 | `/knowledge/response-flow[/:id]` | Add or edit an answer. |
 | `/knowledge/save` | Save an answer to Knowledge from Find. |
@@ -30,7 +30,7 @@ Old addresses (`/docs/documents`, `/docs/upload`, `/docs/rfp-list`, `/docs/propo
 
 ## Guest mode
 
-Most product surfaces are intentionally explorable without signing in. Guests see the layout and an honest preview, but live private values and write actions remain disabled. The browse-mode banner sends users to the hosted TODD sign-in flow, and its Home action returns to `/`.
+Most product surfaces are intentionally explorable without signing in. Guests see the layout and an honest preview, but live private values and write actions remain disabled. The browse-mode banner sends users to the hosted 16Ahead sign-in flow, and its Home action returns to `/`.
 
 Signed-in sessions resolve a tenant from the Firebase user record and attach tenant/user headers to API requests. The hosted login callback completes authentication with a Firebase custom token.
 
@@ -62,7 +62,7 @@ You don't need a `.env` file or any environment variables. The local dev server 
 
 ### Signing in locally
 
-Sign-in always happens on TODD's hosted login page. When the app runs on `localhost` or `127.0.0.1`, it sends you to `https://todd.taliferro.tech/login?client=docs-web-local&state=…` (see `DocsAuthService.signIn`). The hosted login must recognize the `docs-web-local` client and send you back to `http://localhost:4200/auth/callback`, so serve on port 4200. If the login page won't send you back, check the client registration on the TODD login side first.
+Sign-in always happens on 16Ahead's hosted login page. When the app runs on `localhost` or `127.0.0.1`, it sends you to `https://app.16ahead.com/login?client=docs-web-local&state=…` (see `DocsAuthService.signIn`). The hosted login must recognize the `docs-web-local` client and send you back to `http://localhost:4200/auth/callback`, so serve on port 4200. If the login page won't send you back, check the client registration on the 16Ahead login side first.
 
 You can browse most pages without signing in (see [Guest mode](#guest-mode)).
 
@@ -125,7 +125,7 @@ X-User-Email: <Firebase email>
 
 ### Other hosts
 
-- `https://todd.taliferro.tech` for hosted login, profile and Outreach social hand-off.
+- `https://app.16ahead.com` for hosted login, profile and Outreach social hand-off.
 - The other `*.taliferro.tech` product URLs appear only as links in the universal platform menu.
 
 The frontend is a client application. Firebase rules and the API must keep enforcing authorization and tenant isolation, and a guest request must never count as permission to read or write private workspace data.
@@ -178,6 +178,6 @@ Firebase Hosting serves the prerendered pages (`index.html`, `about/index.html`,
 
 ## Current limitations and intent
 
-This project is a working Docs/Knowledge product shell and integration layer, not a complete replacement for every TODD capability. Some views are previews until a user signs in, and the quality of live results depends on the API, Firebase data, tenant configuration, subscription state, and external hosted-login flow. The iOS surface is currently a product preview rather than a native iOS application.
+This project is a working Docs/Knowledge product shell and integration layer, not a complete replacement for every 16Ahead capability. Some views are previews until a user signs in, and the quality of live results depends on the API, Firebase data, tenant configuration, subscription state, and external hosted-login flow. The iOS surface is currently a product preview rather than a native iOS application.
 
-The codebase is also being aligned with the related Network, Pulse, Outreach, Moves, and Social products. Shared conventions—especially build versions, footer/version reporting, authentication behavior, tenant headers, and TODD visual styling—should be standardized rather than independently reimplemented in each app.
+The codebase is also being aligned with the related Network, Pulse, Outreach, Moves, and Social products. Shared conventions—especially build versions, footer/version reporting, authentication behavior, tenant headers, and 16Ahead visual styling—should be standardized rather than independently reimplemented in each app.
