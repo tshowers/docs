@@ -99,7 +99,7 @@ export class NewDocumentComponent implements OnInit {
       void this.router.navigate( ['/docs/editor', result.documentId], { state: { documentId: result.documentId, title: result.title, blocks: result.blocks, sources: result.sources } } );
     } catch ( error: any ) {
       this.writing.set( false );
-      this.notifications.show( 'TODD couldn\'t write that', error?.error?.message || 'Try again in a moment.', 'warning' );
+      this.notifications.show( '16Ahead couldn\'t write that', error?.error?.message || 'Try again in a moment.', 'warning' );
     }
   }
 

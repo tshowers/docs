@@ -2,7 +2,7 @@
   @if (signedIn() === false) {
     <div class="dk-banner" role="note">
       <dk-icon name="alert-circle" [size]="18" />
-      <p><strong>You're not signed in.</strong> Sign in to add files. TODD keeps them in Documents and reads RFPs into Opportunities.</p>
+      <p><strong>You're not signed in.</strong> Sign in to add files. 16Ahead keeps them in Documents and reads RFPs into Opportunities.</p>
       <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/get-started">Sign in</a>
     </div>
   }
@@ -16,7 +16,7 @@
     </div>
   }
   @if (rfpMode && !rows().length) {
-    <p class="up__lead dk-muted">Drop the RFP itself (a PDF or Word file). TODD reads it, scores it against your profile and adds it to Opportunities.</p>
+    <p class="up__lead dk-muted">Drop the RFP itself (a PDF or Word file). 16Ahead reads it, scores it against your profile and adds it to Opportunities.</p>
   }
 
   <input #fileInput type="file" multiple hidden (change)="onFileSelect($event)" [accept]="rfpMode ? '.pdf,.docx,.txt' : ''" />
@@ -39,7 +39,7 @@
           <div class="up__choices">
             @if (row.state === 'saved' && !row.isMedia) { <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" (click)="readAsRfp(row.key)">This is an RFP</button> }
             @if (row.isMedia && row.documentId) {
-              <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" [attr.aria-pressed]="row.eligibleForSocial" (click)="toggleSocial(row.key)"><dk-icon [name]="row.eligibleForSocial ? 'check' : 'megaphone'" />{{ row.eligibleForSocial ? 'Maya can use this' : 'Let Maya use this' }}</button>
+              <button type="button" class="dk-btn dk-btn--bg dk-btn--sm" [attr.aria-pressed]="row.eligibleForSocial" (click)="toggleSocial(row.key)"><dk-icon [name]="row.eligibleForSocial ? 'check' : 'megaphone'" />{{ row.eligibleForSocial ? 'The Marketing Assistant can use this' : 'Let the Marketing Assistant use this' }}</button>
             }
           </div>
         </div>

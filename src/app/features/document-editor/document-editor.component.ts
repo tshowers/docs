@@ -119,7 +119,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
 
   /** The line under the title (3a-3c). */
   get statusLine (): string {
-    if ( this.firstDraft ) return 'First draft by TODD · not saved yet';
+    if ( this.firstDraft ) return 'First draft by 16Ahead · not saved yet';
     if ( !this.docid ) return 'Not saved yet';
     const saved = savedAgo( this.currentDocument?.updatedAt || this.currentDocument?.createdAt );
     if ( this.isWordFile ) return [this.currentDocument?.name, 'opened from Word', saved].filter( Boolean ).join( ' · ' );
@@ -168,7 +168,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
       route: this.router.url,
       mode: this.docid ? 'edit' : 'create',
       title: this.docid ? 'Edit Document' : 'Create Document',
-      description: 'Write, edit, upload, and refine documents with TODD assistance.',
+      description: 'Write, edit, upload, and refine documents with 16Ahead assistance.',
       allowedActions: [
         'save_document',
         'upload_document',
@@ -778,11 +778,11 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
 
           // Optional helper note from backend
           if ( payload?.notes ) {
-            this.notificationService.show( 'TODD', payload.notes, 'success' );
+            this.notificationService.show( '16Ahead', payload.notes, 'success' );
           }
 
           if ( !this.toddPreview ) {
-            this.notificationService.show( 'No Changes', 'TODD did not return content.', 'warning' );
+            this.notificationService.show( 'No Changes', '16Ahead did not return content.', 'warning' );
           }
           this.publishPageContext();
         },
@@ -799,7 +799,7 @@ export class DocumentEditorComponent implements OnInit, OnDestroy {
     if ( !this.toddPreview ) return;
     if ( this.previewTarget === 'selection' ) {
       if ( !this.editor?.replaceSelection( this.toddPreview ) ) {
-        this.notificationService.show( 'Selection lost', 'Select the passage again and ask TODD once more.', 'warning' );
+        this.notificationService.show( 'Selection lost', 'Select the passage again and ask 16Ahead once more.', 'warning' );
         return;
       }
     } else {

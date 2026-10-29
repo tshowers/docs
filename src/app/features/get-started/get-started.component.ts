@@ -57,7 +57,7 @@ export class GetStartedComponent implements OnInit {
   ) { }
 
   async ngOnInit (): Promise<void> {
-    this.title.setTitle( 'Get started — Docs | Taliferro Tech' );
+    this.title.setTitle( 'Get started — Docs | 16Ahead' );
     this.draft = this.drafts.load();
     // Signed in already: the wizard is only a way to sign up, so skip it.
     if ( await firstValueFrom( this.authService.getUser() ) ) await this.router.navigateByUrl( this.returnUrl );

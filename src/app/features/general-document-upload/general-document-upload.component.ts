@@ -286,7 +286,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
       const code = error instanceof HttpErrorResponse ? error.error?.error : '';
       this.patch( key, {
         state: code === 'not_an_rfp' ? 'not-rfp' : 'saved',
-        note: code === 'not_an_rfp' ? `TODD didn't find an RFP in this file. It's filed under ${ row.folder }.` : `It's filed under ${ row.folder }, but TODD couldn't read it as an RFP. ${ error instanceof HttpErrorResponse && error.error?.message ? error.error.message : 'Try again in a moment.' }`,
+        note: code === 'not_an_rfp' ? `16Ahead didn't find an RFP in this file. It's filed under ${ row.folder }.` : `It's filed under ${ row.folder }, but 16Ahead couldn't read it as an RFP. ${ error instanceof HttpErrorResponse && error.error?.message ? error.error.message : 'Try again in a moment.' }`,
       } );
     }
   }
@@ -297,9 +297,9 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
     if ( !row?.documentId ) return;
     try {
       await new Promise( ( resolve, reject ) => this.opportunities.update( this.attachTo, { rfpDocumentId: row.documentId } ).subscribe( { next: resolve, error: reject } ) );
-      this.patch( key, { state: 'opportunity', opportunityId: this.attachTo, folder: 'Opportunities', tint: 'violet', note: this.backToOpportunity ? 'Attached as the RFP. TODD will check its must-haves.' : 'Attached as the RFP. TODD can redraft the proposal from it.' } );
+      this.patch( key, { state: 'opportunity', opportunityId: this.attachTo, folder: 'Opportunities', tint: 'violet', note: this.backToOpportunity ? 'Attached as the RFP. 16Ahead will check its must-haves.' : 'Attached as the RFP. 16Ahead can redraft the proposal from it.' } );
     } catch {
-      this.patch( key, { note: `It's filed under ${ row.folder }, but TODD couldn't attach it to the proposal. Try again.` } );
+      this.patch( key, { note: `It's filed under ${ row.folder }, but 16Ahead couldn't attach it to the proposal. Try again.` } );
     }
   }
 
@@ -342,7 +342,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
   private failureMessage ( error: unknown ): string {
     if ( error instanceof HttpErrorResponse ) {
       if ( typeof error.error?.message === 'string' && error.error.message.trim() ) return error.error.message.trim();
-      if ( error.status === 0 ) return 'TODD couldn\'t reach the server. Try again in a moment.';
+      if ( error.status === 0 ) return '16Ahead couldn\'t reach the server. Try again in a moment.';
       if ( error.status === 403 ) return 'You don\'t have access to add documents right now.';
     }
     return 'The upload didn\'t finish. Try again.';
@@ -356,7 +356,7 @@ export class GeneralDocumentUploadComponent implements OnInit, OnDestroy {
       route: this.router.url,
       mode: 'create',
       title: this.rfpMode ? 'Add an RFP' : 'Add files',
-      description: 'Upload files; TODD names and files each one, and reads RFPs into Opportunities.',
+      description: 'Upload files; 16Ahead names and files each one, and reads RFPs into Opportunities.',
       allowedActions: ['select_file', 'drop_file'],
       selectedEntityType: 'document',
       selectedEntityId: '',

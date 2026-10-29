@@ -51,7 +51,7 @@
             }
             @if (!d.hasRfpFile) {
               <div class="pe__hint">
-                <p>TODD only had the alert to go on.</p>
+                <p>16Ahead only had the alert to go on.</p>
                 @if (opportunity()?.rfpDocumentId) {
                   <button type="button" class="dk-btn dk-btn--sm" (click)="replan()" appWriteAction="replan this proposal">Redraft from the RFP</button>
                 } @else {
@@ -63,7 +63,7 @@
 
           <main class="pe__paper-wrap">
             @if (d.documentEdited) {
-              <p class="pe__edited">You've edited this proposal in the editor, so TODD won't write over it. Answers you give here still go to Knowledge; copy any new text across in the editor.</p>
+              <p class="pe__edited">You've edited this proposal in the editor, so 16Ahead won't write over it. Answers you give here still go to Knowledge; copy any new text across in the editor.</p>
             }
             <article class="pe__paper">
               @for (s of d.sections; track s.key) {
@@ -71,7 +71,7 @@
                   <h2>{{ s.title }}</h2>
                   @if (!s.blocks.length) {
                     @if (failedKeys().includes(s.key)) {
-                      <p class="pe__failed">TODD couldn't write this section. <button type="button" class="pe__link" (click)="retrySection(s.key)">Try again</button></p>
+                      <p class="pe__failed">16Ahead couldn't write this section. <button type="button" class="pe__link" (click)="retrySection(s.key)">Try again</button></p>
                     } @else {
                       <p class="dk-muted">{{ draftingKey() === s.key ? 'Drafting…' : 'Waiting to be drafted…' }}</p>
                     }
@@ -105,9 +105,9 @@
                     @for (r of openBySection().get(s.key) || []; track r.id) {
                       @if (r.suggestion) {
                         <div class="pe__suggest" [id]="'req-' + r.id">
-                          <span class="dk-kicker">TODD's draft · RFP {{ r.ref || r.text }}</span>
+                          <span class="dk-kicker">16Ahead's draft · RFP {{ r.ref || r.text }}</span>
                           @if (editingSuggestion() === r.id) {
-                            <textarea rows="4" [(ngModel)]="suggestionText" aria-label="TODD's draft"></textarea>
+                            <textarea rows="4" [(ngModel)]="suggestionText" aria-label="16Ahead's draft"></textarea>
                           } @else {
                             <p>{{ r.suggestion.text }}</p>
                           }
@@ -121,7 +121,7 @@
                         <div class="pe__unanswered" [id]="'req-' + r.id">
                           <span class="dk-kicker">Not answered{{ r.ref ? ' · RFP ' + r.ref : '' }}</span>
                           <p>The RFP says: “{{ r.text }}”. This section doesn't answer it yet.</p>
-                          <button type="button" class="pe__link" (click)="writeRequirement(r)" [disabled]="!!requirementBusy()" appWriteAction="have TODD write this">{{ requirementBusy() === r.id ? 'Writing…' : 'Write this' }}</button>
+                          <button type="button" class="pe__link" (click)="writeRequirement(r)" [disabled]="!!requirementBusy()" appWriteAction="have 16Ahead write this">{{ requirementBusy() === r.id ? 'Writing…' : 'Write this' }}</button>
                         </div>
                       }
                     }
@@ -133,7 +133,7 @@
 
           <aside class="pe__side">
             <div class="pe__tabs" role="tablist" aria-label="Beside the draft">
-              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'todd'" [class.is-on]="sideTab() === 'todd'" (click)="showTab('todd')">TODD</button>
+              <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'todd'" [class.is-on]="sideTab() === 'todd'" (click)="showTab('todd')">16Ahead</button>
               <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'requirements'" [class.is-on]="sideTab() === 'requirements'" (click)="showTab('requirements')">Requirements</button>
               <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'checklist'" [class.is-on]="sideTab() === 'checklist'" (click)="showTab('checklist')">Checklist</button>
               <button type="button" role="tab" [attr.aria-selected]="sideTab() === 'score'" [class.is-on]="sideTab() === 'score'" (click)="showTab('score')">Score</button>
@@ -149,26 +149,26 @@
             @if (sideTab() === 'todd') {
             @if (question(); as q) {
               <section class="pe__ask">
-                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD · question {{ questionNumber().n }} of {{ questionNumber().of }}</div>
+                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />16Ahead · question {{ questionNumber().n }} of {{ questionNumber().of }}</div>
                 <h2>{{ q.question }}</h2>
                 @if (q.why) { <p class="dk-muted pe__why">{{ q.why }}</p> }
                 <textarea [(ngModel)]="answer" rows="5" placeholder="Answer in your own words…" aria-label="Your answer" [disabled]="answering()"></textarea>
                 <label class="pe__save"><input type="checkbox" [(ngModel)]="saveToKnowledge" [disabled]="answering()" />Save to Knowledge for next time</label>
                 <div class="pe__ask-actions">
-                  <button type="button" class="dk-btn dk-btn--primary" (click)="submitAnswer()" [disabled]="answering() || !answer.trim()" appWriteAction="answer TODD">{{ answering() ? 'Saving…' : 'Use this answer' }}</button>
+                  <button type="button" class="dk-btn dk-btn--primary" (click)="submitAnswer()" [disabled]="answering() || !answer.trim()" appWriteAction="answer 16Ahead">{{ answering() ? 'Saving…' : 'Use this answer' }}</button>
                   <button type="button" class="dk-btn dk-btn--bg" (click)="submitAnswer(true)" [disabled]="answering()">Skip</button>
                 </div>
               </section>
             } @else {
               <section class="pe__ask pe__ask--done">
                 <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />That's everything</div>
-                <p>{{ d.questions.length ? "You've answered all " + d.questions.length + " of TODD's questions." : "TODD has no questions for you on this one." }}</p>
+                <p>{{ d.questions.length ? "You've answered all " + d.questions.length + " of 16Ahead's questions." : "16Ahead has no questions for you on this one." }}</p>
               </section>
             }
             }
 
             @if (sideTab() === 'checklist' && !d.checklist.length) {
-              <p class="dk-muted pe__nochecks">The RFP didn't set anything TODD can check before sending.</p>
+              <p class="dk-muted pe__nochecks">The RFP didn't set anything 16Ahead can check before sending.</p>
             }
             @if (sideTab() === 'checklist' && d.checklist.length) {
               <section class="pe__checks">

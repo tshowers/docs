@@ -47,7 +47,7 @@
         </div>
         @if (entryProblem()) { <small class="ga__bad">{{ entryProblem() }}</small> }
         @if (people().length) {
-          <p class="ga__hint"><dk-icon name="link" [size]="15" /><span>{{ people().length === 1 ? (first(people()[0]) + ' gets') : 'Each person gets' }} a private link you send them. No TODD account or sign-in needed.</span></p>
+          <p class="ga__hint"><dk-icon name="link" [size]="15" /><span>{{ people().length === 1 ? (first(people()[0]) + ' gets') : 'Each person gets' }} a private link you send them. No 16Ahead account or sign-in needed.</span></p>
         }
       </section>
 
@@ -89,7 +89,7 @@
           @if (!portalOnly() && submissionAddress()) {
             <button type="button" role="radio" class="ga__radio" [attr.aria-checked]="onApproved() === 'autoSend'" [class.is-on]="onApproved() === 'autoSend'" (click)="onApproved.set('autoSend')">
               <span class="ga__dot"></span>
-              <span><strong>Send it to {{ submissionAddress() }}</strong><small>TODD sends it from your inbox the moment the {{ rule() === 'any' ? 'first' : 'last' }} approval lands.</small></span>
+              <span><strong>Send it to {{ submissionAddress() }}</strong><small>16Ahead sends it from your inbox the moment the {{ rule() === 'any' ? 'first' : 'last' }} approval lands.</small></span>
             </button>
           }
         </div>

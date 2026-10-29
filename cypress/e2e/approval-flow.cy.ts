@@ -132,7 +132,7 @@ describe( 'Approval before sending, through the app', () => {
     cy.contains( 'h2', 'Get approval before sending' );
     cy.get( '#ga-entry' ).type( 'Marcus Lee <marcus@taliferro.tech>{enter}' ).type( 'jordan@parkito.law{enter}' );
     cy.get( '.ga__token' ).should( 'have.length', 2 );
-    cy.contains( 'No TODD account or sign-in needed.' );
+    cy.contains( 'No 16Ahead account or sign-in needed.' );
     cy.get( '#ga-note' ).type( 'Can you check pricing in section 5?' );
     cy.contains( '.ga__actions button', 'Ask for approval' ).click();
 

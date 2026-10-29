@@ -117,7 +117,7 @@ export function timeLeft ( task: Pick<WorkTask, 'etaSeconds' | 'startedAt'>, now
 /** "TODD is drafting Technical approach · 3 of 7 · about a minute". */
 export function describeTask ( task: WorkTask, now = Date.now() ): string {
   const what = task.label ? task.label.charAt( 0 ).toLowerCase() + task.label.slice( 1 ) : 'working';
-  const parts = [`TODD is ${ what }`];
+  const parts = [`16Ahead is ${ what }`];
   if ( task.total && task.total > 1 ) parts.push( `${ Math.min( ( task.done || 0 ) + 1, task.total ) } of ${ task.total }` );
   const left = timeLeft( task, now );
   if ( left ) parts.push( left );

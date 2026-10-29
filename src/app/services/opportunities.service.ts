@@ -246,7 +246,7 @@ export class OpportunitiesService {
   }
 
   writeRequirement ( opportunityId: string, requirementId: string ): Observable<Requirements> {
-    return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/write`, {} ).pipe( this.work.track( 'Writing that requirement', { etaSeconds: 30, confirm: 'TODD wrote it. Review it before you accept.' } ), map( ( r ) => r.data ) );
+    return this.http.post<Envelope<Requirements>>( `${ this.proposalBase( opportunityId ) }/requirements/${ encodeURIComponent( requirementId ) }/write`, {} ).pipe( this.work.track( 'Writing that requirement', { etaSeconds: 30, confirm: '16Ahead wrote it. Review it before you accept.' } ), map( ( r ) => r.data ) );
   }
 
   /** Accept (with the text as edited) or discard TODD's paragraph. */
@@ -270,7 +270,7 @@ export class OpportunitiesService {
 
   /** Fix this: TODD writes the revision for one criterion, or "opening". */
   writeScoreFix ( opportunityId: string, fixId: string ): Observable<ScoreCheck> {
-    return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck/${ encodeURIComponent( fixId ) }/fix`, {} ).pipe( this.work.track( 'Writing that fix', { etaSeconds: 30, confirm: 'TODD wrote the fix. Review it before you accept.' } ), map( ( r ) => r.data ) );
+    return this.http.post<Envelope<ScoreCheck>>( `${ this.proposalBase( opportunityId ) }/scorecheck/${ encodeURIComponent( fixId ) }/fix`, {} ).pipe( this.work.track( 'Writing that fix', { etaSeconds: 30, confirm: '16Ahead wrote the fix. Review it before you accept.' } ), map( ( r ) => r.data ) );
   }
 
   resolveScoreFix ( opportunityId: string, fixId: string, action: 'accept' | 'discard', text = '' ): Observable<{ scoreCheck: ScoreCheck; draft: ProposalDraft | null; copyToEditor: boolean }> {

@@ -2,7 +2,7 @@
   @if (signedIn() === false) {
     <div class="dk-banner" role="note">
       <dk-icon name="alert-circle" [size]="18" />
-      <p><strong>You're not signed in.</strong> Opportunities lists the RFPs TODD finds in your inbox, scored against your profile. Sign in to connect yours.</p>
+      <p><strong>You're not signed in.</strong> Opportunities lists the RFPs 16Ahead finds in your inbox, scored against your profile. Sign in to connect yours.</p>
       <a class="dk-btn dk-btn--primary dk-btn--sm" routerLink="/get-started">Sign in</a>
     </div>
   }
@@ -21,7 +21,7 @@
   @if (failing(); as bad) {
     <div class="opp-alert" role="alert">
       <dk-icon name="alert-circle" [size]="18" />
-      <p><strong>Docs can't reach {{ bad.emailAddress }}.</strong> Reconnect it so TODD keeps finding RFPs for you.</p>
+      <p><strong>Docs can't reach {{ bad.emailAddress }}.</strong> Reconnect it so 16Ahead keeps finding RFPs for you.</p>
       <a class="dk-btn dk-btn--bg dk-btn--sm" routerLink="/opportunities/inbox">Fix it</a>
     </div>
   }
@@ -63,7 +63,7 @@
   } @else if (signedIn()) {
     <div class="dk-empty opp-empty">
       <h2>{{ watched().length ? 'Nothing new yet' : 'Where do your RFP alerts arrive?' }}</h2>
-      <p>{{ watched().length ? 'TODD checks ' + watched()[0].emailAddress + ' every 10 minutes. New alerts will appear here, scored against your profile.' : 'Connect that inbox and TODD reads every alert from OpenGov, Bonfire, King County and the other portals you choose.' }}</p>
+      <p>{{ watched().length ? '16Ahead checks ' + watched()[0].emailAddress + ' every 10 minutes. New alerts will appear here, scored against your profile.' : 'Connect that inbox and 16Ahead reads every alert from OpenGov, Bonfire, King County and the other portals you choose.' }}</p>
       @if (!watched().length) { <a class="dk-btn dk-btn--primary" routerLink="/opportunities/inbox"><dk-icon name="inbox" />Connect an inbox</a> }
     </div>
   }
@@ -89,9 +89,9 @@
     <footer class="opp-inbox">
       <dk-icon name="inbox" [size]="18" />
       <p>
-        @if (inboxes() === null) { Checking which inbox TODD watches… }
+        @if (inboxes() === null) { Checking which inbox 16Ahead watches… }
         @else if (watched().length) {
-          TODD watches <strong>{{ watched()[0].emailAddress }}</strong>@if (watched().length > 1) { and {{ watched().length - 1 }} more} for alerts from {{ senderNames(watched()[0].rfpSenders) }}.@if (watched()[0].rfpLastSyncAt) { Checked {{ checkedAgo(watched()[0].rfpLastSyncAt) }}.}
+          16Ahead watches <strong>{{ watched()[0].emailAddress }}</strong>@if (watched().length > 1) { and {{ watched().length - 1 }} more} for alerts from {{ senderNames(watched()[0].rfpSenders) }}.@if (watched()[0].rfpLastSyncAt) { Checked {{ checkedAgo(watched()[0].rfpLastSyncAt) }}.}
         } @else {
           RFP alerts from OpenGov, King County and Bonfire can come straight here. Connect the inbox they arrive in, or add an RFP file yourself.
         }

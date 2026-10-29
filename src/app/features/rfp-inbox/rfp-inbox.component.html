@@ -1,11 +1,11 @@
 <div class="dk-page ri">
   <a class="dk-btn dk-btn--sm ri-back" routerLink="/opportunities"><dk-icon name="chevron-left" />Opportunities</a>
   <p class="dk-kicker">RFP inbox</p>
-  <h1 class="ri__title">The inbox TODD watches for RFPs</h1>
+  <h1 class="ri__title">The inbox 16Ahead watches for RFPs</h1>
 
   <div class="dk-todd ri__why">
     <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Use a semi-dedicated inbox</div>
-    <p>Point your procurement alerts (OpenGov, Bonfire, King County, your city's portal) at an address like <strong>bids&#64;yourcompany.com</strong>, and connect that. Every 10 minutes TODD reads only messages from the senders you list below, never marks anything read, and never moves or deletes mail. An inbox that's mostly alerts means TODD finds every RFP and nothing slips past in personal mail.</p>
+    <p>Point your procurement alerts (OpenGov, Bonfire, King County, your city's portal) at an address like <strong>bids&#64;yourcompany.com</strong>, and connect that. Every 10 minutes 16Ahead reads only messages from the senders you list below, never marks anything read, and never moves or deletes mail. An inbox that's mostly alerts means 16Ahead finds every RFP and nothing slips past in personal mail.</p>
   </div>
 
   @if (inboxes() === null) {
@@ -80,7 +80,7 @@
             <label>IMAP server<input name="imap" [(ngModel)]="form.imapHost" placeholder="imap.yourhost.com" /></label>
             <label>SMTP server<input name="smtp" [(ngModel)]="form.smtpHost" placeholder="smtp.yourhost.com" /></label>
           }
-          <p class="dk-muted ri__hint">An app password is a separate password your email provider makes for apps like TODD. Your normal password won't work, and you can revoke it any time.</p>
+          <p class="dk-muted ri__hint">An app password is a separate password your email provider makes for apps like 16Ahead. Your normal password won't work, and you can revoke it any time.</p>
           @if (testResult(); as r) { <p class="ri__result" [class.is-ok]="r.ok">{{ r.message }}</p> }
           <div class="ri__actions">
             <button type="button" class="dk-btn dk-btn--bg" (click)="test()" [disabled]="!!busy() || !form.emailAddress || !form.secret">{{ busy() === 'test' ? 'Checking…' : 'Test it' }}</button>

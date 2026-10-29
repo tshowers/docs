@@ -63,7 +63,7 @@
                   @if (r.status === 'answered') {
                     <button type="button" class="rm__link" (click)="$event.stopPropagation(); jump.emit(r)"><dk-icon name="chevron-right" [size]="13" />{{ where(r) }}</button>
                   } @else if (r.suggestion) {
-                    <button type="button" class="rm__link" (click)="$event.stopPropagation(); jump.emit(r)"><dk-icon name="sparkles" [size]="13" />TODD wrote a draft</button>
+                    <button type="button" class="rm__link" (click)="$event.stopPropagation(); jump.emit(r)"><dk-icon name="sparkles" [size]="13" />16Ahead wrote a draft</button>
                   } @else {
                     <span class="rm__missing">@if (mode === 'table') {<dk-icon name="alert-circle" [size]="13" />}Not answered yet</span>
                   }
@@ -72,7 +72,7 @@
                   @if (r.status === 'answered') {
                     @if (mode === 'table') { <dk-icon name="check" [size]="16" class="rm__tick" /> }
                   } @else if (!r.suggestion) {
-                    <button type="button" class="dk-btn dk-btn--primary dk-btn--sm rm__write" (click)="$event.stopPropagation(); write.emit(r)" [disabled]="!!busyId" appWriteAction="have TODD write this"><dk-icon name="sparkles" [size]="14" />{{ busyId === r.id ? 'Writing…' : 'Write this' }}</button>
+                    <button type="button" class="dk-btn dk-btn--primary dk-btn--sm rm__write" (click)="$event.stopPropagation(); write.emit(r)" [disabled]="!!busyId" appWriteAction="have 16Ahead write this"><dk-icon name="sparkles" [size]="14" />{{ busyId === r.id ? 'Writing…' : 'Write this' }}</button>
                   }
                 </span>
                 </div>
@@ -84,16 +84,16 @@
                     <span class="dk-kicker">RFP{{ r.page ? ' · page ' + r.page : '' }}{{ r.ref ? ' · ' + r.ref : '' }}</span>
                     <p>“{{ r.quote || r.text }}”</p>
                     @if (r.status === 'answered' && r.manual) {
-                      <button type="button" class="rm__link" (click)="mark.emit({ requirement: r, answered: false })">Let TODD check it again</button>
+                      <button type="button" class="rm__link" (click)="mark.emit({ requirement: r, answered: false })">Let 16Ahead check it again</button>
                     } @else if (r.status !== 'answered') {
                       <button type="button" class="rm__link" (click)="mark.emit({ requirement: r, answered: true })" appWriteAction="update the matrix">It's answered in the proposal</button>
                     }
                   </div>
                   <div class="rm__draft">
                     @if (r.suggestion) {
-                      <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD's draft for {{ sectionTitle(r.suggestion.sectionKey) }}</div>
+                      <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />16Ahead's draft for {{ sectionTitle(r.suggestion.sectionKey) }}</div>
                       @if (editing() === r.id) {
-                        <textarea rows="4" [(ngModel)]="editText" aria-label="TODD's draft"></textarea>
+                        <textarea rows="4" [(ngModel)]="editText" aria-label="16Ahead's draft"></textarea>
                       } @else {
                         <p>{{ r.suggestion.text }}</p>
                       }

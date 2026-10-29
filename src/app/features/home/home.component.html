@@ -8,7 +8,7 @@
   }
 
   <section class="home__hero">
-    <img class="home__icon" src="assets/todd-docs-icon.png" alt="" />
+    <img class="home__icon brand-mark--light" src="assets/brand/products/svg/light/07-docs.svg" alt="" /><img class="home__icon brand-mark--dark" src="assets/brand/products/svg/dark/07-docs.svg" alt="" />
     <h1>What do you need to write, find or answer?</h1>
     <form class="home__ask" (submit)="$event.preventDefault(); submit()">
       <dk-icon name="search" [size]="22" />
@@ -47,7 +47,7 @@
             </a>
           }
         } @else {
-          <p class="dk-muted home__empty">Nothing new right now. TODD checks your RFP inbox every 10 minutes. <a class="home__link" routerLink="/opportunities/inbox">Inbox settings</a></p>
+          <p class="dk-muted home__empty">Nothing new right now. 16Ahead checks your RFP inbox every 10 minutes. <a class="home__link" routerLink="/opportunities/inbox">Inbox settings</a></p>
         }
       </section>
 
@@ -83,7 +83,7 @@
     </div>
     <!-- Served from public/video, which git ignores; deploy.sh builds and ships it locally. -->
     <section class="home__video" aria-label="See Docs in a minute">
-      <video controls playsinline preload="none" poster="video/docs-visitor-poster.jpg" aria-label="TODD Docs: a one-minute tour">
+      <video controls playsinline preload="none" poster="video/docs-visitor-poster.jpg" aria-label="16Ahead Docs: a one-minute tour">
         <source src="video/docs-visitor.mp4" type="video/mp4" />
       </video>
     </section>
@@ -91,7 +91,7 @@
       <a class="dk-btn" routerLink="/about">What is Docs? →</a>
       <a class="dk-btn" routerLink="/help">How to use it →</a>
     </nav>
-    <p class="tt-made-by home__made-by"><a href="https://todd.taliferro.tech" target="_blank" rel="noopener"><span class="tt-made-by__todd"><img src="assets/TODD-icon.png" alt="" /></span>Powered by <strong>TODD</strong></a><i aria-hidden="true"></i><a appAlsoFromUs></a></p>
+    <p class="tt-made-by home__made-by"><a href="https://app.16ahead.com" target="_blank" rel="noopener"><span class="tt-made-by__todd"><img class="brand-mark--light" src="assets/brand/products/png/light/01-16ahead-64.png" alt="" /><img class="brand-mark--dark" src="assets/brand/products/png/dark/01-16ahead-64.png" alt="" /></span>Powered by <strong>16Ahead</strong></a><i aria-hidden="true"></i><a appAlsoFromUs></a></p>
   }
 </div>
 @if (signedIn() === false) {

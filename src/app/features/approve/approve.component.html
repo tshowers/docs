@@ -1,6 +1,6 @@
 <div class="ap">
   <header class="ap__bar">
-    <span class="ap__brand"><img src="assets/todd-docs-icon.png" alt="" />TODD <b>Docs</b></span>
+    <span class="ap__brand"><img class="brand-mark--light" src="assets/brand/products/svg/light/07-docs.svg" alt="" /><img class="brand-mark--dark" src="assets/brand/products/svg/dark/07-docs.svg" alt="" />16Ahead <b>Docs</b></span>
     @if (data(); as d) {
       <span class="ap__shared dk-muted">Shared with you by <strong>{{ d.ownerName }}</strong>{{ d.company ? ' · ' + d.company : '' }}</span>
       <span class="ap__me">
@@ -117,7 +117,7 @@
             <button type="button" class="dk-btn dk-btn--bg ap__pdf" (click)="downloadPdf()" [disabled]="pdfBusy()"><dk-icon name="download" [size]="16" />{{ pdfBusy() ? 'Making the PDF…' : 'Download PDF' }}</button>
             @if (d.scoreCheck; as sc) {
               <section class="ap__card ap__score">
-                <h2><img src="assets/avatar-todd-sm.png" alt="" />TODD's score-check<span>About {{ sc.total }} / {{ sc.max }}</span></h2>
+                <h2><img src="assets/avatar-todd-sm.png" alt="" />16Ahead's score-check<span>About {{ sc.total }} / {{ sc.max }}</span></h2>
                 <p class="dk-muted">An estimate against {{ d.opportunity.agency || 'the buyer' }}'s scoring criteria. Run {{ shortDay(sc.ranAt) }}.</p>
                 <ul>
                   @for (c of sc.criteria; track c.name) { <li><span>{{ c.name }}</span><strong>{{ c.points }} / {{ c.max }}</strong></li> }

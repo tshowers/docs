@@ -10,7 +10,7 @@ import { pdfSafe, wrap } from './proposal-pdf';
 export async function buildPrepSheetPdf ( sheet: { title: string; when: string; who: string; questions: string[]; themes: string[]; numbers: string[] } ): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle( pdfSafe( `Prep sheet · ${ sheet.title }` ) );
-  pdf.setCreator( 'TODD Docs' );
+  pdf.setCreator( '16Ahead Docs' );
   const regular = await pdf.embedFont( StandardFonts.Helvetica );
   const bold = await pdf.embedFont( StandardFonts.HelveticaBold );
   const ink = rgb( 0.06, 0.07, 0.08 );

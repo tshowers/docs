@@ -90,7 +90,7 @@ export class ToddWorkingComponent {
         this.announce.set( describeTask( task, Date.now() ) );
       } else if ( !task && lastShownId ) {
         lastShownId = 0;
-        this.announce.set( 'TODD is done.' );
+        this.announce.set( '16Ahead is done.' );
       }
     }, { allowSignalWrites: true } );
     inject( DestroyRef ).onDestroy( () => this.timer && clearInterval( this.timer ) );

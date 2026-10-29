@@ -285,7 +285,7 @@ export class ApproveComponent implements OnInit, AfterViewChecked {
       this.data.set( { ...d, comments: [...d.comments, saved] } );
       this.composer.set( null );
     } catch ( error: any ) {
-      this.problem.set( error?.error?.message || 'TODD couldn\'t save that. Try again.' );
+      this.problem.set( error?.error?.message || '16Ahead couldn\'t save that. Try again.' );
     } finally {
       this.busy.set( '' );
     }
@@ -304,7 +304,7 @@ export class ApproveComponent implements OnInit, AfterViewChecked {
     try {
       this.data.set( await firstValueFrom( this.api.decide( this.token, decision, this.message.trim() ) ) );
     } catch ( error: any ) {
-      this.problem.set( error?.error?.message || 'TODD couldn\'t save that. Try again.' );
+      this.problem.set( error?.error?.message || '16Ahead couldn\'t save that. Try again.' );
     } finally {
       this.busy.set( '' );
     }

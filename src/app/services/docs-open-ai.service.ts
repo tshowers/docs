@@ -45,7 +45,7 @@ export class DocsOpenAiService {
       `${environment.backendURL}/document-helper`,
       { document, prompt, rfp, proposals },
       { headers: this.authHeaders() }
-    ).pipe( this.work.track( 'Writing the proposal from your past ones', { etaSeconds: 45, confirm: 'TODD\'s draft is ready' } ) );
+    ).pipe( this.work.track( 'Writing the proposal from your past ones', { etaSeconds: 45, confirm: '16Ahead\'s draft is ready' } ) );
   }
 
   documentEditorAssistant ( instructions: string, html: string, user: string ): Observable<any> {
@@ -53,6 +53,6 @@ export class DocsOpenAiService {
       `${environment.backendURL}/document-helper`,
       { instructions, html },
       { headers: this.authHeaders() }
-    ).pipe( this.work.track( 'Revising your document', { etaSeconds: 25, confirm: 'TODD\'s revision is ready. Review it before you apply it.' } ) );
+    ).pipe( this.work.track( 'Revising your document', { etaSeconds: 25, confirm: '16Ahead\'s revision is ready. Review it before you apply it.' } ) );
   }
 }

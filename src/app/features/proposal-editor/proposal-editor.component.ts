@@ -175,7 +175,7 @@ export class ProposalEditorComponent implements OnInit {
       void this.loadRequirements();
       void this.draftRemaining();
     } catch ( error: any ) {
-      this.errorMessage.set( error?.error?.message || 'TODD couldn\'t open this proposal. Try again in a moment.' );
+      this.errorMessage.set( error?.error?.message || '16Ahead couldn\'t open this proposal. Try again in a moment.' );
       this.phase.set( 'error' );
     }
   }
@@ -197,7 +197,7 @@ export class ProposalEditorComponent implements OnInit {
       void this.checkRequirements( true );
       void this.draftRemaining();
     } catch ( error: any ) {
-      this.errorMessage.set( error?.error?.message || 'TODD couldn\'t plan the proposal.' );
+      this.errorMessage.set( error?.error?.message || '16Ahead couldn\'t plan the proposal.' );
       this.phase.set( 'error' );
     }
   }
@@ -232,7 +232,7 @@ export class ProposalEditorComponent implements OnInit {
       this.draftingKey.set( '' );
       this.drafting = false;
       const failed = this.failedKeys().length;
-      work?.finish( failed ? `Drafted the proposal, except ${ failed } ${ failed === 1 ? 'section' : 'sections' } TODD couldn't write` : 'Drafted the proposal' );
+      work?.finish( failed ? `Drafted the proposal, except ${ failed } ${ failed === 1 ? 'section' : 'sections' } 16Ahead couldn't write` : 'Drafted the proposal' );
     }
   }
 
@@ -286,7 +286,7 @@ export class ProposalEditorComponent implements OnInit {
       this.scoreCheck.set( await firstValueFrom( this.service.runScoreCheck( this.opportunityId() ) ) );
       this.scoreLoaded = true;
     } catch ( error: any ) {
-      this.notifications.show( 'TODD couldn\'t score the draft', error?.error?.message || 'Please try again.', 'warning' );
+      this.notifications.show( '16Ahead couldn\'t score the draft', error?.error?.message || 'Please try again.', 'warning' );
     } finally {
       this.scoring.set( false );
     }
@@ -312,7 +312,7 @@ export class ProposalEditorComponent implements OnInit {
       setTimeout( () => this.scrollToFix( fixId ), 50 );
     } catch ( error: any ) {
       this.activeFix.set( '' );
-      this.notifications.show( 'TODD couldn\'t write that', error?.error?.message || 'Please try again.', 'warning' );
+      this.notifications.show( '16Ahead couldn\'t write that', error?.error?.message || 'Please try again.', 'warning' );
     } finally {
       this.fixBusy.set( false );
     }
@@ -337,7 +337,7 @@ export class ProposalEditorComponent implements OnInit {
         this.savedAt.set( new Date() );
         this.scheduleRecheck();
       }
-      if ( result.copyToEditor ) this.notifications.show( 'Copy it into the editor', 'You\'ve edited this proposal in the editor, so TODD changed its own draft only.', 'warning' );
+      if ( result.copyToEditor ) this.notifications.show( 'Copy it into the editor', 'You\'ve edited this proposal in the editor, so 16Ahead changed its own draft only.', 'warning' );
       if ( action === 'accept' ) void this.runScore();
     } catch ( error: any ) {
       this.notifications.show( 'Couldn\'t update the proposal', error?.error?.message || 'Please try again.', 'warning' );
@@ -429,7 +429,7 @@ export class ProposalEditorComponent implements OnInit {
       this.requirements.set( await firstValueFrom( this.service.writeRequirement( this.opportunityId(), r.id ) ) );
       if ( this.view() === 'draft' ) setTimeout( () => this.showSuggestion( r.id ), 50 );
     } catch ( error: any ) {
-      this.notifications.show( 'TODD couldn\'t write that', error?.error?.message || 'Please try again.', 'warning' );
+      this.notifications.show( '16Ahead couldn\'t write that', error?.error?.message || 'Please try again.', 'warning' );
     } finally {
       this.requirementBusy.set( '' );
     }
@@ -446,7 +446,7 @@ export class ProposalEditorComponent implements OnInit {
         this.savedAt.set( new Date() );
       }
       this.editingSuggestion.set( '' );
-      if ( result.copyToEditor ) this.notifications.show( 'Copy it into the editor', 'You\'ve edited this proposal in the editor, so TODD added the paragraph to its own draft only.', 'warning' );
+      if ( result.copyToEditor ) this.notifications.show( 'Copy it into the editor', 'You\'ve edited this proposal in the editor, so 16Ahead added the paragraph to its own draft only.', 'warning' );
     } catch ( error: any ) {
       this.notifications.show( 'Couldn\'t update the proposal', error?.error?.message || 'Please try again.', 'warning' );
     } finally {

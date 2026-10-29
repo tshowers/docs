@@ -18,7 +18,7 @@
       @if (isSignedIn === false) {
         <section class="pf__card" data-cy="profile-signed-out">
           <h2>Sign in to manage your profile</h2>
-          <p class="dk-muted">Your profile is shared across Docs, Maya, and TODD.</p>
+          <p class="dk-muted">Your profile is shared across Docs, the Marketing Assistant, and 16Ahead.</p>
           <button type="button" class="dk-btn dk-btn--primary" (click)="signIn()" data-cy="profile-sign-in">Sign in</button>
         </section>
       } @else if (!profile && !errorMessage) {
@@ -28,7 +28,7 @@
       @if (profile) {
         <form (ngSubmit)="save()" data-cy="profile-form">
           <section class="pf__card">
-            <h2>What TODD scores RFPs against <span class="dk-tag dk-tinted" data-tint="blue">Used for fit</span></h2>
+            <h2>What 16Ahead scores RFPs against <span class="dk-tag dk-tinted" data-tint="blue">Used for fit</span></h2>
             <div class="pf__two">
               <label class="pf__field"><span>Company name</span><input name="companyName" [(ngModel)]="profile.companyName" autocomplete="organization" /></label>
               <label class="pf__field"><span>Your role</span><input name="profession" [(ngModel)]="profile.profession" list="pf-roles" autocomplete="organization-title" /></label>
@@ -38,7 +38,7 @@
               <ng-container *ngTemplateOutlet="choice; context: { $implicit: field }"></ng-container>
             }
             <label class="pf__field">
-              <span>What TODD should know about your work <small class="dk-muted">Strengths, limits, what you won't bid on</small></span>
+              <span>What 16Ahead should know about your work <small class="dk-muted">Strengths, limits, what you won't bid on</small></span>
               <textarea name="jobDescriptionForTODD" rows="2" [(ngModel)]="profile.jobDescriptionForTODD"></textarea>
             </label>
             @for (field of choiceFields.slice(1); track field.key) {
@@ -65,7 +65,7 @@
 
         <section class="pf__card pf__account">
           <h2>Account</h2>
-          <p class="dk-muted">Products, email signature and billing live on <a [href]="toddProfileUrl" target="_blank" rel="noopener noreferrer">your TODD profile ↗</a>.</p>
+          <p class="dk-muted">Products, email signature and billing live on <a [href]="toddProfileUrl" target="_blank" rel="noopener noreferrer">your 16Ahead profile ↗</a>.</p>
           @if (!isConfirmingDelete) {
             <button type="button" class="dk-btn dk-btn--bg dk-btn--danger" (click)="isConfirmingDelete = true" data-cy="profile-delete">Delete account</button>
           } @else {

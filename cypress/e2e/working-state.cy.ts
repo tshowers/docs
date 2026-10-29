@@ -39,11 +39,11 @@ describe( 'TODD is working', () => {
 
     cy.visit( `/opportunities/${ OPP }/proposal`, { onBeforeLoad: ( win ) => win.localStorage.setItem( '__docsCypressAuth', 'true' ) } );
 
-    cy.get( '.tw' ).should( 'contain.text', 'TODD is planning the proposal' ).and( 'contain.text', 'about a minute' );
+    cy.get( '.tw' ).should( 'contain.text', '16Ahead is planning the proposal' ).and( 'contain.text', 'about a minute' );
     cy.wait( '@plan' );
-    cy.get( '.tw' ).should( 'contain.text', 'TODD is drafting 5. Pricing · 1 of 2' );
+    cy.get( '.tw' ).should( 'contain.text', '16Ahead is drafting 5. Pricing · 1 of 2' );
     cy.wait( '@pricing' );
-    cy.get( '.tw' ).should( 'contain.text', 'TODD is drafting 5.2 Terms · 2 of 2' );
+    cy.get( '.tw' ).should( 'contain.text', '16Ahead is drafting 5.2 Terms · 2 of 2' );
     cy.wait( '@terms' );
     cy.get( '.tw' ).should( 'not.exist' );
     cy.get( '.toast' ).should( 'contain.text', 'Drafted the proposal' );
@@ -72,7 +72,7 @@ describe( 'TODD is working', () => {
 
     // Once access is known the click goes through; the spinner stays while TODD works.
     cy.wait( '@account' );
-    cy.get( '.tw' ).should( 'contain.text', 'TODD is adding your answer to the draft' );
+    cy.get( '.tw' ).should( 'contain.text', '16Ahead is adding your answer to the draft' );
     cy.get( '.dk-pending' ).should( 'exist' );
     cy.wait( '@answer' );
     cy.get( '.dk-pending' ).should( 'not.exist' );

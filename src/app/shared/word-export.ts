@@ -98,7 +98,7 @@ export function paragraphsFromHtml ( html: string ): Paragraph[] {
 export async function buildDocx ( html: string, options: { title?: string; author?: string } = {} ): Promise<Blob> {
   const doc = new Document( {
     title: options.title || 'Document',
-    creator: options.author || 'TODD Docs',
+    creator: options.author || '16Ahead Docs',
     styles: { default: { document: { run: { font: 'Calibri', size: 22 } } } },
     numbering: {
       config: [{

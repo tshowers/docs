@@ -117,7 +117,7 @@ function icsText ( value: string ): string {
 
 /** Add to calendar: a one-event .ics. Timed events last 30 minutes; a bare date is an all-day event. */
 export function buildIcs ( event: { uid: string; title: string; date: string; where?: string; description?: string }, now = new Date() ): string {
-  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//TODD Docs//Key dates//EN', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', `UID:${ event.uid }@todd-docs`, `DTSTAMP:${ icsDate( now ) }`];
+  const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//16Ahead Docs//Key dates//EN', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', `UID:${ event.uid }@todd-docs`, `DTSTAMP:${ icsDate( now ) }`];
   if ( hasTime( event.date ) ) {
     const start = whenOf( event.date )!;
     lines.push( `DTSTART:${ icsDate( start ) }`, `DTEND:${ icsDate( new Date( start.getTime() + 30 * 60000 ) ) }` );

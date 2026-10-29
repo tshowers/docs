@@ -136,7 +136,7 @@ export class KnowledgeDetailComponent implements OnInit {
     const item = this.item();
     if ( !item?.id || !this.isBrowser ) return;
     const params = new URLSearchParams( { sourceType: 'response-flow', sourceId: item.id, title: item.question || '' } );
-    window.location.href = `https://todd.taliferro.tech/outreach/social?${ params.toString() }`;
+    window.location.href = `https://app.16ahead.com/outreach/social?${ params.toString() }`;
   }
 
   async copyCitation ( answer: KnowledgeAnswer ): Promise<void> {
@@ -152,7 +152,7 @@ export class KnowledgeDetailComponent implements OnInit {
     const item = this.item();
     this.moreOpen.set( false );
     if ( !item?.id || !this.isBrowser ) return;
-    if ( !window.confirm( `Delete “${ item.question }”? TODD will ask again the next time a proposal needs it.` ) ) return;
+    if ( !window.confirm( `Delete “${ item.question }”? 16Ahead will ask again the next time a proposal needs it.` ) ) return;
     const set = this.resultSet();
     const index = this.position();
     this.api.removeResponseFlow( item.id ).subscribe( {
@@ -165,7 +165,7 @@ export class KnowledgeDetailComponent implements OnInit {
       },
       error: ( error ) => {
         this.logger.error( 'Error deleting knowledge item:', error );
-        this.notifications.show( 'Delete failed', 'TODD could not delete this answer. Please try again.', 'warning' );
+        this.notifications.show( 'Delete failed', '16Ahead could not delete this answer. Please try again.', 'warning' );
       },
     } );
   }

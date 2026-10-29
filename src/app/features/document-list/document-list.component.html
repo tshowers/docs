@@ -66,7 +66,7 @@
           </div>
           @if (selectedOpportunity(); as o) {
             <div class="docs-inspector__read">
-              <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD's read · {{ o.fit.score }} match</div>
+              <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />16Ahead's read · {{ o.fit.score }} match</div>
               <ul>
                 @for (r of o.fit.reasons; track $index) { <li><dk-icon name="check" [size]="15" />{{ r }}</li> }
                 @for (g of o.fit.gaps; track $index) { <li class="is-gap"><dk-icon name="alert-circle" [size]="15" />{{ g }}</li> }
@@ -80,7 +80,7 @@
           } @else {
             @if (card.summary) {
               <div class="docs-inspector__read">
-                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />TODD's read</div>
+                <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />16Ahead's read</div>
                 <p>{{ card.summary }}</p>
               </div>
             }
@@ -91,7 +91,7 @@
         <section class="docs-inspector docs-inspector--empty">
           <dk-icon name="file" [size]="40" />
           <h2>Select a document</h2>
-          <p class="dk-muted">Its details, TODD's read and what you can do with it show here.</p>
+          <p class="dk-muted">Its details, 16Ahead's read and what you can do with it show here.</p>
         </section>
       }
     </div>
@@ -130,7 +130,7 @@
   } @else {
     <div class="dk-empty">
       <h2>No documents yet</h2>
-      <p>Add an RFP you received, a past proposal or a capability statement. TODD reads them so it can find and reuse them later.</p>
+      <p>Add an RFP you received, a past proposal or a capability statement. 16Ahead reads them so it can find and reuse them later.</p>
       <a class="dk-btn dk-btn--primary" routerLink="/upload" appWriteAction="upload a document"><dk-icon name="upload" />Add files</a>
     </div>
   }

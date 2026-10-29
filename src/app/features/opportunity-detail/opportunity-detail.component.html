@@ -62,7 +62,7 @@
             </ul>
           </section>
         } @else {
-          <p class="dk-muted od__nocriteria">The alert didn't list the scoring criteria. TODD will read them from the RFP when it drafts.</p>
+          <p class="dk-muted od__nocriteria">The alert didn't list the scoring criteria. 16Ahead will read them from the RFP when it drafts.</p>
         }
       </article>
 
@@ -114,9 +114,9 @@
                             <div class="od__ask">
                               <span>{{ m.question }}</span>
                               <div>
-                                <button type="button" class="dk-btn dk-btn--sm" (click)="answer(m, 'yes')" [disabled]="!!answering()" appWriteAction="answer TODD">Yes</button>
-                                <button type="button" class="dk-btn dk-btn--sm" (click)="answer(m, 'no')" [disabled]="!!answering()" appWriteAction="answer TODD">No</button>
-                                <button type="button" class="dk-btn dk-btn--sm od__quiet" (click)="answer(m, 'unsure')" [disabled]="!!answering()" appWriteAction="answer TODD">Not sure</button>
+                                <button type="button" class="dk-btn dk-btn--sm" (click)="answer(m, 'yes')" [disabled]="!!answering()" appWriteAction="answer 16Ahead">Yes</button>
+                                <button type="button" class="dk-btn dk-btn--sm" (click)="answer(m, 'no')" [disabled]="!!answering()" appWriteAction="answer 16Ahead">No</button>
+                                <button type="button" class="dk-btn dk-btn--sm od__quiet" (click)="answer(m, 'unsure')" [disabled]="!!answering()" appWriteAction="answer 16Ahead">Not sure</button>
                               </div>
                             </div>
                           }

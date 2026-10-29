@@ -85,7 +85,7 @@ describe( 'Compliance matrix', () => {
     cy.contains( '.rm__row', 'Must meet WCAG 2.1 AA' ).contains( 'button', 'Write this' ).click();
     cy.wait( '@write' );
     cy.contains( '#section-tech .pe__suggest', 'tested with [screen reader] every release' );
-    cy.contains( '.rm__row', 'Must meet WCAG 2.1 AA' ).should( 'contain', 'TODD wrote a draft' );
+    cy.contains( '.rm__row', 'Must meet WCAG 2.1 AA' ).should( 'contain', '16Ahead wrote a draft' );
 
     cy.contains( '.pe__suggest button', 'Edit' ).click();
     cy.get( '.pe__suggest textarea' ).clear().type( 'The portal will meet WCAG 2.1 AA, tested with NVDA every release.' );

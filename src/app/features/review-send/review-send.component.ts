@@ -275,7 +275,7 @@ export class ReviewSendComponent implements OnInit {
       this.body.set( asked?.body || defaultBody( opportunity, { name, company }, chips.map( ( c ) => c.name ) ) );
       this.phase.set( 'ready' );
     } catch ( error: any ) {
-      this.errorMessage.set( error?.error?.message || error?.message || 'TODD couldn\'t get the proposal ready to send.' );
+      this.errorMessage.set( error?.error?.message || error?.message || '16Ahead couldn\'t get the proposal ready to send.' );
       this.phase.set( 'error' );
     }
   }
@@ -294,7 +294,7 @@ export class ReviewSendComponent implements OnInit {
     try {
       this.scoreCheck.set( await firstValueFrom( this.service.runScoreCheck( o.id ) ) );
     } catch ( error: any ) {
-      this.notifications.show( 'TODD couldn\'t score the draft', error?.error?.message || 'Please try again.', 'warning' );
+      this.notifications.show( '16Ahead couldn\'t score the draft', error?.error?.message || 'Please try again.', 'warning' );
     } finally {
       this.scoring.set( false );
     }
@@ -380,7 +380,7 @@ export class ReviewSendComponent implements OnInit {
       if ( this.approval() ) this.approval.set( await firstValueFrom( this.approvals.get( o.id ) ).catch( () => this.approval() ) );
       this.notifications.show( 'Proposal sent', `Sent to ${ this.to().trim() }.`, 'success' );
     } catch ( error: any ) {
-      this.notifications.show( 'Not sent', error?.error?.message || error?.message || 'TODD couldn\'t send it. Nothing was sent; try again.', 'warning' );
+      this.notifications.show( 'Not sent', error?.error?.message || error?.message || '16Ahead couldn\'t send it. Nothing was sent; try again.', 'warning' );
     } finally {
       this.busy.set( '' );
     }
@@ -464,7 +464,7 @@ export class ReviewSendComponent implements OnInit {
       this.approval.set( saved );
       this.dialog.set( 'share' );
     } catch ( error: any ) {
-      this.dialogError.set( error?.error?.message || error?.message || 'TODD couldn\'t save that. Try again.' );
+      this.dialogError.set( error?.error?.message || error?.message || '16Ahead couldn\'t save that. Try again.' );
     } finally {
       this.dialogBusy.set( false );
     }
@@ -591,7 +591,7 @@ export class ReviewSendComponent implements OnInit {
       this.bypassReason = '';
       this.notifications.show( 'Send is unlocked', 'Your reason is in Activity.', 'success' );
     } catch ( error: any ) {
-      this.dialogError.set( error?.error?.message || 'TODD couldn\'t save that. Try again.' );
+      this.dialogError.set( error?.error?.message || '16Ahead couldn\'t save that. Try again.' );
     } finally {
       this.dialogBusy.set( false );
     }

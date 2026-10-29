@@ -76,7 +76,7 @@ export class GettingStartedService {
       case 'profile': return step.done ? 'View profile' : 'Complete profile';
       case 'firstAnswer': return step.done ? 'View answers' : 'Write an answer';
       case 'addDocument': return step.done ? 'View documents' : 'Upload a document';
-      default: return step.done ? 'View answers' : 'Let Maya use one';
+      default: return step.done ? 'View answers' : 'Let the Marketing Assistant use one';
     }
   }
 }

@@ -43,13 +43,13 @@
   } @else if (signedIn() && hasFilters) {
     <div class="dk-empty">
       <h2>No answers match</h2>
-      <p>Nothing in Knowledge mentions {{ query().trim() ? '“' + query().trim() + '”' : 'that' }} yet. When a proposal asks about it, TODD will ask you and save your answer here.</p>
+      <p>Nothing in Knowledge mentions {{ query().trim() ? '“' + query().trim() + '”' : 'that' }} yet. When a proposal asks about it, 16Ahead will ask you and save your answer here.</p>
       <button type="button" class="dk-btn dk-btn--bg" (click)="clearFilters()">Clear search</button>
     </div>
   } @else if (signedIn()) {
     <div class="dk-empty">
       <h2>No answers yet</h2>
-      <p>When TODD drafts a proposal and finds something it doesn't know, it asks you and saves your answer here. You can also add one yourself.</p>
+      <p>When 16Ahead drafts a proposal and finds something it doesn't know, it asks you and saves your answer here. You can also add one yourself.</p>
       <a class="dk-btn dk-btn--primary" routerLink="/knowledge/response-flow"><dk-icon name="plus" />Add an answer</a>
     </div>
   } @else {

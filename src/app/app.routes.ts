@@ -8,8 +8,9 @@ export const routes: Routes = [
     data: {
       pageTitle: 'Docs',
       meta: {
-        title: 'Docs — Proposals, RFPs, and your knowledge base | Taliferro Tech',
-        description: 'Docs and Knowledge keep proposals, RFPs, and your response library in one place so TODD can draft, track, and reuse them.',
+        title: 'Docs — Proposals, RFPs, and your knowledge base | 16Ahead',
+        description: 'Docs and Knowledge keep proposals, RFPs, and your response library in one place so 16Ahead can draft, track, and reuse them.',
+        keepSocial: true,
       },
     },
     loadComponent: () =>
@@ -29,7 +30,7 @@ export const routes: Routes = [
     path: 'ios',
     data: {
       meta: {
-        title: 'Docs for iOS | Taliferro Tech',
+        title: 'Docs for iOS | 16Ahead',
         description: 'Docs for iOS is coming soon: keep proposals, RFP responses, and your knowledge base within reach wherever the work takes you.',
       },
     },
@@ -42,8 +43,8 @@ export const routes: Routes = [
     data: {
       pageTitle: 'About',
       meta: {
-        title: 'About Docs | Taliferro Tech',
-        description: 'What Docs and Knowledge do: store proposals and RFPs, build a reusable answer library, and let TODD draft responses from your own work.',
+        title: 'About Docs | 16Ahead',
+        description: 'What Docs and Knowledge do: store proposals and RFPs, build a reusable answer library, and let 16Ahead draft responses from your own work.',
       },
     },
     loadComponent: () =>
@@ -54,8 +55,8 @@ export const routes: Routes = [
     data: {
       pageTitle: 'Help',
       meta: {
-        title: 'Docs Help | Taliferro Tech',
-        description: 'How to add documents and RFPs, build Knowledge answers, and use TODD to draft and send proposals in Docs.',
+        title: 'Docs Help | 16Ahead',
+        description: 'How to add documents and RFPs, build Knowledge answers, and use 16Ahead to draft and send proposals in Docs.',
       },
     },
     loadComponent: () =>
@@ -259,7 +260,7 @@ export const routes: Routes = [
     data: {
       product: 'docs',
       meta: {
-        title: 'Docs Pricing | Taliferro Tech',
+        title: 'Docs Pricing | 16Ahead',
         description: 'Browse Docs free on the web, and create with the app: plans for proposals, RFP responses, and a reusable knowledge base.',
       },
     },

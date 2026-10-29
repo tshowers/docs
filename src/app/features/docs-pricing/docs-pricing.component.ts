@@ -14,7 +14,7 @@ import { ClickSoundDirective } from '../../shared/directives/click-sound.directi
 
 const DEFAULT_PRICE = '$15/month';
 const DEFAULT_HIGHLIGHTS = [
-  'Upload and manage documents inside TODD.',
+  'Upload and manage documents inside 16Ahead.',
   'Keep up to 100 documents on the paid plan.',
   'Use documents across your workflows without losing context.'
 ];

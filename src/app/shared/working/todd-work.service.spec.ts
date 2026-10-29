@@ -20,8 +20,8 @@ describe( 'TODD is working', () => {
 
   it( 'reads as a sentence, with progress', () => {
     expect( describeTask( { id: 1, label: 'Drafting Pricing', done: 2, total: 7, etaSeconds: 60, route: '/', startedAt: start }, start ) )
-      .toBe( 'TODD is drafting Pricing · 3 of 7 · about a minute' );
-    expect( describeTask( { id: 1, label: 'Reading the RFP', route: '/', startedAt: start }, start ) ).toBe( 'TODD is reading the RFP' );
+      .toBe( '16Ahead is drafting Pricing · 3 of 7 · about a minute' );
+    expect( describeTask( { id: 1, label: 'Reading the RFP', route: '/', startedAt: start }, start ) ).toBe( '16Ahead is reading the RFP' );
   } );
 
   describe( 'tracking a call', () => {

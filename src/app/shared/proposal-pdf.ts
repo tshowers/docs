@@ -93,7 +93,7 @@ export async function buildProposalPdf ( html: string, options: { title?: string
   const pdf = await PDFDocument.create();
   pdf.setTitle( pdfSafe( options.title || 'Proposal' ) );
   if ( options.author ) pdf.setAuthor( pdfSafe( options.author ) );
-  pdf.setCreator( 'TODD Docs' );
+  pdf.setCreator( '16Ahead Docs' );
   const regular = await pdf.embedFont( StandardFonts.Helvetica );
   const bold = await pdf.embedFont( StandardFonts.HelveticaBold );
   const width = PAGE.width - PAGE.margin * 2;

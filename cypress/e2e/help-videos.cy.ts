@@ -8,7 +8,7 @@ describe( 'Help videos', () => {
   it( 'lists the ready videos and plays one in the player', () => {
     cy.get( '[data-cy="help-videos"] .help__video' ).should( 'have.length', 8 );
     cy.get( '[data-cy="help-videos"] .help__video' ).first().should( 'contain.text', 'Docs in a minute' ).and( 'contain.text', '0:45' );
-    cy.get( '[data-cy="help-videos"] .help__video' ).eq( 3 ).should( 'contain.text', 'Draft the proposal with TODD' ).and( 'contain.text', '1:20' );
+    cy.get( '[data-cy="help-videos"] .help__video' ).eq( 3 ).should( 'contain.text', 'Draft the proposal with 16Ahead' ).and( 'contain.text', '1:20' );
 
     cy.contains( '[data-cy="help-videos"] .help__video', 'Get approval before sending' ).click();
     cy.get( '.help__player video' ).should( 'have.attr', 'src', '/video/help-video-6.mp4' ).and( 'have.attr', 'controls' );

@@ -69,8 +69,8 @@
       }
 
       @case ('company') {
-        <h1 data-cy="get-started-question">Tell TODD about your company</h1>
-        <p class="gs__lede">TODD uses this to score RFPs for you. You can change it any time in Profile.</p>
+        <h1 data-cy="get-started-question">Tell 16Ahead about your company</h1>
+        <p class="gs__lede">16Ahead uses this to score RFPs for you. You can change it any time in Profile.</p>
         <label class="gs__label" for="gsCompany">Company name</label>
         <input #answerInput id="gsCompany" class="gs__input" name="companyName" autocomplete="organization"
                [(ngModel)]="draft.companyName" (ngModelChange)="persist()" (keydown.enter)="$event.preventDefault(); next()" data-cy="get-started-input" />
@@ -84,7 +84,7 @@
 
       @case ('signUp') {
         <h1 data-cy="get-started-question">Last step: create your account</h1>
-        <p class="gs__lede">“{{ draft.question }}” · your answer is ready. Sign in with TODD to save it.</p>
+        <p class="gs__lede">“{{ draft.question }}” · your answer is ready. Sign in with 16Ahead to save it.</p>
       }
     }
   </section>
@@ -96,7 +96,7 @@
     <span class="gs__spacer"></span>
     @if (step.key === 'signUp') {
       <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" [disabled]="isSigningIn" (click)="signIn()" data-cy="get-started-sign-in">
-        {{ isSigningIn ? 'Redirecting…' : 'Sign in with TODD' }}<dk-icon name="chevron-right" [size]="16" /></button>
+        {{ isSigningIn ? 'Redirecting…' : 'Sign in with 16Ahead' }}<dk-icon name="chevron-right" [size]="16" /></button>
     } @else {
       <button type="button" class="dk-btn dk-btn--primary dk-btn--lg" [disabled]="!canAdvance" (click)="next()" data-cy="get-started-next">
         {{ step.key === 'preview' ? 'Continue to sign up' : 'Continue' }}<dk-icon name="chevron-right" [size]="16" /></button>

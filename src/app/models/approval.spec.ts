@@ -25,8 +25,8 @@ describe( 'approval helpers', () => {
   } );
 
   it( 'writes the note the owner sends with a link, with no TODD sender involved', () => {
-    const link = approvalLink( 'tok123', 'https://docs.taliferro.tech' );
-    expect( link ).toBe( 'https://docs.taliferro.tech/approve/tok123' );
+    const link = approvalLink( 'tok123', 'https://docs.16ahead.com' );
+    expect( link ).toBe( 'https://docs.16ahead.com/approve/tok123' );
     const m = shareMessage( { ownerName: 'Dana Reyes', buyer: 'King County', dueAt: '', note: 'Check section 5.' }, { name: 'Jordan Park', email: '' }, link );
     expect( m.subject ).toBe( 'Can you approve our proposal to King County?' );
     expect( m.body ).toContain( 'Hi Jordan,' );

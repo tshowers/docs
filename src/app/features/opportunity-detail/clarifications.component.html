@@ -6,12 +6,12 @@
     </header>
     <div class="cl-box"><span class="dk-kicker">{{ asker() }} asked{{ c.source === 'inbox' ? ' · from your inbox' : '' }}</span><p>{{ c.question }}</p></div>
     @if (c.sentAt) {
-      <div class="cl-box"><span class="dk-kicker">You sent{{ c.draftedAt ? ' · drafted by TODD' : '' }}</span><p>{{ c.answer }}</p></div>
+      <div class="cl-box"><span class="dk-kicker">You sent{{ c.draftedAt ? ' · drafted by 16Ahead' : '' }}</span><p>{{ c.answer }}</p></div>
       <p class="dk-muted cl-fine">Sent from {{ c.sentFrom || 'your inbox' }}</p>
     } @else {
       <label class="cl-answer">
-        <span class="dk-kicker">{{ c.answer ? 'TODD\'s draft · edit before sending' : 'Your answer' }}</span>
-        <textarea rows="4" [ngModel]="answerOf(c)" (ngModelChange)="answers[c.id] = $event" [placeholder]="busy() === c.id ? 'Drafting…' : 'Write the answer, or ask TODD to draft it'"></textarea>
+        <span class="dk-kicker">{{ c.answer ? '16Ahead\'s draft · edit before sending' : 'Your answer' }}</span>
+        <textarea rows="4" [ngModel]="answerOf(c)" (ngModelChange)="answers[c.id] = $event" [placeholder]="busy() === c.id ? 'Drafting…' : 'Write the answer, or ask 16Ahead to draft it'"></textarea>
       </label>
       <div class="cl-actions">
         @if (sender) {

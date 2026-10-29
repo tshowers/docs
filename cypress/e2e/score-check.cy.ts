@@ -105,7 +105,7 @@ describe( 'Score-check', () => {
       me: { id: 'a1', name: 'Marcus Reed', email: '', state: 'reviewing', message: '', decidedAt: '' }, others: [], comments: [],
     } ) );
     cy.visit( '/approve/token-0123456789abcdefghijklmnop' );
-    cy.contains( '.ap__score h2', 'TODD\'s score-check' ).and( 'contain', 'About 82 / 100' );
+    cy.contains( '.ap__score h2', '16Ahead\'s score-check' ).and( 'contain', 'About 82 / 100' );
     cy.contains( '.ap__score', 'An estimate against Pierce County\'s scoring criteria. Run Oct 21.' );
     cy.contains( '.ap__score li', 'Technical approach' ).and( 'contain', '26 / 30' );
   } );

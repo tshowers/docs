@@ -29,7 +29,7 @@ describe( 'needsYou', () => {
     } );
     expect( items.map( ( i ) => i.text ) ).toEqual( [
       'Snohomish County proposal is due in 7 days',
-      'TODD has 2 questions for the King County draft',
+      '16Ahead has 2 questions for the King County draft',
       'Your Certificate of insurance 2026 expires Nov 30',
       '1 Knowledge answer is over a year old',
     ] );

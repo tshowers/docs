@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import { Observable, shareReplay, switchMap, of, tap } from 'rxjs';
+import { hostedLoginUrl } from '@taliferro/ui/platform/hosted-login.model';
 
 /**
  * Auth service for the standalone Docs app (Docs + Knowledge, both under
@@ -142,7 +143,7 @@ export class DocsAuthService {
     const state = crypto.randomUUID();
     sessionStorage.setItem( this.pendingLoginStorageKey, JSON.stringify( { state, returnUrl } ) );
     const client = this.isLocalDevelopmentHost() ? 'docs-web-local' : 'docs-web';
-    window.location.href = `https://todd.taliferro.tech/login?client=${client}&state=${state}`;
+    window.location.href = hostedLoginUrl(client, state);
   }
 
   private isLocalDevelopmentHost (): boolean {

@@ -70,13 +70,13 @@ export class HelpComponent implements OnInit {
 
   /** Short walkthroughs, one per step of a proposal's life. */
   readonly videos: HelpVideo[] = [
-    { n: 1, title: 'Docs in a minute', summary: 'Home, the four tabs, and what TODD does on each.', length: '0:45', ready: true },
-    { n: 2, title: 'Connect the inbox TODD watches for RFPs', summary: 'TODD finds RFPs in your email and scores each one.', length: '1:02', ready: true },
+    { n: 1, title: 'Docs in a minute', summary: 'Home, the four tabs, and what 16Ahead does on each.', length: '0:45', ready: true },
+    { n: 2, title: 'Connect the inbox 16Ahead watches for RFPs', summary: '16Ahead finds RFPs in your email and scores each one.', length: '1:02', ready: true },
     { n: 3, title: 'Is this RFP worth bidding?', summary: 'Fit, must-haves, scoring and key dates, then decide.', length: '1:16', ready: true },
-    { n: 4, title: 'Draft the proposal with TODD', summary: 'TODD plans it, drafts each section, and asks what it doesn’t know.', length: '1:20', ready: true },
+    { n: 4, title: 'Draft the proposal with 16Ahead', summary: '16Ahead plans it, drafts each section, and asks what it doesn’t know.', length: '1:20', ready: true },
     { n: 5, title: 'Review & send', summary: 'The checklist, the score check, and sending from your own email.', length: '1:07', ready: true },
     { n: 6, title: 'Get approval before sending', summary: 'A private link for each approver, no account needed.', length: '1:30', ready: true },
-    { n: 7, title: 'Documents and Knowledge', summary: 'Your files, and the answers TODD reuses.', length: '0:56', ready: true },
+    { n: 7, title: 'Documents and Knowledge', summary: 'Your files, and the answers 16Ahead reuses.', length: '0:56', ready: true },
     { n: 8, title: 'After you submit', summary: 'Replies, oral presentations, and how it went.', length: '0:45', ready: true },
   ];
 
@@ -133,11 +133,11 @@ export class HelpComponent implements OnInit {
     {
       number: '02',
       tint: 'cyan',
-      title: 'Connect the inbox TODD watches for RFPs',
-      copy: 'Connect the inbox where your RFP alerts arrive, from OpenGov, King County, Bonfire and others. Use a semi-dedicated inbox, like bids@yourcompany.com: TODD reads only the senders you list and never marks anything read.',
+      title: 'Connect the inbox 16Ahead watches for RFPs',
+      copy: 'Connect the inbox where your RFP alerts arrive, from OpenGov, King County, Bonfire and others. Use a semi-dedicated inbox, like bids@yourcompany.com: 16Ahead reads only the senders you list and never marks anything read.',
       details: [
         'On Opportunities, choose Connect an inbox. Sign in with Google, or use an app password.',
-        'Each RFP TODD finds shows up in Opportunities with a fit score and the reasons for it.',
+        'Each RFP 16Ahead finds shows up in Opportunities with a fit score and the reasons for it.',
         'No inbox? Choose Add an RFP and upload the file yourself.',
       ],
       route: '/opportunities/inbox',
@@ -148,11 +148,11 @@ export class HelpComponent implements OnInit {
       number: '03',
       tint: 'violet',
       title: 'Decide whether to bid',
-      copy: 'Saying no early saves you a long bid you can’t win. Open an opportunity to see its fit score, the must-haves TODD checked, what they’ll score you on and the key dates.',
+      copy: 'Saying no early saves you a long bid you can’t win. Open an opportunity to see its fit score, the must-haves 16Ahead checked, what they’ll score you on and the key dates.',
       details: [
-        'Answer the must-haves TODD couldn’t check from your profile.',
-        'Only have the alert email? Attach the RFP so TODD can read the whole thing.',
-        'Choose Draft proposal to bid, or Not for us. TODD keeps your reason with the opportunity.',
+        'Answer the must-haves 16Ahead couldn’t check from your profile.',
+        'Only have the alert email? Attach the RFP so 16Ahead can read the whole thing.',
+        'Choose Draft proposal to bid, or Not for us. 16Ahead keeps your reason with the opportunity.',
       ],
       route: '/opportunities',
       action: 'Open Opportunities',
@@ -161,10 +161,10 @@ export class HelpComponent implements OnInit {
     {
       number: '04',
       tint: 'green',
-      title: 'Draft the proposal with TODD',
-      copy: 'TODD plans the proposal from the RFP’s own sections and scoring, then drafts each section from your profile and Knowledge. The “TODD is working” note in the corner shows what it’s writing and about how long it will take.',
+      title: 'Draft the proposal with 16Ahead',
+      copy: '16Ahead plans the proposal from the RFP’s own sections and scoring, then drafts each section from your profile and Knowledge. The “16Ahead is working” note in the corner shows what it’s writing and about how long it will take.',
       details: [
-        'When TODD needs something it doesn’t know, it asks you. Each answer goes into the draft and into Knowledge, so you answer it once.',
+        'When 16Ahead needs something it doesn’t know, it asks you. Each answer goes into the draft and into Knowledge, so you answer it once.',
         'Requirements lists every requirement in the RFP and where the proposal answers it.',
         'Choose Edit in editor for your own changes.',
       ],
@@ -176,7 +176,7 @@ export class HelpComponent implements OnInit {
       number: '05',
       tint: 'yellow',
       title: 'Review & send',
-      copy: 'Review & send shows exactly what the buyer gets: the email TODD wrote, the proposal PDF and the attachments it found in Documents. The RFP checklist and a score check run before you send.',
+      copy: 'Review & send shows exactly what the buyer gets: the email 16Ahead wrote, the proposal PDF and the attachments it found in Documents. The RFP checklist and a score check run before you send.',
       details: [
         'Send proposal goes from your own email, as you, to the address the RFP asks for.',
         'Portal-only RFPs: Download package, upload it on the portal, then choose I’ve submitted it.',
@@ -189,9 +189,9 @@ export class HelpComponent implements OnInit {
       number: '06',
       tint: 'pink',
       title: 'Get approval before sending',
-      copy: 'Want a second look first? On Review & send, choose Get approval. Add anyone by name or email, including people outside your company. They don’t need a TODD account.',
+      copy: 'Want a second look first? On Review & send, choose Get approval. Add anyone by name or email, including people outside your company. They don’t need a 16Ahead account.',
       details: [
-        'Each person gets a private link. Copy it, or send it from your own email or Messages. TODD doesn’t email them.',
+        'Each person gets a private link. Copy it, or send it from your own email or Messages. 16Ahead doesn’t email them.',
         'They read the proposal, comment or suggest edits, and approve or request changes.',
         'Send unlocks once it’s approved. If you change anything after that, choose Ask for approval again; they see only what changed.',
         'In a hurry? Send without approval asks for a reason and keeps it with the proposal.',
@@ -208,7 +208,7 @@ export class HelpComponent implements OnInit {
       details: [
         'They replied: keep the buyer’s questions and your answers together.',
         'Oral presentation: Download prep sheet with likely questions, and Add to calendar.',
-        'How did it go? Record won, lost or cancelled, so TODD learns what you win.',
+        'How did it go? Record won, lost or cancelled, so 16Ahead learns what you win.',
       ],
       route: '/opportunities',
       action: 'Open Opportunities',
@@ -218,10 +218,10 @@ export class HelpComponent implements OnInit {
       number: '08',
       tint: 'cyan',
       title: 'Documents and Knowledge',
-      copy: 'Documents is your searchable library for every file TODD can use. Knowledge holds your saved answers about the company, which TODD reuses in every proposal.',
+      copy: 'Documents is your searchable library for every file 16Ahead can use. Knowledge holds your saved answers about the company, which 16Ahead reuses in every proposal.',
       details: [
         'Search Documents by what a file says, not just its name, and filter by RFPs, Proposals, Contracts, Pricing, Compliance or Media.',
-        'Open an answer in Knowledge to confirm it or edit it. TODD flags answers that are over a year old.',
+        'Open an answer in Knowledge to confirm it or edit it. 16Ahead flags answers that are over a year old.',
         'Answers you save from Find with Save to Knowledge land here marked “via Find”. Saving from Find is free; editing or deleting them needs Docs.',
       ],
       route: '/knowledge',
@@ -232,10 +232,10 @@ export class HelpComponent implements OnInit {
       number: '09',
       tint: 'yellow',
       title: 'Write something new',
-      copy: 'New starts any document: a cover letter, a capability statement, an edit of a Word file, or a blank page. Say what you’re writing and TODD picks the sources.',
+      copy: 'New starts any document: a cover letter, a capability statement, an edit of a Word file, or a blank page. Say what you’re writing and 16Ahead picks the sources.',
       details: [
-        'Ask TODD to fix grammar, shorten, expand or summarize.',
-        'Preview TODD’s changes before you accept them.',
+        'Ask the General Assistant to fix grammar, shorten, expand or summarize.',
+        'Preview 16Ahead’s changes before you accept them.',
         'Export to Word or PDF, or copy the text.',
       ],
       route: '/new',
@@ -245,24 +245,24 @@ export class HelpComponent implements OnInit {
 
   readonly faqs: HelpFaq[] = [
     {
-      question: 'How do I know TODD is working on something?',
-      answer: 'A button shows a spinner as soon as you press it, until its work is done. For anything that takes longer, a “TODD is working” note in the bottom-left corner says what TODD is doing, how far along it is and about how long is left, on any page. Click it to go back. When it finishes, you get a short message saying so.',
+      question: 'How do I know 16Ahead is working on something?',
+      answer: 'A button shows a spinner as soon as you press it, until its work is done. For anything that takes longer, a “16Ahead is working” note in the bottom-left corner says what 16Ahead is doing, how far along it is and about how long is left, on any page. Click it to go back. When it finishes, you get a short message saying so.',
     },
     {
       question: 'Can someone outside my company approve a proposal?',
       answer: 'Yes. On Review & send, choose Get approval and add them by email or just by name. They get a private link that opens only that proposal, with no account or sign-in. The link stops working when the RFP closes, or when you remove them.',
     },
     {
-      question: 'Who or what is TODD?',
-      answer: 'TODD is the AI assistant built into Docs. It improves your drafts, writes proposals from RFPs, and answers questions about the page you’re on. Docs is one of the workspaces TODD powers.',
+      question: 'Who or what is 16Ahead?',
+      answer: '16Ahead is the AI assistant built into Docs. It improves your drafts, writes proposals from RFPs, and answers questions about the page you’re on. Docs is one of the workspaces 16Ahead powers.',
     },
     {
       question: 'Where do my RFPs come from?',
-      answer: 'From an inbox you connect on Opportunities (RFP inbox). Use a semi-dedicated one, like bids@yourcompany.com, where your OpenGov, Bonfire, King County or city portal alerts arrive. Every 10 minutes TODD reads only the messages from the senders you list, never marks anything read and never moves or deletes mail, then scores each RFP against your profile. You can also add an RFP file yourself with Add an RFP.',
+      answer: 'From an inbox you connect on Opportunities (RFP inbox). Use a semi-dedicated one, like bids@yourcompany.com, where your OpenGov, Bonfire, King County or city portal alerts arrive. Every 10 minutes 16Ahead reads only the messages from the senders you list, never marks anything read and never moves or deletes mail, then scores each RFP against your profile. You can also add an RFP file yourself with Add an RFP.',
     },
     {
       question: 'Why a semi-dedicated inbox?',
-      answer: 'TODD finds RFPs by watching for alert emails. In an inbox that\'s mostly alerts, none get buried, and your personal mail stays out of the picture. If your alerts already arrive at a shared address like info@, you can connect that; Outreach and Docs can use the same inbox.',
+      answer: '16Ahead finds RFPs by watching for alert emails. In an inbox that\'s mostly alerts, none get buried, and your personal mail stays out of the picture. If your alerts already arrive at a shared address like info@, you can connect that; Outreach and Docs can use the same inbox.',
     },
     {
       question: 'Do I need an account to try Docs?',

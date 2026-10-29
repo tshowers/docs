@@ -62,7 +62,7 @@ describe( 'After submittal', () => {
     cy.get( '.cl-card.is-open textarea' ).should( 'have.value', 'Yes. Year-2 support of $24,000 includes hosting.' ).type( ' Backups and security updates too.' );
     cy.contains( '.cl-card button', 'Send from tyrone@taliferro.com' ).click();
     cy.wait( '@send' ).its( 'request.body' ).should( 'include', { mailboxId: 'm1', to: 'purchasing@everettwa.gov', answer: 'Yes. Year-2 support of $24,000 includes hosting. Backups and security updates too.' } );
-    cy.contains( '.cl-card', 'You sent · drafted by TODD' ).and( 'contain', 'Sent from tyrone@taliferro.com' );
+    cy.contains( '.cl-card', 'You sent · drafted by 16Ahead' ).and( 'contain', 'Sent from tyrone@taliferro.com' );
     cy.contains( '.as-history', 'Clarification' );
   } );
 

@@ -135,9 +135,9 @@ export function docsTabForUrl ( url: string ): DocsTabId | null {
   `],
   template: `
     <header class="ah">
-      <a class="ah-brand" routerLink="/" aria-label="TODD Docs home">
-        <img class="ah-logo" src="assets/todd-docs-icon.png" alt="" />
-        <span class="ah-name">TODD<small>Docs</small></span>
+      <a class="ah-brand" routerLink="/" aria-label="16Ahead Docs home">
+        <img class="ah-logo brand-mark--light" src="assets/brand/products/svg/light/07-docs.svg" alt="" /><img class="ah-logo brand-mark--dark" src="assets/brand/products/svg/dark/07-docs.svg" alt="" />
+        <span class="ah-name">16Ahead<small>Docs</small></span>
         <span class="dh-title">{{ pageTitle() }}</span>
       </a>
 

@@ -13,7 +13,7 @@ import { ClickSoundDirective } from '../../shared/directives/click-sound.directi
 
 const DEFAULT_PRICE = '$9/month';
 const DEFAULT_HIGHLIGHTS = [
-  'Save and reuse knowledge inside TODD.',
+  'Save and reuse knowledge inside 16Ahead.',
   'Keep building response flows and structured knowledge entries.',
   'Turn what your team knows into something people can use again.'
 ];

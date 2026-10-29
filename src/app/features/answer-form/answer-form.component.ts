@@ -236,7 +236,7 @@ export class AnswerFormComponent implements OnInit {
         : await firstValueFrom( this.api.createResponseFlow( payload ) );
       const savedId = String( saved?.id || this.id() );
       this.knowledge.loaded.set( false );
-      this.notifications.show( payload['status'] === 'draft' ? 'Saved as a draft' : 'Answer saved', payload['status'] === 'draft' ? 'TODD won\'t use it in proposals until it has a question and an answer.' : 'TODD can use it in your next proposal.', 'success' );
+      this.notifications.show( payload['status'] === 'draft' ? 'Saved as a draft' : 'Answer saved', payload['status'] === 'draft' ? '16Ahead won\'t use it in proposals until it has a question and an answer.' : '16Ahead can use it in your next proposal.', 'success' );
       void this.router.navigate( savedId ? ['/knowledge', savedId] : ['/knowledge'] );
     } catch ( error: any ) {
       this.notifications.show( 'Couldn\'t save it', error?.error?.message || 'Please try again.', 'warning' );

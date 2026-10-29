@@ -157,7 +157,7 @@ export function parseApprover ( raw: string ): { name: string; email: string } |
 }
 
 /** The link an approver opens. */
-export function approvalLink ( token: string, origin = typeof window !== 'undefined' ? window.location.origin : 'https://docs.taliferro.tech' ): string {
+export function approvalLink ( token: string, origin = typeof window !== 'undefined' ? window.location.origin : 'https://docs.16ahead.com' ): string {
   return `${ origin }/approve/${ encodeURIComponent( token ) }`;
 }
 
@@ -242,8 +242,8 @@ export function describeEvent ( e: ApprovalEvent ): { text: string; icon: string
     case 'editRejected': return { text: `You rejected ${ e.meta?.['name'] || 'an' }'s edit${ section }`, icon: 'x', tint: 'grey' };
     case 'replied': return { text: `You replied to ${ e.meta?.['name'] || 'a comment' }`, icon: 'message', tint: 'blue' };
     case 'bypassed': return { text: `You sent without approval: “${ e.meta?.['reason'] }”`, icon: 'alert-circle', tint: 'pink' };
-    case 'autoSendFailed': return { text: `TODD couldn't send it automatically: ${ e.meta?.['message'] || 'try Send yourself' }`, icon: 'alert-circle', tint: 'pink' };
-    case 'sent': return { text: e.meta?.['auto'] ? `TODD sent it to ${ e.meta?.['to'] }` : `Sent${ e.meta?.['to'] ? ` to ${ e.meta['to'] }` : '' }`, icon: 'send', tint: 'green' };
+    case 'autoSendFailed': return { text: `16Ahead couldn't send it automatically: ${ e.meta?.['message'] || 'try Send yourself' }`, icon: 'alert-circle', tint: 'pink' };
+    case 'sent': return { text: e.meta?.['auto'] ? `16Ahead sent it to ${ e.meta?.['to'] }` : `Sent${ e.meta?.['to'] ? ` to ${ e.meta['to'] }` : '' }`, icon: 'send', tint: 'green' };
     default: return { text: `${ who }: ${ e.type }`, icon: 'info', tint: 'grey' };
   }
 }

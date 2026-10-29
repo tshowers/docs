@@ -219,7 +219,7 @@ export class DocumentDetailComponent implements OnInit {
   sendToMaya (): void {
     const doc = this.doc();
     if ( !doc?.id || !this.canEdit() ) return;
-    this.save( { eligibleForSocial: true }, 'Sent to Maya', 'Maya can pick this for a post.' );
+    this.save( { eligibleForSocial: true }, 'Sent to the Marketing Assistant', 'The Marketing Assistant can pick this for a post.' );
   }
 
   startEdit (): void {
@@ -250,7 +250,7 @@ export class DocumentDetailComponent implements OnInit {
       error: ( error ) => {
         this.saving.set( false );
         this.logger.error( 'Error updating document:', error );
-        this.notifications.show( 'Update failed', 'TODD could not save your changes. Please try again.', 'warning' );
+        this.notifications.show( 'Update failed', '16Ahead could not save your changes. Please try again.', 'warning' );
       },
     } );
   }
@@ -278,7 +278,7 @@ export class DocumentDetailComponent implements OnInit {
       },
       error: ( error ) => {
         this.logger.error( 'Error deleting document:', error );
-        this.notifications.show( 'Delete failed', 'TODD could not delete this document. Please try again.', 'warning' );
+        this.notifications.show( 'Delete failed', '16Ahead could not delete this document. Please try again.', 'warning' );
       },
     } );
   }

@@ -124,7 +124,7 @@
                 <section class="rs__card dk-tinted" data-tint="green">
                   <h2>Approved version {{ a.version }}</h2>
                   <p>This is the exact version that goes out. If anything changes before you send, approvals restart.</p>
-                  @if (a.onApproved === 'autoSend') { <p>You chose to have TODD send it automatically. If it hasn't gone, check Activity and send it yourself.</p> }
+                  @if (a.onApproved === 'autoSend') { <p>You chose to have 16Ahead send it automatically. If it hasn't gone, check Activity and send it yourself.</p> }
                   <p class="rs__fine">Links close when you send. Approvers can still open a read-only copy of what was sent until {{ longWhen(a.linkExpiresAt) }}.</p>
                 </section>
               }
@@ -188,7 +188,7 @@
                 </section>
                 <section class="rs__card">
                   <h2 class="dk-kicker">Send without approval</h2>
-                  <p>Only you, as the person who asked, can. TODD asks for a reason and keeps it in Activity.</p>
+                  <p>Only you, as the person who asked, can. 16Ahead asks for a reason and keeps it in Activity.</p>
                 </section>
               }
             }
@@ -215,7 +215,7 @@
             @if (!approvalActive()) {
               <section class="rs__card">
                 <h2 class="dk-kicker">{{ portalOnly() ? 'Portal-only RFP' : 'When it’s portal-only' }}</h2>
-                <p>{{ portalOnly() ? 'This RFP takes submissions through its portal. Download the package and upload it there. When the portal’s confirmation email reaches your RFP inbox, TODD marks it submitted, or you can mark it yourself.' : 'Some RFPs only take uploads through a portal like Bonfire. For those, Download package bundles the proposal and attachments to upload yourself, and TODD marks it submitted when the portal’s confirmation email arrives.' }}</p>
+                <p>{{ portalOnly() ? 'This RFP takes submissions through its portal. Download the package and upload it there. When the portal’s confirmation email reaches your RFP inbox, 16Ahead marks it submitted, or you can mark it yourself.' : 'Some RFPs only take uploads through a portal like Bonfire. For those, Download package bundles the proposal and attachments to upload yourself, and 16Ahead marks it submitted when the portal’s confirmation email arrives.' }}</p>
               </section>
             }
           </aside>

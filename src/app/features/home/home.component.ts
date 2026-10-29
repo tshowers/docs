@@ -69,7 +69,7 @@ export function needsYou ( input: {
     const days = due ? daysUntil( due, now ) : null;
     const questions = input.openQuestions[o.id] || 0;
     if ( questions ) {
-      items.push( { key: `q-${ o.id }`, icon: 'help', tint: 'blue', text: `TODD has ${ questions } ${ questions === 1 ? 'question' : 'questions' } for the ${ o.agency || o.title } draft`, action: 'Answer', route: ['/opportunities', o.id, 'proposal'], urgency: days ?? 30 } );
+      items.push( { key: `q-${ o.id }`, icon: 'help', tint: 'blue', text: `16Ahead has ${ questions } ${ questions === 1 ? 'question' : 'questions' } for the ${ o.agency || o.title } draft`, action: 'Answer', route: ['/opportunities', o.id, 'proposal'], urgency: days ?? 30 } );
     } else if ( days !== null && days >= 0 && days <= 10 ) {
       items.push( { key: `due-${ o.id }`, icon: 'clock', tint: 'pink', text: `${ o.agency || o.title } proposal is due ${ days === 0 ? 'today' : `in ${ days } ${ days === 1 ? 'day' : 'days' }` }`, action: 'Finish', route: ['/opportunities', o.id, 'proposal'], urgency: days } );
     }
@@ -146,7 +146,7 @@ export class HomeComponent implements OnInit {
 
   /** Signed out (2a): copy kept from Help's "how Docs is different". */
   readonly pillars = [
-    { icon: 'file', tint: 'violet', title: 'From RFP to first draft', copy: 'TODD reads the RFPs that reach your inbox, scores each against your profile and drafts the proposal, so you start editing instead of starting from a blank page.' },
+    { icon: 'file', tint: 'violet', title: 'From RFP to first draft', copy: '16Ahead reads the RFPs that reach your inbox, scores each against your profile and drafts the proposal, so you start editing instead of starting from a blank page.' },
     { icon: 'book', tint: 'cyan', title: 'Knowledge stays when people leave', copy: 'Every answer your team gives while drafting is saved to Knowledge with its sources, ready for the next proposal and the next person.' },
     { icon: 'folder', tint: 'green', title: 'One home for every kind of file', copy: 'RFP source files, drafts, notes, PDFs, images, videos and music live in one searchable library instead of five different tools.' },
   ];

@@ -59,7 +59,7 @@
         @if (postedLabel()) {
           <span class="dk-tag dk-tinted doc-detail__posted" data-tint="green"><dk-icon name="check" />{{ postedLabel() }}</span>
         } @else if (d.eligibleForSocial) {
-          <span class="dk-tag dk-tinted doc-detail__posted" data-tint="pink"><dk-icon name="megaphone" />Maya can use this for a post</span>
+          <span class="dk-tag dk-tinted doc-detail__posted" data-tint="pink"><dk-icon name="megaphone" />The Marketing Assistant can use this for a post</span>
         }
 
         @if (editing()) {
@@ -68,7 +68,7 @@
             <label>Topic<input name="topic" [(ngModel)]="editForm.topic" [disabled]="saving()" /></label>
             <label>Description<textarea name="description" rows="3" [(ngModel)]="editForm.description" [disabled]="saving()"></textarea></label>
             @if (surface() === 'image' || surface() === 'video') {
-              <label class="doc-detail__check"><input type="checkbox" name="eligible" [(ngModel)]="editForm.eligibleForSocial" [disabled]="saving()" />Maya can pick this for a post</label>
+              <label class="doc-detail__check"><input type="checkbox" name="eligible" [(ngModel)]="editForm.eligibleForSocial" [disabled]="saving()" />The Marketing Assistant can pick this for a post</label>
             }
             <div class="doc-detail__actions">
               <button type="submit" class="dk-btn dk-btn--primary" [disabled]="saving()" appWriteAction="save this document">{{ saving() ? 'Saving…' : 'Save' }}</button>
@@ -83,7 +83,7 @@
             <button type="button" class="dk-btn doc-detail__iconable" (click)="startEdit()" appWriteAction="edit this document" aria-label="Edit"><dk-icon name="pen" /><span>Edit</span></button>
             <button type="button" class="dk-btn doc-detail__iconable" (click)="share()" aria-label="Share"><dk-icon name="send" /><span>Share</span></button>
             @if ((surface() === 'image' || surface() === 'video') && !d.eligibleForSocial) {
-              <button type="button" class="dk-btn doc-detail__iconable" (click)="sendToMaya()" appWriteAction="send this to Maya" aria-label="Post"><dk-icon name="megaphone" /><span>Post</span></button>
+              <button type="button" class="dk-btn doc-detail__iconable" (click)="sendToMaya()" appWriteAction="send this to the Marketing Assistant" aria-label="Post"><dk-icon name="megaphone" /><span>Post</span></button>
             }
             <div class="doc-detail__more">
               <button type="button" class="dk-btn dk-btn--icon" (click)="moreOpen.set(!moreOpen())" [attr.aria-expanded]="moreOpen()" aria-label="More actions"><dk-icon name="more" /></button>

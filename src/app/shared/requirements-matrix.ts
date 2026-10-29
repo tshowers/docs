@@ -40,7 +40,7 @@ export async function buildMatrixPdf ( rows: MatrixRow[], options: { title: stri
   const pdf = await PDFDocument.create();
   pdf.setTitle( pdfSafe( options.title ) );
   if ( options.author ) pdf.setAuthor( pdfSafe( options.author ) );
-  pdf.setCreator( 'TODD Docs' );
+  pdf.setCreator( '16Ahead Docs' );
   const regular = await pdf.embedFont( StandardFonts.Helvetica );
   const bold = await pdf.embedFont( StandardFonts.HelveticaBold );
   const ink = rgb( 0.06, 0.07, 0.08 );
@@ -104,7 +104,7 @@ export async function buildMatrixDocx ( rows: MatrixRow[], options: { title: str
     ],
   } );
   const doc = new Document( {
-    creator: options.author || 'TODD Docs',
+    creator: options.author || '16Ahead Docs',
     title: options.title,
     sections: [{
       properties: { page: { size: { orientation: PageOrientation.LANDSCAPE } } },

@@ -171,12 +171,12 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
       tone: 'neutral',
       icon: 'fa-solid fa-compass',
       title: 'Docs turns files into reusable knowledge',
-      message: 'TODD organizes your documents and captures reusable answers so the same question never gets answered from scratch twice. Sign in to see it work with your own data.',
-      whyItMatters: "A file drawer doesn't answer questions - Docs is what turns documents into knowledge TODD can actually reuse.",
+      message: '16Ahead organizes your documents and captures reusable answers so the same question never gets answered from scratch twice. Sign in to see it work with your own data.',
+      whyItMatters: "A file drawer doesn't answer questions - Docs is what turns documents into knowledge 16Ahead can actually reuse.",
       bullets: [
         'Upload a document, or create one directly in the editor.',
-        'TODD flags stale or duplicate documents before they cause confusion.',
-        'Ask this chat how Docs works, or what TODD actually does.',
+        '16Ahead flags stale or duplicate documents before they cause confusion.',
+        'Ask this chat how Docs works, or what 16Ahead actually does.',
       ],
     };
   }
@@ -208,7 +208,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
         tone: 'attention',
         icon: 'fa-solid fa-triangle-exclamation',
         title: 'Add your first document',
-        message: "TODD doesn't see any documents yet. Upload a file or create one in the editor to start building knowledge.",
+        message: "16Ahead doesn't see any documents yet. Upload a file or create one in the editor to start building knowledge.",
         whyItMatters: 'Knowledge only has something to organize once there are documents here.',
         bullets: [],
       };
@@ -234,7 +234,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
         tone: 'progress',
         icon: 'fa-solid fa-hourglass-half',
         title: `${responseReadyCount} document${responseReadyCount === 1 ? ' is' : 's are'} ready to become knowledge`,
-        message: 'These documents have content TODD can turn into reusable Q&A entries. Open Response Flow to capture it.',
+        message: 'These documents have content 16Ahead can turn into reusable Q&A entries. Open Response Flow to capture it.',
         whyItMatters: 'A document sitting unused is potential knowledge that no one can search for yet.',
         bullets: [],
         nextStage: 'Response Flow',
@@ -248,7 +248,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
       icon: knowledgeScore >= 70 ? 'fa-solid fa-circle-check' : 'fa-solid fa-hourglass-half',
       title: `Knowledge score: ${knowledgeScore}`,
       message: `${total.toLocaleString()} documents tracked. Review freshness, findability, and proposal reuse in the cockpit.`,
-      whyItMatters: 'A healthy knowledge score is what makes TODD’s answers trustworthy instead of guesswork.',
+      whyItMatters: 'A healthy knowledge score is what makes 16Ahead’s answers trustworthy instead of guesswork.',
       bullets: [],
     };
   }
@@ -267,9 +267,9 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
         stageLabel: 'Working',
         tone: 'progress',
         icon: 'fa-solid fa-hourglass-half',
-        title: 'TODD is drafting this document',
+        title: '16Ahead is drafting this document',
         message: 'Give it a moment to finish before making more changes.',
-        whyItMatters: 'Editing while TODD is actively writing can create a conflict in the draft.',
+        whyItMatters: 'Editing while 16Ahead is actively writing can create a conflict in the draft.',
         bullets: [],
       };
     }
@@ -280,7 +280,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
         stageLabel: 'Preview ready',
         tone: 'progress',
         icon: 'fa-solid fa-hourglass-half',
-        title: 'A TODD draft is ready to review',
+        title: 'A 16Ahead draft is ready to review',
         message: 'Review the suggested changes and apply them if they look right.',
         whyItMatters: 'Nothing is committed to the document until you apply the preview.',
         bullets: [],
@@ -294,7 +294,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
         tone: 'attention',
         icon: 'fa-solid fa-triangle-exclamation',
         title: !hasTitle ? 'Give this document a title' : 'Add some content',
-        message: 'Describe what you want written and TODD can draft it, or write directly in the editor.',
+        message: 'Describe what you want written and 16Ahead can draft it, or write directly in the editor.',
         whyItMatters: 'An empty or untitled document won’t show up meaningfully in search or the document list.',
         bullets: [],
       };
@@ -306,7 +306,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
       tone: 'ready',
       icon: 'fa-solid fa-circle-check',
       title: 'This document is ready to save',
-      message: 'Ask TODD to refine wording, or export when you’re happy with it.',
+      message: 'Ask the General Assistant to refine wording, or export when you’re happy with it.',
       whyItMatters: 'Saved documents become searchable and reusable across Docs and Knowledge.',
       bullets: [],
     };
@@ -351,7 +351,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
       icon: 'fa-solid fa-book',
       title: 'Browsing saved knowledge',
       message: 'Search or filter by category to narrow the list, or open any entry to see its evidence and recommendations.',
-      whyItMatters: 'This is TODD’s reusable memory - the more it holds, the less gets answered from scratch.',
+      whyItMatters: 'This is 16Ahead’s reusable memory - the more it holds, the less gets answered from scratch.',
       bullets: [],
       nextStage: 'Add a new entry via Response Flow',
     };
@@ -383,7 +383,7 @@ export class DocsAssistantLauncherComponent implements OnInit, OnDestroy {
         tone: 'progress',
         icon: 'fa-solid fa-hourglass-half',
         title: 'Add at least one answer',
-        message: 'Write the answer directly, or ask TODD to draft one from a document you’ve already uploaded.',
+        message: 'Write the answer directly, or ask 16Ahead to draft one from a document you’ve already uploaded.',
         whyItMatters: 'A question with no answer isn’t reusable knowledge yet.',
         bullets: [],
       };

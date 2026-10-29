@@ -39,20 +39,20 @@
 
     <aside class="de__side">
       <section class="de__todd">
-        <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />Ask TODD @if (selectionLabel) { <span class="de__sel">· {{ selectionLabel }}</span> }</div>
-        <textarea data-demo="document-instructions" rows="3" [(ngModel)]="instructionText" [disabled]="!canCrudDocuments || isToddWorking" [placeholder]="isEmpty ? 'Ask TODD to start it for you…' : 'Tell TODD what to change…'" aria-label="Instructions for TODD"></textarea>
+        <div class="dk-todd__head"><img src="assets/avatar-todd-sm.png" alt="" />General Assistant @if (selectionLabel) { <span class="de__sel">· {{ selectionLabel }}</span> }</div>
+        <textarea data-demo="document-instructions" rows="3" [(ngModel)]="instructionText" [disabled]="!canCrudDocuments || isToddWorking" [placeholder]="isEmpty ? 'Ask the General Assistant to start it for you…' : 'Tell 16Ahead what to change…'" aria-label="Instructions for 16Ahead"></textarea>
         <div class="de__presets" data-demo="document-presets" [class.is-quiet]="isEmpty">
           @for (preset of presets; track preset.id) {
             <button type="button" class="de__chip" [class.is-on]="lastPreset === preset.id && (isToddWorking || toddPreview)" [attr.data-cy]="'editor-action-' + preset.id" [disabled]="!canCrudDocuments || isToddWorking" (click)="runPreset(preset)">{{ preset.label }}</button>
           }
         </div>
-        <p class="de__hint">{{ isEmpty ? 'These work once there\'s text on the page.' : selection ? 'TODD works on the selection.' : 'TODD works on the whole document. Select a passage to work on just that.' }}</p>
-        <button class="dk-btn dk-btn--primary" data-cy="editor-action-preview" [disabled]="!canCrudDocuments || isToddWorking || !instructionText.trim()" (click)="runToddInstruction()">{{ isToddWorking ? 'Working…' : 'Ask TODD' }}</button>
+        <p class="de__hint">{{ isEmpty ? 'These work once there\'s text on the page.' : selection ? '16Ahead works on the selection.' : '16Ahead works on the whole document. Select a passage to work on just that.' }}</p>
+        <button class="dk-btn dk-btn--primary" data-cy="editor-action-preview" [disabled]="!canCrudDocuments || isToddWorking || !instructionText.trim()" (click)="runToddInstruction()">{{ isToddWorking ? 'Working…' : 'General Assistant' }}</button>
       </section>
 
       @if (toddPreview) {
         <section class="de__preview">
-          <header class="de__preview-head"><strong>TODD's revision</strong><span class="dk-tag dk-tinted" data-tint="yellow">Preview</span></header>
+          <header class="de__preview-head"><strong>16Ahead's revision</strong><span class="dk-tag dk-tinted" data-tint="yellow">Preview</span></header>
           @if (previewBefore) {
             <div><p class="de__label">Before</p><p class="de__before">{{ previewBefore }}</p></div>
           }

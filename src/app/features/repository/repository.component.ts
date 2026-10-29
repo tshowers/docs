@@ -172,7 +172,7 @@ export class RepositoryComponent implements OnInit, OnDestroy {
   readonly guestSteps = [
     { n: '01', tint: 'blue', title: 'Capture the question', copy: 'Write down the questions customers and RFPs ask most often so the answer does not have to be rebuilt every time.' },
     { n: '02', tint: 'green', title: 'Keep the proof attached', copy: 'Sourced answers, recommendations and resources stay together so the guidance stays trustworthy.' },
-    { n: '03', tint: 'violet', title: 'Reuse it in the next proposal', copy: 'TODD pulls the right answer into your next draft and asks you only for what it doesn\'t know.' },
+    { n: '03', tint: 'violet', title: 'Reuse it in the next proposal', copy: '16Ahead pulls the right answer into your next draft and asks you only for what it doesn\'t know.' },
   ];
 
   trackCard ( _index: number, card: KnowledgeCard ): string {

@@ -103,7 +103,7 @@ export class DocsAssistantCapabilitiesService {
         '<p><strong>Docs has a few different entry points.</strong></p>',
         '<p><strong>A.</strong> Start in the Knowledge cockpit at <strong>/docs</strong> if you want the full command deck.</p>',
         '<p><strong>B.</strong> Use <strong>/docs/editor</strong> to draft or edit a document directly.</p>',
-        '<p><strong>C.</strong> Use <strong>/docs/upload</strong> to upload a file for TODD to work from.</p>',
+        '<p><strong>C.</strong> Use <strong>/docs/upload</strong> to upload a file for 16Ahead to work from.</p>',
         '<p><strong>D.</strong> Use <strong>/docs/rfp-upload</strong> if the goal is to turn an RFP into a proposal.</p>'
       ].join( '' )
     },
@@ -201,8 +201,8 @@ export class DocsAssistantCapabilitiesService {
       ],
       message: [
         '<p><strong>This sounds like Docs cockpit work.</strong></p>',
-        '<p>Open <strong>/docs</strong> for knowledge health, freshness, findability, proposal reuse, draft pressure, and TODD knowledge-treatment activity.</p>',
-        '<p>Once you are there, the TODD popup has the live Docs page context and can help from that cockpit.</p>'
+        '<p>Open <strong>/docs</strong> for knowledge health, freshness, findability, proposal reuse, draft pressure, and 16Ahead knowledge-treatment activity.</p>',
+        '<p>Once you are there, the 16Ahead popup has the live Docs page context and can help from that cockpit.</p>'
       ].join( '' )
     },
     {
@@ -320,7 +320,7 @@ export class DocsAssistantCapabilitiesService {
       message: [
         '<p><strong>This sounds like Documents workspace work.</strong></p>',
         '<p>Open <strong>/docs/documents</strong> to browse, search, preview, organize, upload, edit, or remove stored files, and to jump into related document actions like <strong>/knowledge/response-flow</strong>, <strong>/docs/editor</strong>, <strong>/docs/proposal-history</strong>, <strong>/docs/rfp-upload</strong>, or <strong>/docs/rfp-list</strong>.</p>',
-        '<p>Once you are there, the TODD popup has the live Documents page context and can help with the current file or view.</p>'
+        '<p>Once you are there, the 16Ahead popup has the live Documents page context and can help with the current file or view.</p>'
       ].join( '' )
     },
     {
@@ -404,7 +404,7 @@ export class DocsAssistantCapabilitiesService {
       message: [
         '<p><strong>This sounds like Response Flow work.</strong></p>',
         '<p>Open <strong>/knowledge/response-flow</strong> to create or update reusable knowledge with questions, answers, sources, recommendations, resources, categories, and keywords.</p>',
-        '<p>Once you are there, the TODD popup has the live Response Flow context and can help with the current step.</p>'
+        '<p>Once you are there, the 16Ahead popup has the live Response Flow context and can help with the current step.</p>'
       ].join( '' )
     },
     {
@@ -575,8 +575,8 @@ export class DocsAssistantCapabilitiesService {
       ],
       message: [
         '<p><strong>This sounds like Knowledge Base work.</strong></p>',
-        '<p>Open <strong>/knowledge</strong> to browse, search, inspect, organize, edit, remove, cite, or reuse knowledge already stored in TODD.</p>',
-        '<p>If you need to create a brand new reusable answer, use <strong>/knowledge/response-flow</strong>. Once you are in the Knowledge Base, the TODD popup has the live repository context.</p>'
+        '<p>Open <strong>/knowledge</strong> to browse, search, inspect, organize, edit, remove, cite, or reuse knowledge already stored in 16Ahead.</p>',
+        '<p>If you need to create a brand new reusable answer, use <strong>/knowledge/response-flow</strong>. Once you are in the Knowledge Base, the 16Ahead popup has the live repository context.</p>'
       ].join( '' )
     },
   ];

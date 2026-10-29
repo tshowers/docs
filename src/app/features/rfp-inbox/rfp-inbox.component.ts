@@ -99,11 +99,11 @@ export class RfpInboxComponent implements OnInit {
     this.service.testInbox( this.payload() ).subscribe( {
       next: ( result ) => {
         this.busy.set( '' );
-        this.testResult.set( { ok: !!result?.success, message: result?.success ? 'TODD can reach this inbox.' : ( result?.message || 'TODD couldn\'t sign in.' ) } );
+        this.testResult.set( { ok: !!result?.success, message: result?.success ? '16Ahead can reach this inbox.' : ( result?.message || '16Ahead couldn\'t sign in.' ) } );
       },
       error: ( error ) => {
         this.busy.set( '' );
-        this.testResult.set( { ok: false, message: error?.error?.message || this.unreachable( error ) || 'TODD couldn\'t sign in. Check the address and app password.' } );
+        this.testResult.set( { ok: false, message: error?.error?.message || this.unreachable( error ) || '16Ahead couldn\'t sign in. Check the address and app password.' } );
       },
     } );
   }
@@ -111,7 +111,7 @@ export class RfpInboxComponent implements OnInit {
   /** A failure TODD's server caused (offline, missing route, crash) - not the user's address or password, so don't send them to recheck those. */
   private unreachable ( error: any ): string {
     const status = Number( error?.status ) || 0;
-    return status === 0 || status === 404 || status >= 500 ? 'TODD\'s inbox service isn\'t answering right now, so your details weren\'t checked. Please try again later.' : '';
+    return status === 0 || status === 404 || status >= 500 ? '16Ahead\'s inbox service isn\'t answering right now, so your details weren\'t checked. Please try again later.' : '';
   }
 
   connect (): void {
@@ -122,7 +122,7 @@ export class RfpInboxComponent implements OnInit {
         this.showForm.set( false );
         this.form = { emailAddress: '', provider: 'outlook', secret: '', imapHost: '', smtpHost: '' };
         this.testResult.set( null );
-        this.notifications.show( 'Inbox connected', 'TODD will check it for RFP alerts every 10 minutes.', 'success' );
+        this.notifications.show( 'Inbox connected', '16Ahead will check it for RFP alerts every 10 minutes.', 'success' );
         this.refresh();
       },
       error: ( error ) => {
@@ -157,7 +157,7 @@ export class RfpInboxComponent implements OnInit {
 
   removeSender ( inbox: DocsInbox, sender: string ): void {
     if ( inbox.rfpSenders.length <= 1 ) {
-      this.notifications.show( 'Keep at least one', 'TODD needs at least one sender to watch for.', 'warning' );
+      this.notifications.show( 'Keep at least one', '16Ahead needs at least one sender to watch for.', 'warning' );
       return;
     }
     this.saveSenders( inbox, inbox.rfpSenders.filter( ( s ) => s !== sender ) );
@@ -183,12 +183,12 @@ export class RfpInboxComponent implements OnInit {
       next: ( result ) => {
         this.busy.set( '' );
         const n = result?.newOpportunityCount || 0;
-        this.notifications.show( n ? `${ n } new ${ n === 1 ? 'RFP' : 'RFPs' }` : 'Nothing new', n ? 'They\'re on Opportunities, scored against your profile.' : `TODD read ${ result?.checkedCount || 0 } new alert ${ ( result?.checkedCount || 0 ) === 1 ? 'email' : 'emails' }.`, 'success' );
+        this.notifications.show( n ? `${ n } new ${ n === 1 ? 'RFP' : 'RFPs' }` : 'Nothing new', n ? 'They\'re on Opportunities, scored against your profile.' : `16Ahead read ${ result?.checkedCount || 0 } new alert ${ ( result?.checkedCount || 0 ) === 1 ? 'email' : 'emails' }.`, 'success' );
         this.refresh();
       },
       error: ( error ) => {
         this.busy.set( '' );
-        this.notifications.show( 'Couldn\'t check it', error?.error?.message || 'TODD couldn\'t reach this inbox. Reconnect it below.', 'warning' );
+        this.notifications.show( 'Couldn\'t check it', error?.error?.message || '16Ahead couldn\'t reach this inbox. Reconnect it below.', 'warning' );
         this.refresh();
       },
     } );

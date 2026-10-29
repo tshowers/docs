@@ -113,7 +113,7 @@ export class OpportunitiesComponent implements OnInit {
     const params = this.route.snapshot.queryParamMap;
     const status = params.get( 'inboxConnect' );
     if ( status ) {
-      if ( status === 'success' ) this.notifications.show( 'Inbox connected', 'TODD will check it for RFP alerts every 10 minutes.', 'success' );
+      if ( status === 'success' ) this.notifications.show( 'Inbox connected', '16Ahead will check it for RFP alerts every 10 minutes.', 'success' );
       else this.notifications.show( 'Inbox not connected', params.get( 'inboxMessage' ) || 'Google sign-in didn\'t finish. Try again.', 'warning' );
       void this.router.navigate( [], { relativeTo: this.route, queryParams: { inboxConnect: null, inboxMessage: null }, queryParamsHandling: 'merge', replaceUrl: true } );
       if ( status === 'success' ) void this.router.navigate( ['/opportunities/inbox'] );
@@ -130,7 +130,7 @@ export class OpportunitiesComponent implements OnInit {
       },
       error: () => {
         this.drafting.set( '' );
-        this.notifications.show( 'Couldn\'t start the proposal', 'TODD couldn\'t create the draft. Please try again.', 'warning' );
+        this.notifications.show( 'Couldn\'t start the proposal', '16Ahead couldn\'t create the draft. Please try again.', 'warning' );
       },
     } );
   }

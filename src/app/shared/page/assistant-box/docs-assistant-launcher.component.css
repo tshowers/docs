@@ -41,6 +41,10 @@
   height: 180px;
   z-index: 998;
   background: transparent;
+  /* The reveal reads the pointer from document mousemove
+     (isInBottomRightHotzone), so this box never needs a click: it must not
+     sit over a page's own links and buttons in the corner. */
+  pointer-events: none;
 }
 
 /* Floating launcher pill */

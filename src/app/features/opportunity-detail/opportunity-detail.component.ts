@@ -41,8 +41,8 @@ export function gateIntro ( summary: { total: number; notMet: number; unknown: n
 /**
  * One opportunity (design_handoff_todd_docs 1d, lifecycle 1a/1c): the
  * status line, what the agency wants, the facts that decide whether to bid,
- * TODD's fit, and what they'll score. On the right, the Bid / No-Bid gate:
- * TODD reads the RFP for its pass/fail must-haves before any drafting. Any
+ * 16Ahead's fit, and what they'll score. On the right, the Bid / No-Bid gate:
+ * 16Ahead reads the RFP for its pass/fail must-haves before any drafting. Any
  * not met turns Draft proposal into "We can't meet this"; Draft anyway asks
  * why and keeps the reason; Not for us takes one tap.
  */
@@ -71,7 +71,7 @@ export class OpportunityDetailComponent implements OnInit {
   readonly company = signal( '' );
   readonly notFound = signal( false );
   readonly busy = signal( '' );
-  /** This page asked TODD to read the RFP and is waiting on it. */
+  /** This page asked 16Ahead to read the RFP and is waiting on it. */
   readonly checking = signal( false );
   /** The must-have whose answer is being saved. */
   readonly answering = signal( '' );
@@ -257,7 +257,7 @@ export class OpportunityDetailComponent implements OnInit {
       },
       error: () => {
         this.busy.set( '' );
-        this.notifications.show( 'Couldn\'t start the proposal', 'TODD couldn\'t create the draft. Please try again.', 'warning' );
+        this.notifications.show( 'Couldn\'t start the proposal', '16Ahead couldn\'t create the draft. Please try again.', 'warning' );
       },
     } );
   }
@@ -297,7 +297,7 @@ export class OpportunityDetailComponent implements OnInit {
       next: ( updated ) => {
         this.busy.set( '' );
         this.opportunity.set( updated );
-        this.notifications.show( 'Set aside', 'TODD won\'t show this one again. You can bring it back from here.', 'success' );
+        this.notifications.show( 'Set aside', '16Ahead won\'t show this one again. You can bring it back from here.', 'success' );
         void this.router.navigate( ['/opportunities'] );
       },
       error: () => {
