@@ -14,6 +14,13 @@
       <input type="search" [value]="query()" (input)="onSearch($any($event.target).value)" placeholder="Search documents…" data-cy="docs-search" />
     </label>
     <a class="dk-btn dk-btn--lg" routerLink="/upload" appWriteAction="upload a document" data-cy="docs-add-files"><dk-icon name="upload" />Add files</a>
+    @if (signedIn() && hasDocuments()) {
+      @if (selecting()) {
+        <button type="button" class="dk-btn dk-btn--lg" (click)="stopSelecting()" [disabled]="deleting()" data-cy="docs-select-done">Done</button>
+      } @else {
+        <button type="button" class="dk-btn dk-btn--lg" (click)="startSelecting()" data-cy="docs-select"><dk-icon name="check" />Select</button>
+      }
+    }
   </div>
 
   <div class="docs-grid-filters">
@@ -31,7 +38,7 @@
     <div class="docs-grid" aria-busy="true">
       @for (n of [1, 2, 3, 4, 5, 6, 7, 8]; track n) { <div class="docs-card docs-card--skeleton"></div> }
     </div>
-  } @else if (cards().length && tablet()) {
+  } @else if (cards().length && tablet() && !selecting()) {
     <!-- iPad (1k): library + inspector -->
     <div class="docs-split" data-cy="docs-split">
       <ul class="docs-library" aria-label="Documents">
@@ -96,9 +103,14 @@
       }
     </div>
   } @else if (cards().length) {
-    <div class="docs-grid" data-cy="docs-grid">
+    <div class="docs-grid" [class.is-selecting]="selecting()" data-cy="docs-grid">
       @for (card of cards(); track card.id) {
-        <a class="docs-card" [href]="'/documents/' + card.id" (click)="$event.preventDefault(); open(card)" [attr.data-cy]="'docs-card-' + card.id">
+        <a class="docs-card" [href]="'/documents/' + card.id" [class.is-checked]="selecting() && checkedIds().has(card.id)"
+           [attr.role]="selecting() ? 'checkbox' : null" [attr.aria-checked]="selecting() ? checkedIds().has(card.id) : null"
+           (click)="$event.preventDefault(); selecting() ? toggle(card) : open(card)" [attr.data-cy]="'docs-card-' + card.id">
+          @if (selecting()) {
+            <span class="docs-card__check" aria-hidden="true">@if (checkedIds().has(card.id)) { <dk-icon name="check" [size]="16" /> }</span>
+          }
           @switch (card.surface) {
             @case ('image') {
               <div class="docs-card__media"><img [src]="card.doc.src" [alt]="card.doc.description || ''" loading="lazy" /></div>
@@ -121,6 +133,17 @@
         </a>
       }
     </div>
+    @if (selecting()) {
+      <div class="docs-selectbar" role="region" aria-label="Selected documents" data-cy="docs-selectbar">
+        <strong aria-live="polite">{{ checkedCount() }} selected</strong>
+        <button type="button" class="dk-btn dk-btn--bg" (click)="toggleAllShown()" [disabled]="deleting()" data-cy="docs-select-all">
+          {{ allShownChecked() ? 'Clear these ' + cards().length : 'Select all ' + cards().length + ' shown' }}</button>
+        <span class="docs-selectbar__spacer"></span>
+        <button type="button" class="dk-btn dk-btn--bg" (click)="stopSelecting()" [disabled]="deleting()">Cancel</button>
+        <button type="button" class="dk-btn docs-selectbar__delete" (click)="deleteChecked()" [disabled]="!checkedCount() || deleting()" appWriteAction="delete documents" data-cy="docs-delete-selected">
+          <dk-icon name="trash" />{{ deleting() ? 'Deleting…' : 'Delete ' + checkedCount() }}</button>
+      </div>
+    }
   } @else if (query().trim() || kind() !== 'all') {
     <div class="dk-empty">
       <h2>Nothing found</h2>

@@ -1,6 +1,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, from, map, mergeMap, of, toArray } from 'rxjs';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { Document } from '../../models/document.model';
@@ -11,6 +12,8 @@ import {
 import { PageAction } from '../../models/page-actions.models';
 import { DocsAuthService } from '../../services/docs-auth.service';
 import { DocsPageActionsService } from '../../services/docs-page-actions.service';
+import { DocService } from '../../services/doc.service';
+import { DocsNotificationService } from '../../services/docs-notification.service';
 import { DocumentsStoreService } from '../../services/documents-store.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { DkIconComponent } from '../../shared/dk-icon/dk-icon.component';
@@ -38,6 +41,8 @@ interface DocumentCard {
  * a 4-column grid of cards (image, video tile or tinted type plate on top).
  * A card opens the single-document view at /documents/:id, which steps
  * through this same result set. Replaces the carousel/desk/pins vault.
+ * Select (Ty, 2026-10-30) turns the cards into checkboxes for deleting
+ * many at once, e.g. clearing out pre-rebrand TODD material.
  */
 @Component( {
   selector: 'app-document-list',
@@ -56,6 +61,24 @@ export class DocumentListComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject( DestroyRef );
   private readonly isBrowser = isPlatformBrowser( inject( PLATFORM_ID ) );
   private readonly opportunities = inject( OpportunitiesService );
+  private readonly docService = inject( DocService );
+  private readonly notifications = inject( DocsNotificationService );
+
+  /** Select mode: cards toggle instead of opening, for deleting many at once. */
+  readonly selecting = signal( false );
+  readonly checkedIds = signal<ReadonlySet<string>>( new Set() );
+  readonly deleting = signal( false );
+  readonly hasDocuments = computed( () => this.store.documents().length > 0 );
+  /** Checked documents still in the store (a delete elsewhere drops them). */
+  readonly checkedCount = computed( () => {
+    const checked = this.checkedIds();
+    return this.store.documents().filter( ( doc ) => checked.has( String( doc.id ) ) ).length;
+  } );
+  readonly allShownChecked = computed( () => {
+    const checked = this.checkedIds();
+    const cards = this.cards();
+    return cards.length > 0 && cards.every( ( card ) => checked.has( card.id ) );
+  } );
 
   /**
    * iPad (1k): a library list and an inspector side by side, instead of
@@ -165,6 +188,72 @@ export class DocumentListComponent implements OnInit, OnDestroy {
       scrollY: this.isBrowser ? window.scrollY : 0,
     } );
     void this.router.navigate( ['/documents', card.id] );
+  }
+
+  startSelecting (): void {
+    this.selecting.set( true );
+    this.checkedIds.set( new Set() );
+  }
+
+  stopSelecting (): void {
+    if ( this.deleting() ) return;
+    this.selecting.set( false );
+    this.checkedIds.set( new Set() );
+  }
+
+  toggle ( card: DocumentCard ): void {
+    const next = new Set( this.checkedIds() );
+    if ( next.has( card.id ) ) next.delete( card.id );
+    else next.add( card.id );
+    this.checkedIds.set( next );
+  }
+
+  /** Checks every card the current search and filter show, or clears them when all are. */
+  toggleAllShown (): void {
+    const next = new Set( this.checkedIds() );
+    const ids = this.cards().map( ( card ) => card.id );
+    if ( this.allShownChecked() ) ids.forEach( ( id ) => next.delete( id ) );
+    else ids.forEach( ( id ) => next.add( id ) );
+    this.checkedIds.set( next );
+  }
+
+  /**
+   * Deletes every checked document, four at a time, through the same call
+   * as the single document's Delete. Ones that fail stay checked and are
+   * named in the notice, so trying again only retries those.
+   */
+  deleteChecked (): void {
+    if ( !this.isBrowser || this.deleting() ) return;
+    const checked = this.checkedIds();
+    const docs = this.store.documents().filter( ( doc ) => checked.has( String( doc.id ) ) );
+    if ( !docs.length ) return;
+    const what = docs.length === 1 ? `“${ documentTitle( docs[0] ) }”` : `these ${ docs.length } documents`;
+    if ( !window.confirm( `Delete ${ what }? This can't be undone.` ) ) return;
+    this.deleting.set( true );
+    from( docs ).pipe(
+      mergeMap( ( doc ) => this.docService.removeDocument( String( doc.id ), this.store.tenantId() ).pipe(
+        map( () => ( { doc, ok: true } ) ),
+        catchError( () => of( { doc, ok: false } ) ),
+      ), 4 ),
+      toArray(),
+      takeUntilDestroyed( this.destroyRef ),
+    ).subscribe( ( results ) => {
+      const failed = results.filter( ( result ) => !result.ok ).map( ( result ) => String( result.doc.id ) );
+      results.filter( ( result ) => result.ok ).forEach( ( result ) => this.store.remove( String( result.doc.id ) ) );
+      const deleted = results.length - failed.length;
+      this.deleting.set( false );
+      this.checkedIds.set( new Set( failed ) );
+      if ( !failed.length ) {
+        this.selecting.set( false );
+        this.notifications.show( 'Documents deleted', `${ deleted } ${ deleted === 1 ? 'document was' : 'documents were' } removed.`, 'success' );
+      } else {
+        this.notifications.show(
+          'Some weren’t deleted',
+          `${ deleted } deleted. ${ failed.length } couldn’t be and are still checked; try again.`,
+          'warning',
+        );
+      }
+    } );
   }
 
   /** On iPad a row opens in the inspector; elsewhere it opens the document page. */
