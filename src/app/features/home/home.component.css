@@ -4,7 +4,7 @@
 
 .home__banner { max-width: 1120px; margin-left: auto; margin-right: auto; }
 .home__hero { max-width: 880px; margin: 0 auto; padding: 40px 0 8px; text-align: center; }
-.home__icon { width: 72px; height: 72px; border-radius: 20px; margin-bottom: 18px; box-shadow: var(--shadow); }
+.home__icon { width: 72px; height: 72px; margin-bottom: 18px; object-fit: contain; }
 .home__hero h1 { max-width: 680px; margin: 0 auto 26px !important; font-size: 48px; font-weight: 700; line-height: 1.04; letter-spacing: -0.04em; }
 
 .home__ask {
